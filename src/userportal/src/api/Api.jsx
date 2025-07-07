@@ -1,6 +1,6 @@
 import RESTHelper from './RESTHelper';
 
-const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://localhost:8000';
+const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://127.0.0.1:8000';
 
 const getUrl = (url) => {
     return `${APIUrl}${url}`;
