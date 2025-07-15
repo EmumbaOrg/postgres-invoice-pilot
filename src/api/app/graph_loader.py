@@ -27,11 +27,11 @@ async def main():
     print("Downloading CSV files from Azure Blob Storage...")
     await download_csvs(account_name, local_data_dir)
 
-    connection_uri = get_connection_string(server, database, username)
-    conn = await asyncpg.connect(dsn=connection_uri)
-    
     # Connect to PostgreSQL using asyncpg
     print("Connecting to the PostgreSQL database with asyncpg...")
+    connection_uri = get_connection_string(server, database, username)
+    conn = await asyncpg.connect(dsn=connection_uri)
+
     try:
         await create_and_load_graph_data(conn, local_data_dir)
     finally:
