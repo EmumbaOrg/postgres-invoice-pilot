@@ -2,41 +2,9 @@
 
 In this step, you will configure your Python development environment in Visual Studio Code. At the end of this step, you should have:
 
-- [X] Created a Python virtual environment
 - [X] Installed the required Python libraries from `requirements.txt`
 - [X] Create and populated a `.env` file in the **Woodgrove API** project.
 - [X] Connected to your database using pgAdmin
-
-## Create a Python virtual environment
-
-Virtual environments in Python are essential for maintaining a clean and organized development space, allowing individual projects to have their own set of dependencies, isolated from others. This prevents conflicts between different projects and ensures consistency in your development workflow. By using virtual environments, you can manage package versions easily, avoid dependency clashes, and keep your projects running smoothly. It's a best practice that keeps your coding environment stable and dependable, making your development process more efficient and less prone to issues.
-
-1. Return to Visual Studio Code, where you have the **PostgreSQL Solution Accelerator: Build your own AI Copilot** project open.
-
-2. In Visual Studio Code, open a new terminal window and change directories to the `src/api` folder of the repo, and create a virtual environment named `.venv` by running the following command at the terminal prompt:
-
-    ```bash title=""
-    cd src/api
-    python -m venv .venv 
-    ```
-
-    The above command will create a `.venv` folder under the `api` folder, which will provide a dedicated Python environment for the `api` project that can be used throughout this lab.
-
-3. Activate the virtual environment.
-
-    !!! note "Select the appropriate command for your OS and shell from the table."
-
-        | Platform | Shell | Command to activate virtual environment |
-        | -------- | ----- | --------------------------------------- |
-        | POSIX | bash/zsh | `source .venv/bin/activate` |
-        | | fish | `source .venv/bin/activate.fish` |
-        | | csh/tcsh | `source .venv/bin/activate.csh` |
-        | | pwsh | `.venv/bin/Activate.ps1` |
-        | Windows | cmd.exe | `.venv\Scripts\activate.bat` |
-        | | PowerShell | `.venv\Scripts\Activate.ps1` |
-        | macOS | bash/zsh | `source .venv/bin/activate` |
-
-4. Execute the command at the terminal prompt to activate your virtual environment.
 
 ## Install required Python libraries
 
@@ -46,7 +14,7 @@ The `requirements.txt` file in the `src\api` folder contains the set of Python l
 
     Open the `src\api\requirements.txt` file in the repo to review the required libraries and the versions that are being used.
 
-1. From the integrated terminal window in VS Code, run the following command to install the required libraries in your virtual environment:
+1. From the integrated terminal window in VS Code, run the following command to install the required libraries in your dev-container:
 
     ```bash title=""
     pip install -r requirements.txt
