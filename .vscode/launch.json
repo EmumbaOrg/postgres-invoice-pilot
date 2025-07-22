@@ -27,7 +27,7 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src/api"
             },
-            "python": "python3",
+            "python": "${command:python.interpreterPath}",
         },
         {
             "name": "API Debugger (macOS)",
@@ -44,7 +44,7 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src/api"
             },
-            "python": "python3",
+            "python": "${command:python.interpreterPath}",
         },
         {
             "name": "Graph Loader",
@@ -56,7 +56,7 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src/api"
             },
-            "python": "python3",
+            "python": "${command:python.interpreterPath}",
             "justMyCode": false
         }
     ]
