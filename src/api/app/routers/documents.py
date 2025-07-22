@@ -31,7 +31,7 @@ async def get(sort_by: Literal["blob_name", "created"] = Query(default="blob_nam
         if sort_by == "blob_name":
             blobs.sort(key=lambda x: (x["blob_name"], x["created"]))
         elif sort_by == "created":
-            blobs.sort(key=lambda x: x["created"])
+            blobs.sort(key=lambda x: x["created"], reverse=True)
    
         return blobs
    
