@@ -2,6 +2,7 @@ from app.lifespan_manager import get_db_connection_pool
 from app.models import Deliverable, DeliverableEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, Form
 from datetime import datetime
+from app.routers.activity_logs import get_activity_log_service
 from pydantic import parse_obj_as
 
 # Initialize the router
@@ -60,7 +61,8 @@ async def create_deliverable(
     amount: float = Form(None),
     status: str = Form(...),
     due_date: str = Form(None),
-    pool = Depends(get_db_connection_pool)
+    pool = Depends(get_db_connection_pool),
+    activity_log_service = Depends(get_activity_log_service)
 ):
     parsed_due_date =  datetime.strptime(due_date, '%Y-%m-%d').date()
 
@@ -72,13 +74,22 @@ async def create_deliverable(
         ''', milestone_id, description, amount, status, parsed_due_date)
         row = await conn.fetchrow('SELECT * FROM deliverables WHERE id = $1;', deliverable_id)
         deliverable = parse_obj_as(Deliverable, dict(row))
+    
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="created",
+        resource_type="Deliverable",
+        resource_name=deliverable.description
+    )
+
     return deliverable
 
 @router.put("/{deliverable_id}", response_model=Deliverable)
 async def update_deliverable(
     deliverable_id: int,
     deliverable: DeliverableEdit,
-    pool = Depends(get_db_connection_pool)
+    pool = Depends(get_db_connection_pool),
+    activity_log_service = Depends(get_activity_log_service)
 ):
     async with pool.acquire() as conn:
         # Save the updated deliverable
@@ -90,10 +101,18 @@ async def update_deliverable(
 
         row = await conn.fetchrow('SELECT * FROM deliverables WHERE id = $1;', deliverable_id)
         deliverable = parse_obj_as(Deliverable, dict(row))
+
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="updated",
+        resource_type="Deliverable",
+        resource_name=deliverable.description
+    )
+
     return deliverable
 
 @router.delete("/{deliverable_id}")
-async def delete_deliverable(deliverable_id: int, pool = Depends(get_db_connection_pool)):
+async def delete_deliverable(deliverable_id: int, pool = Depends(get_db_connection_pool), activity_log_service = Depends(get_activity_log_service)):
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM deliverables WHERE id = $1;', deliverable_id)
         if row is None:
@@ -101,4 +120,12 @@ async def delete_deliverable(deliverable_id: int, pool = Depends(get_db_connecti
         deliverable = parse_obj_as(Deliverable, dict(row))
 
         await conn.execute('DELETE FROM deliverables WHERE id = $1;', deliverable_id)
+  
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="deleted",
+        resource_type="Deliverable",
+        resource_name=deliverable.description
+    )
+
     return deliverable

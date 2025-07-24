@@ -2,6 +2,7 @@ from app.lifespan_manager import get_db_connection_pool, get_storage_service, ge
 from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from datetime import datetime
+from app.routers.activity_logs import get_activity_log_service
 from pydantic import parse_obj_as
 import json
 import traceback
@@ -64,7 +65,8 @@ async def analyze_sow(
     vendor_id: int = Form(...),
     pool = Depends(get_db_connection_pool),
     storage_service = Depends(get_storage_service),
-    doc_intelligence_service = Depends(get_azure_doc_intelligence_service)
+    doc_intelligence_service = Depends(get_azure_doc_intelligence_service),
+    activity_service = Depends(get_activity_log_service)
 ):
     """Analyze a SOW document and create a new SOW in the database."""
     try:
@@ -140,6 +142,13 @@ async def analyze_sow(
                     INSERT INTO sow_chunks (sow_id, heading, content, page_number) VALUES ($1, $2, $3, $4);
                 ''', sow.id, chunk.heading, chunk.content, chunk.page_number)
 
+        # Log the activity
+        await activity_service.log_activity(
+            action="created",
+            resource_type="sow",
+            resource_name=str(sow.number)
+        )
+
         return SowAnalyzeResult(hasError=False, error=None, message="SOW analyzed successfully.", sow=sow)
 
     except Exception as e:
@@ -149,7 +158,7 @@ async def analyze_sow(
 
 
 @router.put("/{sow_id}", response_model=Sow)
-async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_connection_pool)):
+async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service)):
     """Updates a SOW in the database."""
     async with pool.acquire() as conn:
         sow = await get_by_id(sow_id, pool)
@@ -173,10 +182,18 @@ async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_con
         if row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {sow_id} was not found.')
         updated_sow = parse_obj_as(Sow, dict(row))
+    
+    # Log the activity
+    await activity_service.log_activity(
+        action="updated",
+        resource_type="sow",
+        resource_name=str(updated_sow.number)
+    )
+    
     return updated_sow
 
 @router.delete("/{id}", response_model=Sow)
-async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service)):
+async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_service = Depends(get_activity_log_service)):
     """Deletes a SOW from the database."""   
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
@@ -189,6 +206,14 @@ async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_se
 
         # Delete the SOW
         await conn.execute('DELETE FROM sows WHERE id = $1;', id)
+    
+    # Log the activity
+    await activity_service.log_activity(
+        action="deleted",
+        resource_type="sow",
+        resource_name=str(sow.number)
+    )
+    
     return sow
 
 
