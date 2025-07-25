@@ -80,12 +80,16 @@ async def create(
         row = await conn.fetchrow('SELECT * FROM invoice_line_items WHERE id = $1;', id)
         milestone = parse_obj_as(InvoiceLineItem, dict(row))
    
+        # Fetch invoice number from invoices table
+        invoice_row = await conn.fetchrow('SELECT number FROM invoices WHERE id = $1;', invoice_id)
+        invoice_number = invoice_row['number']
+
     # Log the activity
     await activity_log_service.log_activity(
         action="created",
         resource_type="Invoice line item",
         resource_name=str(invoice_id),
-        custom_message=f"Invoice line item created for invoice '{invoice_id}'"
+        custom_message=f"Invoice line item '{description}' created for invoice '{invoice_number}'"
     )
 
     return milestone
@@ -101,12 +105,16 @@ async def update(id: int, item: InvoiceLineItemEdit, pool = Depends(get_db_conne
         row = await conn.fetchrow('SELECT * FROM invoice_line_items WHERE id = $1;', id)
         milestone = parse_obj_as(InvoiceLineItem, dict(row))
 
+        # Fetch invoice number from invoices table
+        invoice_row = await conn.fetchrow('SELECT number FROM invoices WHERE id = $1;', item.invoice_id)
+        invoice_number = invoice_row['number']
+
     # Log the activity
     await activity_log_service.log_activity(
         action="updated",
         resource_type="invoice line item",
         resource_name=str(item.invoice_id),
-        custom_message=f"Invoice line item updated for invoice '{item.invoice_id}'"
+        custom_message=f"Invoice line item '{item.description}' updated for invoice '{invoice_number}'"
     )
 
     return milestone
@@ -120,11 +128,16 @@ async def delete(id: int, pool = Depends(get_db_connection_pool), activity_log_s
         await conn.execute('DELETE FROM invoice_line_items WHERE id = $1;', id)
         item = parse_obj_as(InvoiceLineItem, dict(row))
 
+        # Fetch invoice number from invoices table
+        invoice_row = await conn.fetchrow('SELECT number FROM invoices WHERE id = $1;', item.invoice_id)
+        invoice_number = invoice_row['number']
+
     # Log the activity
     await activity_log_service.log_activity(
         action="deleted",
         resource_type="Invoice line item",
         resource_name= str(item.invoice_id),
+        custom_message=f"Invoice line item '{item.description}' deleted for invoice '{invoice_number}'"
         
     )
 

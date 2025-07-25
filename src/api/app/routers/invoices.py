@@ -156,7 +156,7 @@ async def analyze_invoice(
         await activity_log_service.log_activity(
             action="created" if invoice_id is None else "updated",
             resource_type="Invoice",
-            resource_name=invoice.document,
+            resource_name=invoice_number,
         )
         
         return InvoiceAnalyzeResult(hasError=False, error=None, message="Invoice analyzed successfully.", invoice=invoice)
