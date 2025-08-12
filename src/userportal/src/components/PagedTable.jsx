@@ -1,7 +1,8 @@
+import { Spinner } from 'react-bootstrap';
 import React, { useEffect, useState, useRef } from 'react';
 import Table from './Table';
 
-const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination = true, reload }) => {
+const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination = true, reload, noDataMesssage, noDataDescription }) => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(0);
@@ -85,7 +86,10 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
         </div>
       )}
       {loading ? (
-        <p>Loading...</p>
+          <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+          <Spinner animation="border" role="status" variant="primary">
+          </Spinner>
+        </div>
       ) : error ? (
         <p>Error: {error}</p>
       ) : (
@@ -95,17 +99,19 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
             data={data}
             loading={loading}
             onSortChange={handleSortChange}
+            noDataMesssage={noDataMesssage}
+            noDataDescription={noDataDescription}
           />
           {showPagination ? (
-            <div className="d-flex justify-content-between">
-              <button className="btn btn-primary" onClick={handlePrevious} disabled={skip === 0}>
-                Previous
-              </button>
+            <div className="d-flex justify-content-end align-items-center">
               <div className="pagination-info">
                 Page {pageIndex} of {pageCount}
               </div>
-              <button className="btn btn-primary" onClick={handleNext} disabled={skip + limit >= total}>
-                Next
+              <button className="btn border-0" onClick={handlePrevious} disabled={skip === 0}>
+              <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <button className="btn border-0" onClick={handleNext} disabled={skip + limit >= total}>
+              <i class="fa-solid fa-chevron-right"></i>
               </button>
             </div>
           ) : null}

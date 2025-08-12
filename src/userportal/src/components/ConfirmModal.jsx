@@ -1,15 +1,15 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 
-const ConfirmModal = ({ show, handleClose, handleConfirm, message }) => {
+const ConfirmModal = ({ show, handleClose, handleConfirm, message, title='Confirm' }) => {
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Confirm</Modal.Title>
+        <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>{message}</Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>
+        <Button variant="outline-primary" onClick={handleClose}>
           Cancel
         </Button>
         <Button variant="danger" onClick={handleConfirm}>

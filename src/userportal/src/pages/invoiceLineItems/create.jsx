@@ -51,8 +51,8 @@ const InvoiceLineItemCreate = () => {
   };
 
   return (
-    <div>
-      <h1>Create Invoice Line Item</h1>
+    <div className='p-3'>
+      <h3>Create Invoice Line Item</h3>
       <hr/>
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
