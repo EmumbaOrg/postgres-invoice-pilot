@@ -1,6 +1,7 @@
 from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service
 from app.models import Invoice, InvoiceEdit, ListResponse, InvoiceAnalyzeResult
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from app.routers.activity_logs import get_activity_log_service
 from datetime import datetime
 from pydantic import parse_obj_as
 import json
@@ -63,7 +64,8 @@ async def analyze_invoice(
     vendor_id: int = Form(...),
     pool = Depends(get_db_connection_pool),
     storage_service = Depends(get_storage_service),
-    doc_intelligence_service = Depends(get_azure_doc_intelligence_service)
+    doc_intelligence_service = Depends(get_azure_doc_intelligence_service),
+    activity_log_service = Depends(get_activity_log_service)
     ):
     """Analyze an Invoice document and create a new invoice in the database."""
     try:
@@ -150,6 +152,13 @@ async def analyze_invoice(
                     INSERT INTO invoice_line_items (invoice_id, description, amount, status, due_date) VALUES ($1, $2, $3, $4, $5);
                 ''', invoice.id, line_item.description, line_item.amount, line_item.status, line_item.due_date)
 
+        # Log the activity
+        await activity_log_service.log_activity(
+            action="created" if invoice_id is None else "updated",
+            resource_type="Invoice",
+            resource_name=invoice_number,
+        )
+        
         return InvoiceAnalyzeResult(hasError=False, error=None, message="Invoice analyzed successfully.", invoice=invoice)
 
     except Exception as e:
@@ -158,7 +167,7 @@ async def analyze_invoice(
 
 
 @router.put("/{invoice_id}", response_model=Invoice)
-async def update_invoice(invoice_id: int, invoice_update: InvoiceEdit, pool = Depends(get_db_connection_pool)):
+async def update_invoice(invoice_id: int, invoice_update: InvoiceEdit, pool = Depends(get_db_connection_pool), activity_log_service = Depends(get_activity_log_service)):
     """Updates an invoice in the database."""
 
     invoice = await get_by_id(invoice_id, pool)
@@ -181,10 +190,18 @@ async def update_invoice(invoice_id: int, invoice_update: InvoiceEdit, pool = De
         ''', invoice.number, invoice.amount, invoice.invoice_date, invoice.payment_status, invoice.vendor_id, invoice.sow_id, invoice_id)
         
         updated_invoice = parse_obj_as(Invoice, dict(row))
+    
+    # log activity
+    await activity_log_service.log_activity(
+        action="updated",
+        resource_type="Invoice",
+        resource_name=str(updated_invoice.number)
+    )
+    
     return updated_invoice
 
 @router.delete("/{invoice_id}", response_model=Invoice)
-async def delete_invoice(invoice_id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service)):
+async def delete_invoice(invoice_id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_log_service = Depends(get_activity_log_service)):
     """Deletes an invoice from the database."""
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', invoice_id)
@@ -197,4 +214,13 @@ async def delete_invoice(invoice_id: int, pool = Depends(get_db_connection_pool)
 
         # Delete invoice from the database
         await conn.execute('DELETE FROM invoices WHERE id = $1;', invoice_id)
+
+
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="deleted",
+        resource_type="Invoice",
+        resource_name=str(invoice.number)
+    )
+
     return invoice

@@ -15,7 +15,8 @@ from app.routers import (
     statuses,
     validation,
     vendors,
-    webhooks
+    webhooks,
+    activity_logs
 )
 
 # Load environment variables from the .env file
@@ -52,6 +53,7 @@ app.include_router(statuses.router)
 app.include_router(validation.router)
 app.include_router(vendors.router)
 app.include_router(webhooks.router)
+app.include_router(activity_logs.router)
 
 @app.get("/")
 async def get():
