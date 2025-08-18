@@ -2,7 +2,7 @@
 
 /* Input field styling */
 .chat-input {
-    border: 1px solid #9dc2ff !important;
+    border: 1px solid #d2d2d6 !important;
     box-shadow: none !important;
   }
   .chat-input::placeholder {
@@ -28,9 +28,9 @@
   
   /* Send button styling */
   .send-button {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -46,7 +46,7 @@
   /* Suggestion pills styling */
   .suggestion-pill {
     border-radius: 25px !important;
-    padding: 12px 24px !important;
+    padding: 4px 8px !important;
     border: 2px solid #9DC2FF !important;
     color: #2979ff !important;
     background-color: white !important;

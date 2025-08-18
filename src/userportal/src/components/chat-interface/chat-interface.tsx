@@ -32,21 +32,21 @@ export default function ChatInterface() {
   ];
 
   return (
-    <Container fluid className=" py-3">
+    <Container fluid className=" py-3 pb-5">
       <Container>
         <Row className="mb-3">
           <Col>
-            <h1 className="display-4 fw-bold text-dark mb-2 text-shadow">
+            <h1 className="display-5 fw-bold text-dark text-shadow">
               Search using agentic AI
             </h1>
-            <p className="text-secondary fs-5">
+            <p className="text-secondary fs-6 mb-1">
               Some description text goes here
             </p>
           </Col>
         </Row>
 
         {/* Input Field */}
-        <div className="bg-white container p-4 rounded shadow-sm row">
+        <div className="bg-white container py-3 px-4 rounded shadow-sm row justify-content-center">
           <Row className="mb-3">
             <Col>
               <Form.Control
@@ -59,7 +59,7 @@ export default function ChatInterface() {
                     handleSubmit(e);
                   }
                 }}
-                className="chat-input py-3 px-4 fs-5"
+                className="chat-input py-3 px-4 fs-6"
               />
             </Col>
           </Row>
@@ -71,9 +71,9 @@ export default function ChatInterface() {
                 className="chat-history-btn p-0 text-decoration-none"
                 onClick={handleChatHistoryClick}
               >
-                <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex gap-2 align-items-center">
                   <i className="fa-brands fa-rocketchat"></i>
-                  <span className="fs-5 fw-bold">Chat History</span>
+                  <span className="fs-6 fw-bold">Chat History</span>
                 </div>
               </Button>
             </Col>

@@ -52,8 +52,8 @@ export default function RecentActivity() {
   };
 
   return (
-    <Container fluid className="p-4 section-wrapper">
-      <Row className="gap-5">
+    <Container fluid className="py-5 section-wrapper">
+      <Row className="gap-5 justify-content-center">
         {/* Left Section - Recent Activity */}
         <Col lg={6}>
           <div className="mb-4">
