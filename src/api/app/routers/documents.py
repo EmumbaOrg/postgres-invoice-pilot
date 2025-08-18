@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response, Query
+from typing import Literal
 from app.lifespan_manager import get_storage_service, get_config_service
 from azure.core.exceptions import ResourceNotFoundError
 import asyncpg
@@ -14,10 +15,10 @@ router = APIRouter(
 )
 
 @router.get("/", response_model = list[dict])
-async def get(storage_service = Depends(get_storage_service), app_config = Depends(get_config_service)):
+async def get(sort_by: Literal["blob_name", "created"] = Query(default="blob_name", description="Field to sort by"),storage_service = Depends(get_storage_service), app_config = Depends(get_config_service)):
     """
-    Retrieves a list of all documents in the specified blob container.
-    Blobs are returned in an alphabetically sorted list by filename.
+        Retrieves a list of all documents in the specified blob container.
+        Blobs are returned sorted by the specified field (blob_name by default).
     """
     try:
         container_client = await storage_service.get_container_client(app_config.get_document_container_name())
@@ -30,9 +31,14 @@ async def get(storage_service = Depends(get_storage_service), app_config = Depen
                 "created": blob_properties.creation_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "size": blob_properties.size
             })
-        # Sort documents by filename
-        blobs.sort(key=lambda x: (x["blob_name"], x["created"]))
+        # Sort documents by the specified field
+        if sort_by == "blob_name":
+            blobs.sort(key=lambda x: (x["blob_name"], x["created"]))
+        elif sort_by == "created":
+            blobs.sort(key=lambda x: x["created"], reverse=True)
+   
         return blobs
+   
     except ResourceNotFoundError as e:
         raise HTTPException(status_code=404, detail=e.reason)
     except Exception as e:
