@@ -67,8 +67,8 @@ const Shell = ({onLogout}) => {
       <div className="container-fluid px-3">
         {/* Logo and Brand */}
         <a className="navbar-brand d-flex align-items-center me-4" href="#">
-          <img src="/logo.png" alt="Woodgrove Bank" className="me-2" style={{ height: "32px", width: "auto" }} />
-          <span className="fw-semibold text-dark fs-5">Woodgrove Bank</span>
+          <img src="/logo.png" alt="Portfolio Pilot" className="me-2" style={{ height: "32px", width: "auto" }} />
+          <span className="fw-semibold text-dark fs-5">Portfolio Pilot</span>
         </a>
 
         {/* Mobile Toggle Button */}
