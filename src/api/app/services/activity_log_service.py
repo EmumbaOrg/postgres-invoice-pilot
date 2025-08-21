@@ -37,7 +37,7 @@ class ActivityLogService:
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(
                 """
-                SELECT message
+                SELECT message, timestamp
                 FROM activity_logs 
                 ORDER BY timestamp DESC
                 LIMIT $1
@@ -45,4 +45,10 @@ class ActivityLogService:
                 limit
             )
             
-            return [row['message'] for row in rows]
+            return [
+                    {
+                        "message": row['message'],
+                        "timestamp": row['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')
+                    }
+                    for row in rows
+                ]
