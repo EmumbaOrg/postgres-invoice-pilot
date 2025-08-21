@@ -1,6 +1,6 @@
 from app.lifespan_manager import get_db_connection_pool
-from app.models import Vendor, ListResponse
-from fastapi import APIRouter, Depends, HTTPException
+from app.models import Vendor, VendorEdit, ListResponse
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import parse_obj_as
 
 # Initialize the router
@@ -32,6 +32,39 @@ async def list_vendors(skip: int = 0, limit: int = 10, sortby: str = None, pool 
         limit = total
 
     return ListResponse[Vendor](data = vendors, total = len(vendors), skip = 0, limit = len(vendors))
+
+
+from app.models import VendorEdit
+
+
+@router.post('/', response_model=Vendor, status_code=status.HTTP_201_CREATED)
+async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool)):
+    """Adds a new vendor to the database."""
+    
+    async with pool.acquire() as conn:   
+        existing = await conn.fetchrow('SELECT id FROM vendors WHERE contact_email = $1;', vendor.contact_email)
+        if existing:
+            raise HTTPException(status_code=409, detail='A vendor with this email already exists.')
+      
+        row = await conn.fetchrow(
+            '''INSERT INTO vendors (name, type, contact_name, contact_phone, contact_email, website, address)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING *;''',
+            vendor.name,
+            vendor.type,
+            vendor.contact_name,
+            vendor.contact_phone,
+            vendor.contact_email,
+            vendor.website,
+            vendor.address
+        )
+
+        if row is None:
+            raise HTTPException(status_code=500, detail='Failed to add vendor.')
+        
+        return parse_obj_as(Vendor, dict(row))
+
+
 
 @router.get('/{id:int}', response_model = Vendor)
 async def get_by_id(id: int, pool = Depends(get_db_connection_pool)):
