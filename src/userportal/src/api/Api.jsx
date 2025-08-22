@@ -330,6 +330,28 @@ const Api = {
         },
         get: async (id) => {
             return await RESTHelper.get(getUrl(`/vendors/${id}`));
+        },
+        create: async (data) => {
+           const formData = new FormData();
+
+            for(var key in data){
+                formData.append(key, data[key]);
+            }
+        
+            try {
+                const response = await fetch(getUrl(`/vendors`), {
+                    method: 'POST',
+                    body: formData,
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error creating vendor:', error);
+                throw error;
+            }
         }
     }
 };

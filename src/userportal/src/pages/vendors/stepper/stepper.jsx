@@ -1,23 +1,27 @@
 import { useState } from "react";
 import { Breadcrumb, Button } from "react-bootstrap";
+
+import api from "../../../api/Api"
 import "./stepper.css";
+
 
 const NavigationStepper = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [vendorId, setVendorId] = useState<string | null>(null);
-  const [sowFile, setSowFile] = useState<File | null>(null);
-  const [invoiceFiles, setInvoiceFiles] = useState<File[]>([]);
+  const [vendorId, setVendorId] = useState(null);
+  const [sowFile, setSowFile] = useState(null);
+  const [invoiceFiles, setInvoiceFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    vendorName: "",
+    name: "",
     type: "",
-    contactPerson: "",
-    phoneNumber: "",
-    emailAddress: "",
+    contact_name: "",
+    contact_phone: "",
+    contact_email: "",
     website: "",
-    location: "",
+    address: "",
   });
 
+  console.log("formData", formData)
   const steps = [
     {
       title: "Vendor Details",
@@ -36,7 +40,7 @@ const NavigationStepper = () => {
     },
   ];
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -50,6 +54,7 @@ const NavigationStepper = () => {
       switch (currentStep) {
         case 0:
           // Step 1: Save vendor details
+          console.log("Saving vendor details for step 1", currentStep);
           const vendorResponse = await saveVendorDetails();
           if (vendorResponse?.id) {
             setVendorId(vendorResponse.id);
@@ -86,23 +91,14 @@ const NavigationStepper = () => {
     }
   };
 
-  const saveVendorDetails = async (): Promise<any> => {
-    // Validate required fields for vendor details
-    if (!formData.vendorName || !formData.contactPerson || !formData.emailAddress) {
-      throw new Error("Please fill in all required vendor details");
-    }
-
+  const saveVendorDetails = async () => {
     // Make API call to save vendor details
-    console.log("Saving vendor details:", formData);
-    // Example API call:
-    // const response = await api.vendors.create(formData);
-    // return response;
-    
-    // Mock response for now
-    return { id: `vendor_${Date.now()}` };
+    console.log("Saving vendor details to make API call:", formData);
+    var newItem = await api.vendors.create(formData);
+    window.location.href = `/vendors/${newItem.id}`;
   };
 
-  const uploadSOW = async (): Promise<void> => {
+  const uploadSOW = async () => {
     // Check if SOW file was selected
     // This would require adding state to track selected files
     console.log("Uploading SOW for step 2");
@@ -116,7 +112,7 @@ const NavigationStepper = () => {
     }
   };
 
-  const uploadInvoices = async (): Promise<void> => {
+  const uploadInvoices = async () => {
     // Check if invoice files were selected
     console.log("Uploading invoices for step 3");
     if (invoiceFiles.length > 0) {
@@ -134,7 +130,7 @@ const NavigationStepper = () => {
     // Handle save logic here
   };
 
-  const getStepStatus = (stepIndex: number) => {
+  const getStepStatus = (stepIndex) => {
     if (stepIndex < currentStep) return "completed";
     if (stepIndex === currentStep) return "active";
     return "inactive";
@@ -153,9 +149,9 @@ const NavigationStepper = () => {
                     type="text"
                     className="form-control p-3"
                     placeholder="Vendor Name"
-                    value={formData.vendorName}
+                    value={formData.name}
                     onChange={(e) =>
-                      handleInputChange("vendorName", e.target.value)
+                      handleInputChange("name", e.target.value)
                     }
                   />
                 </div>
@@ -179,9 +175,9 @@ const NavigationStepper = () => {
                     type="text"
                     className="form-control p-3"
                     placeholder="Contact Person"
-                    value={formData.contactPerson}
+                    value={formData.contact_name}
                     onChange={(e) =>
-                      handleInputChange("contactPerson", e.target.value)
+                      handleInputChange("contact_name", e.target.value)
                     }
                   />
                 </div>
@@ -190,9 +186,9 @@ const NavigationStepper = () => {
                     type="tel"
                     className="form-control p-3"
                     placeholder="Phone Number"
-                    value={formData.phoneNumber}
+                    value={formData.contact_phone}
                     onChange={(e) =>
-                      handleInputChange("phoneNumber", e.target.value)
+                      handleInputChange("contact_phone", e.target.value)
                     }
                   />
                 </div>
@@ -201,9 +197,9 @@ const NavigationStepper = () => {
                     type="email"
                     className="form-control p-3"
                     placeholder="Email Address"
-                    value={formData.emailAddress}
+                    value={formData.contact_email}
                     onChange={(e) =>
-                      handleInputChange("emailAddress", e.target.value)
+                      handleInputChange("contact_email", e.target.value)
                     }
                   />
                 </div>
@@ -222,10 +218,10 @@ const NavigationStepper = () => {
                   <input
                     type="text"
                     className="form-control p-3"
-                    placeholder="Location"
-                    value={formData.location}
+                    placeholder="Address"
+                    value={formData.address}
                     onChange={(e) =>
-                      handleInputChange("location", e.target.value)
+                      handleInputChange("address", e.target.value)
                     }
                   />
                 </div>
@@ -269,15 +265,15 @@ const NavigationStepper = () => {
                   variant="outlined-primary"
                   className="btn btn-outline-primary fw-bold"
                   onClick={() => {
-                    // Handle file browse for SOW
+                    // Handle file browse
                     const input = document.createElement("input");
                     input.type = "file";
                     input.accept = ".pdf,.doc,.docx";
                     input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
+                      const file = (e.target).files?.[0];
                       if (file) {
-                        setSowFile(file);
-                        console.log("SOW file selected:", file.name);
+                        console.log("Selected file:", file.name);
+                        // Handle file upload logic here
                       }
                     };
                     input.click();
@@ -286,14 +282,6 @@ const NavigationStepper = () => {
                   Browse
                 </Button>
               </div>
-              {sowFile && (
-                <div className="mt-3">
-                  <p className="text-success">
-                    <i className="fa-solid fa-check me-2"></i>
-                    Selected: {sowFile.name}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         );
@@ -327,22 +315,21 @@ const NavigationStepper = () => {
                   className="mb-4"
                   style={{ color: "#9696a0", fontSize: "16px" }}
                 >
-                  Or choose files to upload
+                  Or choose file to upload
                 </p>
                 <Button
                   variant="outlined-primary"
                   className="btn btn-outline-primary fw-bold"
                   onClick={() => {
-                    // Handle file browse for invoices (multiple files)
+                    // Handle file browse
                     const input = document.createElement("input");
                     input.type = "file";
                     input.accept = ".pdf,.doc,.docx";
-                    input.multiple = true;
                     input.onchange = (e) => {
-                      const files = Array.from((e.target as HTMLInputElement).files || []);
-                      if (files.length > 0) {
-                        setInvoiceFiles(files);
-                        console.log("Invoice files selected:", files.map(f => f.name));
+                      const file = (e.target).files?.[0];
+                      if (file) {
+                        console.log("Selected file:", file.name);
+                        // Handle file upload logic here
                       }
                     };
                     input.click();
@@ -351,21 +338,6 @@ const NavigationStepper = () => {
                   Browse
                 </Button>
               </div>
-              {invoiceFiles.length > 0 && (
-                <div className="mt-3">
-                  <p className="text-success mb-2">
-                    <i className="fa-solid fa-check me-2"></i>
-                    {invoiceFiles.length} file(s) selected:
-                  </p>
-                  <ul className="list-unstyled">
-                    {invoiceFiles.map((file, index) => (
-                      <li key={index} className="text-muted small">
-                        {file.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           </div>
         );
@@ -483,16 +455,8 @@ const NavigationStepper = () => {
                     <Button
                       className="btn btn-save-next"
                       onClick={handleSaveAndNext}
-                      disabled={isLoading}
                     >
-                      {isLoading ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                          Saving...
-                        </>
-                      ) : (
-                        currentStep === steps.length - 1 ? "Complete" : "Save & Next"
-                      )}
+                      Save & Next
                     </Button>
                   </div>
                 </div>
