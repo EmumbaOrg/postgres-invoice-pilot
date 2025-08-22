@@ -34,8 +34,6 @@ async def list_vendors(skip: int = 0, limit: int = 10, sortby: str = None, pool 
     return ListResponse[Vendor](data = vendors, total = len(vendors), skip = 0, limit = len(vendors))
 
 
-from app.models import VendorEdit
-
 
 @router.post('/', response_model=Vendor, status_code=status.HTTP_201_CREATED)
 async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool)):
