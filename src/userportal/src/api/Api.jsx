@@ -77,6 +77,9 @@ const Api = {
         getUrl: (blobName) => {
             return getUrl(`/documents/${blobName}`);
         },
+        get: async (createdAt) =>{
+            return await RESTHelper.get(getUrl(`documents?sort_by=${createdAt}`));
+        },
         upload: async (file) => {
             if (!file) return;
         
@@ -112,6 +115,11 @@ const Api = {
                 console.error('Error deleting document:', error);
                 throw error;
             }
+        },
+    },
+    activities: {
+        getRecent: async (limit = 3) => {
+            return await RESTHelper.get(getUrl(`activity_logs?limit=${limit}`));
         },
     },
     invoices: {

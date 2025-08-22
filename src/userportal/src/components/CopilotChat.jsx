@@ -1,5 +1,6 @@
 import ReactMarkdown from "react-markdown"
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Row, Col, Button,  Breadcrumb, } from "react-bootstrap"
 
 import { useChatSession } from "../hooks/useChatSession"
@@ -7,6 +8,8 @@ import ChatSessions from "./chat-sessions/chat-sessions";
 import "./CopilotChat.css";
 
 const CopilotChat = () => {
+  const location = useLocation();
+  
   const {
     sessionId,
     setSessionId,
@@ -34,6 +37,20 @@ const CopilotChat = () => {
     }
   }, [messages]);
 
+  //  // Handle initial message from navigation state
+  useEffect(() => {
+    const initialMessage = location.state?.initialMessage;
+    if (initialMessage && initialMessage.trim()) {
+      // Set the input and auto-trigger the message
+      setInput(initialMessage);
+      // Small delay to ensure the session is properly initialized
+      setTimeout(() => {
+        const fakeEvent = { preventDefault: () => {} };
+        handleSendMessage(fakeEvent);
+      }, 100);
+    }
+  }, [location.state]);
+
   return (
      <div className="ai-chat p-5 pt-0 m-4 mb-0">
       <Row style={{ gap: '5rem' }}>
@@ -51,7 +68,7 @@ const CopilotChat = () => {
     <i className="fa-solid fa-arrow-left"></i> Back to Dashboard
             </Button>    
           </div>
-    <Button area-label="New Session" alt="New Session" onClick={createNewSession} className='align-self-start'>
+    <Button area-label="New Session" alt="New Session" onClick={createNewSession} className='align-self-center'>
               <i className="fas fa-plus"></i> New Chat
             </Button>
         </div>

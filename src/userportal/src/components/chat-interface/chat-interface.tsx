@@ -15,9 +15,11 @@ export default function ChatInterface() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleChatHistoryClick();
     if (message.trim()) {
+      navigate("/chats", { state: { initialMessage: message.trim() } });
       setMessage("");
+    } else {
+      handleChatHistoryClick();
     }
   };
 

@@ -29,9 +29,9 @@ export const useChatSession = () => {
 
     if (input.trim() === "") return
 
-    const prompt = input
-    setInput("")
-    setIsThinking(true)
+    const prompt = input;
+    setInput("");
+    setIsThinking(true);
 
     // Add the user's message to the local message history
     const userMessage = { role: "user", content: prompt }
@@ -57,7 +57,7 @@ export const useChatSession = () => {
       console.error("Error sending message:", error)
       setError("Error sending message. Please try again.")
     } finally {
-      setIsThinking(false)
+      setIsThinking(false);
     }
   }
 

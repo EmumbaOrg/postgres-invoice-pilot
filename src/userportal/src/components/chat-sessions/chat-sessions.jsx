@@ -4,7 +4,6 @@ import ConfirmModal from '../ConfirmModal';
 import api from '../../api/Api';
 
 const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessages, sessionToDelete, setError, isDrawerView = false}) => {
-
   const [sessions, setSessions] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sessionHistoryLoading, setSessionHistoryLoading] = useState(false);
@@ -73,7 +72,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         <>
         <Row className='px-4 py-2' >
         <strong style={{color: "#1B4EA3"}}>Chat History</strong>
-        {sessionHistoryLoading && isDrawerView &&
+        {sessionHistoryLoading  &&
         <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
         <Spinner animation="border" role="status" variant="primary">
         </Spinner>

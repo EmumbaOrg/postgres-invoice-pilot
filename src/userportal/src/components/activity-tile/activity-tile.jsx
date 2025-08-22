@@ -1,14 +1,5 @@
-import type React from "react";
 import { Card, Row, Col, Dropdown } from "react-bootstrap";
-
-interface ActivityTileProps {
-  icon: React.ReactNode;
-  title: string;
-  timestamp: string;
-  fileSize?: string;
-  showMenu?: boolean;
-  onMenuAction?: (action: string) => void;
-}
+import { formatFileSize } from "../../utils/common-functions";
 
 export default function ActivityTile({
   icon,
@@ -17,7 +8,7 @@ export default function ActivityTile({
   fileSize,
   showMenu = false,
   onMenuAction = () => {},
-}: ActivityTileProps) {
+}) {
   return (
     <Card className="mb-3 border-1 shadow-sm tile-outer">
       <Card.Body className="py-3 px-4">
@@ -26,13 +17,13 @@ export default function ActivityTile({
             <div className="text-primary fs-4">{icon}</div>
           </Col>
           <Col>
-            <div className="fw-medium text-dark mb-1">{title}</div>
+            <div className="fw-bold text-dark mb-1 text-truncate" style={{maxWidth:'500px'}}>{title}</div>
             <div className="text-muted small">
               {timestamp}
               {fileSize && (
                 <>
-                  <span className="mx-2">•</span>
-                  {fileSize}
+                  <span className="mx-2">|</span>
+                  {formatFileSize(fileSize)}
                 </>
               )}
             </div>

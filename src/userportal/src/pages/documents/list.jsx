@@ -1,9 +1,11 @@
 // src/Documents.js
 import React, { useEffect, useState } from 'react';
-import api from '../../api/Api';
-import ConfirmModal from '../../components/ConfirmModal'; 
-import { Table, Button, Modal, Form } from 'react-bootstrap';
 import { useTable, useSortBy } from 'react-table';
+import { Table, Button, Modal, Form } from 'react-bootstrap';
+
+import ConfirmModal from '../../components/ConfirmModal'; 
+import api from '../../api/Api';
+import { formatFileSize } from '../../utils/common-functions';
 
 
 const DocumentList = () => {
@@ -57,14 +59,6 @@ const DocumentList = () => {
       setError(err.message);
     }
   };
-
-  function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
 
   const columns = React.useMemo(
     () => [

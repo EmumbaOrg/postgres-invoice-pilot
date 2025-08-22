@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Spinner, Alert, Modal } from 'react-bootstrap';
 import api from '../../api/Api';
+import { formatFileSize } from '../../utils/common-functions';
 
 const InvoiceCreate = ({ show, onHide, vendorId }) => {
   const [invoiceId, setInvoiceId]  = useState(0);
@@ -63,14 +64,6 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
     if (fileInput) {
       fileInput.value = '';
     }
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const handleAnalyzeDocument = async (e) => {
