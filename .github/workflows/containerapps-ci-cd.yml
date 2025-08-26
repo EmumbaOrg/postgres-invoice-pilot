@@ -1,0 +1,140 @@
+name: Build and Deploy to Azure Container Apps (API & User Portal)
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'src/api/**'
+      - 'src/userportal/**'
+  pull_request:
+    types: [ closed ]
+    branches: [ dev ]
+    paths:
+      - 'src/api/**'
+      - 'src/userportal/**'
+
+## Using repository variables (Settings > Variables) for non-secrets
+## Required vars: ACR_NAME, REGISTRY_LOGIN_SERVER, RESOURCE_GROUP, CONTAINER_APP_NAME_API, CONTAINER_APP_NAME_PORTAL
+
+jobs:
+  api-build-and-deploy:
+    name: API - Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUB_ID }}
+
+      - name: Folder change check
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'src/api/**'
+            portal:
+              - 'src/userportal/**'
+
+      - name: Ensure Container Apps extension
+        if: steps.filter.outputs.api == 'true'
+        run: |
+          az extension add --name containerapp --upgrade -y
+
+      - name: Log in to Azure Container Registry (ACR)
+        if: steps.filter.outputs.api == 'true'
+        run: |
+          az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Build Docker image (API) with short commit SHA tag
+        if: steps.filter.outputs.api == 'true'
+        run: |
+          COMMIT_ID=$(git rev-parse --short "$GITHUB_SHA")
+          echo "IMAGE_TAG=$COMMIT_ID" >> $GITHUB_ENV
+          docker build \
+            -f src/api/DOCKERFILE \
+            -t ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$COMMIT_ID \
+            src/api
+
+      - name: Push image to ACR (API)
+        if: steps.filter.outputs.api == 'true'
+        run: |
+          docker push ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$IMAGE_TAG
+
+      - name: Deploy to Azure Container Apps (API)
+        if: steps.filter.outputs.api == 'true'
+        run: |
+          az containerapp update \
+            --name ${{ vars.CONTAINER_APP_NAME_API }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --image ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$IMAGE_TAG
+
+  portal-build-and-deploy:
+    name: User Portal - Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUB_ID }}
+
+      - name: Folder change check
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'src/api/**'
+            portal:
+              - 'src/userportal/**'
+
+      - name: Ensure Container Apps extension
+        if: steps.filter.outputs.portal == 'true'
+        run: |
+          az extension add --name containerapp --upgrade -y
+
+      - name: Log in to Azure Container Registry (ACR)
+        if: steps.filter.outputs.portal == 'true'
+        run: |
+          az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Build Docker image (User Portal) with short commit SHA tag
+        if: steps.filter.outputs.portal == 'true'
+        run: |
+          COMMIT_ID=$(git rev-parse --short "$GITHUB_SHA")
+          echo "IMAGE_TAG=$COMMIT_ID" >> $GITHUB_ENV
+          docker build \
+            -f src/userportal/DOCKERFILE \
+            -t ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$COMMIT_ID \
+            src/userportal
+
+      - name: Push image to ACR (User Portal)
+        if: steps.filter.outputs.portal == 'true'
+        run: |
+          docker push ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$IMAGE_TAG
+
+      - name: Deploy to Azure Container Apps (User Portal)
+        if: steps.filter.outputs.portal == 'true'
+        run: |
+          az containerapp update \
+            --name ${{ vars.CONTAINER_APP_NAME_PORTAL }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --image ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$IMAGE_TAG
