@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Dropdown, Form, Button, Row, Col, Spinner, Alert, Modal, Breadcrumb } from 'react-bootstrap';
-import { NumericFormat } from 'react-number-format';
+import ReactMarkdown from 'react-markdown';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NumericFormat } from 'react-number-format';
+import { Dropdown, Form, Button, Row, Col, Spinner, Alert, Modal, Breadcrumb } from 'react-bootstrap';
+
 import api from '../../api/Api';
-import PagedTable from '../../components/PagedTable';
-import ConfirmModel from '../../components/ConfirmModal';
-import ReactMarkdown from 'react-markdown';
 import InvoiceCreate from './create';
-import ActivityTile from '../../components/activity-tile/activity-tile';
+import PagedTable from '../../components/PagedTable';
+import ConfirmModal from '../../components/ConfirmModal';
 import StatusChip from '../../components/status-chip/status-chip';
+import ActivityTile from '../../components/activity-tile/activity-tile';
 
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
@@ -33,6 +34,8 @@ const InvoiceEdit = () => {
   const [showDeleteInvoiceLineItemModal, setShowDeleteInvoiceLineItemModal] = useState(false);
   const [reloadInvoiceLineItems, setReloadInvoiceLineItems] = useState(false);
   const [invoiceLineItemToDelete, setInvoiceLineItemToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [sowToDelete, setSowToDelete] = useState(null);
 
   const [statuses, setStatuses] = useState([]);
   const [vendors, setVendors] = useState([]);
@@ -172,6 +175,7 @@ const InvoiceEdit = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item href={`/invoice-line-items/${row.original.id}`} className="d-flex align-items-center gap-1">
+              <i className="fas fa-edit" style={{ color: 'var(--bs-primary)' }} />
                 Edit
               </Dropdown.Item>
                <Dropdown.Item  
@@ -180,6 +184,7 @@ const InvoiceEdit = () => {
                     setInvoiceLineItemToDelete(row.original.id);
                     setShowDeleteInvoiceLineItemModal(true);
              }}>
+              <i className="fas fa-trash" style={{ color: 'var(--bs-danger)' }} />
                 Delete
               </Dropdown.Item>
           </Dropdown.Menu>
@@ -246,17 +251,20 @@ const InvoiceEdit = () => {
     setError(null);
   };
 
-    const handleDelete = async () => {
+  const handleDelete = async () => {
+    if (!sowToDelete) return;
 
     try {
       await api.invoices.delete(sowToDelete);
       setSuccess('Invoice deleted successfully!');
       setError(null);
       setShowDeleteModal(false);
-      setReload(true); // Refresh the data
+      // Redirect to invoices list after successful deletion
+      window.location.href = '/invoices';
     } catch (err) {
       setSuccess(null);
       setError(err.message);
+      setShowDeleteModal(false);
     }
   }
 
@@ -283,7 +291,7 @@ const InvoiceEdit = () => {
  <div className='d-flex align-items-center justify-content-between mb-4'>
             <h3>{invoiceNumber}</h3>
             <div className='d-flex align-items-center gap-3'>
-        <Button type="button" variant="danger" className="ms-2" onClick={() => handleDelete() }>
+        <Button type="button" variant="danger" className="ms-2" onClick={() => { setSowToDelete(id); setShowDeleteModal(true); }}>
           Delete
         </Button>
              <Button type="submit" variant="primary">
@@ -299,7 +307,7 @@ const InvoiceEdit = () => {
       {!validating && (
         <>
       <Form onSubmit={handleSubmit}>
-        <Row>
+        <Row className='gap-3'>
           <Col>
             <Form.Group className="mb-3">
           <Form.Label>Invoice Number</Form.Label>
@@ -349,7 +357,7 @@ const InvoiceEdit = () => {
           </Col>
         </Row>
       
-        <Row>
+        <Row className='gap-3'>
           <Col>
             <Form.Group>
               <Form.Label>Vendor</Form.Label>
@@ -444,7 +452,7 @@ const InvoiceEdit = () => {
         noDataDescription={'Click on "Add New Line Item" to begin adding line items.'}
         />
 
-      <ConfirmModel
+      <ConfirmModal
         show={showDeleteInvoiceLineItemModal}
         handleClose={() => setShowDeleteInvoiceLineItemModal(false)}
         handleConfirm={handleDeleteInvoiceLineItem}
@@ -538,6 +546,13 @@ const InvoiceEdit = () => {
           show={showCreateInvoiceModal}
           onHide={() => setShowCreateInvoiceModal(false)}
           />
+
+      <ConfirmModal
+        show={showDeleteModal}
+        handleClose={() => setShowDeleteModal(false)}
+        handleConfirm={handleDelete}
+        message="Are you sure you want to delete this Invoice?"
+      />
     </div>
   );
 };

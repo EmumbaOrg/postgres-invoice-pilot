@@ -93,7 +93,6 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
 
       setSowId(result.sow.id);
       newSowId = result.sow.id;
-      console.log(`SOW created with ID: ${newSowId}`);
     } catch (err) {
       console.error(err);
       setShowUpload(true);
@@ -106,7 +105,6 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
 
     try {
       setLoading('Validating document with AI...');
-      console.log(`Validating SOW with ID: ${newSowId}`);
       await api.sows.validate(newSowId);
     } catch (err) {
       console.error(err);

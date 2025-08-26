@@ -332,16 +332,14 @@ const Api = {
             return await RESTHelper.get(getUrl(`/vendors/${id}`));
         },
         create: async (data) => {
-           const formData = new FormData();
-
-            for(var key in data){
-                formData.append(key, data[key]);
-            }
         
             try {
                 const response = await fetch(getUrl(`/vendors`), {
                     method: 'POST',
-                    body: formData,
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

@@ -44,8 +44,6 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         try {
           await api.completions.deleteSession(sessionToDelete);
     
-          console.log('Session deleted:', sessionToDelete);
-          console.log('Current session:', sessionId);
           if (sessionId === sessionToDelete) {
             setSessionId(-1);
           }
