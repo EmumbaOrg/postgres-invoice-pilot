@@ -6,12 +6,6 @@ on:
     paths:
       - 'src/api/**'
       - 'src/userportal/**'
-  pull_request:
-    types: [ closed ]
-    branches: [ dev ]
-    paths:
-      - 'src/api/**'
-      - 'src/userportal/**'
 
 ## Using repository variables (Settings > Variables) for non-secrets
 ## Required vars: ACR_NAME, REGISTRY_LOGIN_SERVER, RESOURCE_GROUP, CONTAINER_APP_NAME_API, CONTAINER_APP_NAME_PORTAL
@@ -23,17 +17,9 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUB_ID }}
 
       - name: Folder change check
         uses: dorny/paths-filter@v3
@@ -44,6 +30,14 @@ jobs:
               - 'src/api/**'
             portal:
               - 'src/userportal/**'
+
+      - name: Azure login
+        if: steps.filter.outputs.api == 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUB_ID }}
 
       - name: Ensure Container Apps extension
         if: steps.filter.outputs.api == 'true'
@@ -84,17 +78,9 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUB_ID }}
 
       - name: Folder change check
         uses: dorny/paths-filter@v3
@@ -105,6 +91,14 @@ jobs:
               - 'src/api/**'
             portal:
               - 'src/userportal/**'
+
+      - name: Azure login
+        if: steps.filter.outputs.portal == 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUB_ID }}
 
       - name: Ensure Container Apps extension
         if: steps.filter.outputs.portal == 'true'
