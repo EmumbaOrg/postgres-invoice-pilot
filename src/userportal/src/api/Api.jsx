@@ -1,6 +1,6 @@
 import RESTHelper from './RESTHelper';
 
-const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://localhost:8000';
+const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'https://ca-api-m3ohtmntl37aq.wittyisland-e1286043.eastus.azurecontainerapps.io/';
 
 const getUrl = (url) => {
     return `${APIUrl}${url}`;
@@ -77,6 +77,9 @@ const Api = {
         getUrl: (blobName) => {
             return getUrl(`/documents/${blobName}`);
         },
+        get: async (createdAt) =>{
+            return await RESTHelper.get(getUrl(`documents?sort_by=${createdAt}`));
+        },
         upload: async (file) => {
             if (!file) return;
         
@@ -112,6 +115,11 @@ const Api = {
                 console.error('Error deleting document:', error);
                 throw error;
             }
+        },
+    },
+    activities: {
+        getRecent: async (limit = 3) => {
+            return await RESTHelper.get(getUrl(`activity_logs?limit=${limit}`));
         },
     },
     invoices: {
@@ -322,6 +330,26 @@ const Api = {
         },
         get: async (id) => {
             return await RESTHelper.get(getUrl(`/vendors/${id}`));
+        },
+        create: async (data) => {
+        
+            try {
+                const response = await fetch(getUrl(`/vendors`), {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error creating vendor:', error);
+                throw error;
+            }
         }
     }
 };

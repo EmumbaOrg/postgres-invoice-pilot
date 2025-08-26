@@ -1,0 +1,42 @@
+.background-styled{
+    background-color: #FFFFFF;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 2px 0px;
+    border-radius: 8px;
+}
+
+/* Status chips for validation results */
+.status-chip-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-chip-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.connecting-line{
+    position: absolute;
+    left: 11px;
+    top: 20px;
+    width: 2px;
+    height: 100px;
+    background-color: rgb(225, 225, 227);
+    z-index: 1;
+
+}
+.styled-button{
+    color: #292A31 !important;
+    font-weight: bold !important;
+    font-size: 20px !important;
+  }

@@ -2,6 +2,9 @@ body {
   font-size: .875rem;
 }
 
+.row>*{
+  padding:0% !important
+}
 
 
 h2 {
@@ -14,6 +17,9 @@ h2 {
   vertical-align: text-bottom;
 }
 
+.text-shadow{
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
 /*
  * Sidebar
  */
@@ -104,12 +110,12 @@ h2 {
  * Navbar
  */
 
+ .navbar{
+  justify-content: start !important;
+  background-color: white;
+ }
 .navbar-brand {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  font-size: 1rem;
-  background-color: rgba(0, 0, 0, .25);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+  height: 60px;
 }
 
 .navbar-brand img {
@@ -140,29 +146,65 @@ h2 {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
 
-/* src/App.css */
-.navbar-dark .navbar-brand {
-  color: #ffffff;
+/* Active state for navigation links - Blue underline */
+.active-nav::after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 3px;
+  background-color: var(--bs-primary);
+  border-radius: 1px;
 }
 
-.navbar-light .navbar-brand {
-  color: #212529;
+/* Hover effect for nav links */
+.nav-link:hover {
+  color: var(--bs-primary) !important;
+  transition: color 0.2s ease-in-out;
 }
-
-.sidebar.bg-dark {
-  background-color: #343a40 !important;
-  color: #ffffff !important;
+.bordered-button{
+  border: 1px solid var(--bs-primary) !important;
+  border-radius: 6px;
+  min-width: 109px;
+  justify-content: center;
 }
-
-.sidebar.bg-light {
-  background-color: #f8f9fa !important;
-  color: #212529 !important;
+.gradient-bg{
+  background-image: url('/Gradient.svg');
+  background-size: cover;           
+  background-position: center;     
+  background-repeat: no-repeat;    
+  width: 100%;
+  min-height: calc(100vh - 77px); /* Adjusted for navbar height */         
+  display: flex;  
+  flex-direction: column;                  
+  align-items: center;
+  justify-content: end;
+  padding: 20px;                    
+  color: white;  
+  padding-bottom: 0px;
 }
-
-.sidebar .nav-link {
-  color: inherit;
+.dropdown-toggle::after{
+  display: none !important;
 }
-
-.sidebar .nav-link.active {
-  font-weight: bold;
+.flex-wrap{
+      display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.status-chip-error{
+  color: #C8372D;
+    background: #FDDCDA;
+    padding: 4px 12px;
+    border-radius: 25px;
+    font-size: 16px;
+}
+.status-chip-success{
+  color: #1A7F37;
+    background: #DFF2E9;
+    padding: 4px 12px;
+    border-radius: 25px;
+    font-size: 16px;
 }
