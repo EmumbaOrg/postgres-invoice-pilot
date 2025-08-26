@@ -1,4 +1,4 @@
-from app.lifespan_manager import get_db_connection_pool
+from app.lifespan_manager import get_db_connection_pool, get_storage_service
 from app.models import Vendor, VendorEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import parse_obj_as
@@ -92,14 +92,24 @@ async def get_by_type(type: str, pool = Depends(get_db_connection_pool)):
     return vendors
 
 @router.delete('/{id:int}', status_code=204)
-async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service)
+async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), storage_service = Depends(get_storage_service)
 ):
     """ Deletes a vendor and all its associated records """
 
     async with pool.acquire() as conn:
+        # collect blob storage paths of SOW and INVOICE files uploaded by this vendor
+        sow_docs = await conn.fetch('SELECT document FROM sows where vendor_id = $1', id)
+        invoice_docs = await conn.fetch('SELECT document FROM invoices where vendor_id = $1', id)
+
+        # delete the vendor
         result = await conn.execute('DELETE FROM vendors WHERE id = $1;', id)
         if result == 'DELETE 0':
             raise HTTPException(status_code=404, detail='Vendor not found.')
+        
+        # delete associated SOW and INVOICE files from blob storage
+        for doc in sow_docs + invoice_docs:
+            if doc['document']:
+                result = await storage_service.delete_document(doc['document'])
 
         # Log the activity
         await activity_service.log_activity(
