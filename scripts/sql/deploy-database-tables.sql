@@ -354,3 +354,17 @@ CREATE TABLE IF NOT EXISTS copilot_chat_session_history (
 );
 
 /* END COPILOT CHAT HISTORY */
+
+/* ACTIVITY_LOGS */
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id BIGSERIAL PRIMARY KEY,
+    action VARCHAR(50) NOT NULL, 
+    resource_type VARCHAR(50) NOT NULL, 
+    resource_name VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL, 
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()    
+);
+
+/* END_ACTIVITY_LOGS */
+

@@ -80,8 +80,8 @@ const InvoiceLineItemEdit = () => {
     };
     
     return (
-        <div>
-        <h1>Edit Invoice Line Item</h1>
+        <div className='p-4'>
+        <h3>Edit Invoice Line Item</h3>
         <hr/>
         {error && <div className="alert alert-danger">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}

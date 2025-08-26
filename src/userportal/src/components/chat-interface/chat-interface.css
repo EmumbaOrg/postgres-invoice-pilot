@@ -1,0 +1,64 @@
+/* Custom styling for chat interface */
+
+/* Input field styling */
+.chat-input {
+    border: 1px solid #d2d2d6 !important;
+    box-shadow: none !important;
+  }
+  .chat-input::placeholder {
+    color: #787885;
+  }
+  .chat-input:focus {
+    border-color: #2979ff !important;
+    box-shadow: 0 0 0 0.25rem rgba(41, 121, 255, 0.25) !important;
+  }
+  
+  /* Chat history button styling */
+  .chat-history-btn {
+    color: #2979ff !important;
+    min-width: 150px;
+  }
+  
+  .chat-icon-bg {
+    width: 24px;
+    height: 24px;
+    background-color: #2979ff;
+    border-radius: 6px;
+  }
+  
+  /* Send button styling */
+  .send-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2979ff !important;
+    border-color: #2979ff !important;
+  }
+  
+  .send-button:hover:not(:disabled) {
+    background-color: #1a68e5 !important;
+    border-color: #1a68e5 !important;
+  }
+  
+  /* Suggestion pills styling */
+  .suggestion-pill {
+    border-radius: 25px !important;
+    padding: 4px 8px !important;
+    border: 2px solid #9DC2FF !important;
+    color: #2979ff !important;
+    background-color: white !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .suggestion-pill:hover {
+    border: 2px solid #2979ff !important;
+  }
+  
+  /* Gap utility for flexbox */
+  .gap-3 {
+    gap: 1rem;
+  }
+  

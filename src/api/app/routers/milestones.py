@@ -1,6 +1,7 @@
 from app.lifespan_manager import get_db_connection_pool
 from app.models import Milestone, MilestoneEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, Form
+from app.routers.activity_logs import get_activity_log_service
 from pydantic import parse_obj_as
 
 # Initialize the router
@@ -57,20 +58,30 @@ async def create_milestone(
     sow_id: int = Form(...),
     name: str = Form(...),
     status: str = Form(...),
-    pool = Depends(get_db_connection_pool)
+    pool = Depends(get_db_connection_pool),
+    activity_log_service = Depends(get_activity_log_service)
 ):
     """Creates a milestone in the database."""
     async with pool.acquire() as conn:
         milestone_id = await conn.fetchval('INSERT INTO milestones (sow_id, name, status) VALUES ($1, $2, $3) RETURNING id;', sow_id, name, status)
         row = await conn.fetchrow('SELECT * FROM milestones WHERE id = $1;', milestone_id)
         milestone = parse_obj_as(Milestone, dict(row))
+    
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="created",
+        resource_type="Milestone",
+        resource_name=milestone.name
+    )
+    
     return milestone
 
 @router.put("/{milestone_id}", response_model=Milestone)
 async def update_milestone(
     milestone_id: int,
     milestone: MilestoneEdit,
-    pool = Depends(get_db_connection_pool)
+    pool = Depends(get_db_connection_pool),
+    activity_log_service = Depends(get_activity_log_service)
 ):
     """Updates a milestone in the database."""
     async with pool.acquire() as conn:
@@ -80,10 +91,18 @@ async def update_milestone(
         ''', milestone.name, milestone.status, milestone_id)
         row = await conn.fetchrow('SELECT * FROM milestones WHERE id = $1;', milestone_id)
         milestone = parse_obj_as(Milestone, dict(row))
+   
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="updated",
+        resource_type="Milestone",
+        resource_name=milestone.name
+    )   
+
     return milestone
 
 @router.delete("/{milestone_id}")
-async def delete_milestone(milestone_id: int, pool = Depends(get_db_connection_pool)):
+async def delete_milestone(milestone_id: int, pool = Depends(get_db_connection_pool), activity_log_service = Depends(get_activity_log_service)):
     """Deletes a milestone from the database."""
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM milestones WHERE id = $1;', milestone_id)
@@ -92,4 +111,12 @@ async def delete_milestone(milestone_id: int, pool = Depends(get_db_connection_p
         milestone = parse_obj_as(Milestone, dict(row))
 
         await conn.execute('DELETE FROM milestones WHERE id = $1;', milestone_id)
+
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="deleted",
+        resource_type="Milestone",
+        resource_name=milestone.name
+    )
+
     return milestone

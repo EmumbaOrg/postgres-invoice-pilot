@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Dropdown } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import api from '../../api/Api';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -107,25 +107,31 @@ const MilestoneEdit = () => {
                 accessor: 'due_date',
             },
             {
-            Header: 'Actions',
+            Header: '',
             accessor: 'actions',
             Cell: ({ row }) => {
                 return (
-                <div>
-                    <a href={`/deliverables/${row.original.id}`} className="btn btn-link" aria-label="Edit">
-                        <i className="fas fa-edit"></i>
-                    </a>
-                    <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => {
-                        setDeliverableToDelete(row.original.id);
-                        setShowDeleteDeliverableModal(true);
-                    }}
-                    >
-                    Delete
-                    </Button>
-                </div>
+            <Dropdown>
+              <Dropdown.Toggle
+               variant="outline-primary"
+               size="sm"
+              id={`dropdown-${row.original.id}`}
+              className="border-0"
+            >
+              <i className="fas fa-ellipsis-v"></i>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+               <Dropdown.Item href={`/deliverables/${row.original.id}`} className="d-flex align-items-center gap-1">
+                <i className="fas fa-edit me-2" style={{ color: 'var(--bs-primary)' }}></i>
+                Edit
+              </Dropdown.Item>
+                <Dropdown.Item onClick={() => {  setDeliverableToDelete(row.original.id); setShowDeleteDeliverableModal(true)}} className="d-flex align-items-center gap-1">
+                <i className="fas fa-trash-alt me-2" style={{ color: 'var(--bs-danger)' }}></i>
+                Delete
+              </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
+             
                 );
             },
             },
@@ -146,8 +152,8 @@ const MilestoneEdit = () => {
     }
 
     return (
-    <div>
-        <h1>Edit Milestone</h1>
+    <div className='p-4'>
+        <h3>Edit Milestone</h3>
         <hr/>
         {error && <div className="alert alert-danger">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
@@ -188,9 +194,9 @@ const MilestoneEdit = () => {
         <hr />
 
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h2 className="h2">Deliverables</h2>
+            <h3>Deliverables</h3>
             <Button variant="primary" onClick={() => window.location.href = `/deliverables/create/${id}`}>
-                New Deliverable <i className="fas fa-plus" />
+              <i className="fas fa-plus" />  New Deliverable 
             </Button>
         </div>
 
@@ -198,6 +204,8 @@ const MilestoneEdit = () => {
             fetchData={fetchDeliverables}
             reload={reloadDeliverables}
             showPagination={false}
+            noDataMesssage={'No deliverables have been added yet.'}
+            noDataDescription={'Click on "New Deliverable" to begin adding deliverables.'}
         />
 
         <ConfirmModal

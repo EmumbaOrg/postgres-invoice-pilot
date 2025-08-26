@@ -2,6 +2,7 @@ from app.lifespan_manager import get_db_connection_pool
 from app.models import InvoiceLineItem, InvoiceLineItemEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, Form
 from datetime import datetime
+from app.routers.activity_logs import get_activity_log_service
 from pydantic import parse_obj_as
 
 # Initialize the router
@@ -60,7 +61,8 @@ async def create(
     amount: float = Form(...),
     status: str = Form(...),
     due_date: str = Form(None),
-    pool = Depends(get_db_connection_pool)
+    pool = Depends(get_db_connection_pool),
+    activity_log_service = Depends(get_activity_log_service)
 ):
     # Parse dates
     due_date_parsed = None
@@ -77,10 +79,23 @@ async def create(
         ''', invoice_id, description, amount, status, due_date_parsed)
         row = await conn.fetchrow('SELECT * FROM invoice_line_items WHERE id = $1;', id)
         milestone = parse_obj_as(InvoiceLineItem, dict(row))
+   
+        # Fetch invoice number from invoices table
+        invoice_row = await conn.fetchrow('SELECT number FROM invoices WHERE id = $1;', invoice_id)
+        invoice_number = invoice_row['number']
+
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="created",
+        resource_type="Invoice line item",
+        resource_name=str(invoice_id),
+        custom_message=f"Invoice line item '{description}' created for invoice '{invoice_number}'"
+    )
+
     return milestone
 
 @router.put("/{id}", response_model=InvoiceLineItem)
-async def update(id: int, item: InvoiceLineItemEdit, pool = Depends(get_db_connection_pool)):
+async def update(id: int, item: InvoiceLineItemEdit, pool = Depends(get_db_connection_pool), activity_log_service = Depends(get_activity_log_service)):
     async with pool.acquire() as conn:
         await conn.execute('''
             UPDATE invoice_line_items
@@ -89,14 +104,41 @@ async def update(id: int, item: InvoiceLineItemEdit, pool = Depends(get_db_conne
         ''', item.invoice_id, item.description, item.amount, item.status, item.due_date, id)
         row = await conn.fetchrow('SELECT * FROM invoice_line_items WHERE id = $1;', id)
         milestone = parse_obj_as(InvoiceLineItem, dict(row))
+
+        # Fetch invoice number from invoices table
+        invoice_row = await conn.fetchrow('SELECT number FROM invoices WHERE id = $1;', item.invoice_id)
+        invoice_number = invoice_row['number']
+
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="updated",
+        resource_type="invoice line item",
+        resource_name=str(item.invoice_id),
+        custom_message=f"Invoice line item '{item.description}' updated for invoice '{invoice_number}'"
+    )
+
     return milestone
 
 @router.delete("/{id}", response_model=InvoiceLineItem)
-async def delete(id: int, pool = Depends(get_db_connection_pool)):
+async def delete(id: int, pool = Depends(get_db_connection_pool), activity_log_service = Depends(get_activity_log_service)):
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM invoice_line_items WHERE id = $1;', id)
         if row is None:
             raise HTTPException(status_code=404, detail=f'A invoice_line_item with an id of {id} was not found.')
         await conn.execute('DELETE FROM invoice_line_items WHERE id = $1;', id)
         item = parse_obj_as(InvoiceLineItem, dict(row))
+
+        # Fetch invoice number from invoices table
+        invoice_row = await conn.fetchrow('SELECT number FROM invoices WHERE id = $1;', item.invoice_id)
+        invoice_number = invoice_row['number']
+
+    # Log the activity
+    await activity_log_service.log_activity(
+        action="deleted",
+        resource_type="Invoice line item",
+        resource_name= str(item.invoice_id),
+        custom_message=f"Invoice line item '{item.description}' deleted for invoice '{invoice_number}'"
+        
+    )
+
     return item
