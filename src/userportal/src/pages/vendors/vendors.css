@@ -1,0 +1,58 @@
+/* Custom styles to match the Figma design */
+.card {
+    border-radius: 8px !important;
+  }
+  
+  .form-control:disabled {
+    background-color: #f8f9fa !important;
+    border: none !important;
+    color: #495057 !important;
+  }
+  
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  
+  .btn-outline-primary {
+    border-color: #2979ff;
+    color: #2979ff;
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: #2979ff;
+    border-color: #2979ff;
+  }
+  
+  .btn-outline-danger {
+    border-color: #c8372d;
+    color: #c8372d;
+  }
+  
+  .btn-outline-danger:hover {
+    background-color: #c8372d;
+    border-color: #c8372d;
+  }
+  
+  .btn-primary {
+    background-color: #2979ff;
+    border-color: #2979ff;
+  }
+  
+  .text-primary {
+    color: #2979ff !important;
+  }
+  
+  .shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  }
+  
+  .breadcrumb-item a {
+    color: #787885;
+    text-decoration: none;
+  }
+  
+  .breadcrumb-item.active {
+    color: #292a31;
+  }
+  

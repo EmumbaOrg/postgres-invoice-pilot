@@ -52,8 +52,8 @@ const DeliverableCreate = () => {
   };
 
   return (
-    <div>
-      <h1>Create Deliverable</h1>
+    <div className='p-3'>
+      <h3>Create Deliverable</h3>
       <hr/>
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}

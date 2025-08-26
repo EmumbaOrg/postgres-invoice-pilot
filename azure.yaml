@@ -47,6 +47,7 @@ services:
       context: ./
       registry: ${AZURE_CONTAINER_REGISTRY_ENDPOINT}
       path: DOCKERFILE
+      remoteBuild: true
       buildArgs:
         - SERVICE_API_ENDPOINT_URL=${SERVICE_API_ENDPOINT_URL}
     dependsOn:
@@ -60,5 +61,6 @@ services:
       context: ./
       path: DOCKERFILE
       registry: ${AZURE_CONTAINER_REGISTRY_ENDPOINT}
+      remoteBuild: true
     dependsOn:
       - infra
