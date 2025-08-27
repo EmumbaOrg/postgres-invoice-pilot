@@ -111,7 +111,7 @@ export default function RecentActivity() {
         <Col lg={6}>
           <div className="mb-4">
             <h3 className="fw-bold text-dark mb-2">Recent Activity</h3>
-            <p className="text-muted">Some description text goes here</p>
+            <p className="text-muted">Latest updates and changes in your system</p>
           </div>
           {error && (
             <div className="alert alert-danger" role="alert">
@@ -141,7 +141,7 @@ export default function RecentActivity() {
         <Col lg={5}>
           <div className="mb-4">
             <h3 className="fw-bold text-dark mb-2">Recent Documents</h3>
-            <p className="text-muted">Some description text goes here</p>
+            <p className="text-muted">Recently uploaded invoices and SOW files</p>
           </div>
           <div>
             {loadingDocuments &&    
