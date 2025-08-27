@@ -27,7 +27,8 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           base: ${{ github.event.before }}
-          head: ${{ github.sha }}
+          ref: ${{ github.sha }}
+          initial-fetch-depth: 0
           filters: |
             api:
               - 'src/api/**'
