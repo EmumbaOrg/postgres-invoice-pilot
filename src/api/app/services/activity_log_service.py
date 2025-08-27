@@ -2,9 +2,7 @@ import asyncpg
 from typing import List
 
 class ActivityLogService:
-    def __init__(self):
-        pass
-    
+        
     async def log_activity(
         self,
         action: str,
