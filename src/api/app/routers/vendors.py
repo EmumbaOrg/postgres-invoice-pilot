@@ -1,8 +1,7 @@
-from app.lifespan_manager import get_db_connection_pool, get_storage_service
+from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_activity_log_service
 from app.models import Vendor, VendorEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import parse_obj_as
-from app.routers.activity_logs import get_activity_log_service
 
 # Initialize the router
 router = APIRouter(
@@ -65,7 +64,8 @@ async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool),
         await activity_service.log_activity(
             action="created",
             resource_type="vendor",
-            resource_name=vendor.name
+            resource_name=vendor.name,
+            pool=pool
         )
 
         return parse_obj_as(Vendor, dict(row))
@@ -103,7 +103,7 @@ async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activit
 
         # fetch vendor name for logging
         vendor = await conn.fetchrow('SELECT name FROM vendors WHERE id = $1;', id)
-        vedor_name = vendor['name'] if vendor else 'unknown'
+        vendor_name = vendor['name'] if vendor else 'unknown'
 
         # delete the vendor
         result = await conn.execute('DELETE FROM vendors WHERE id = $1;', id)
@@ -119,5 +119,6 @@ async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activit
         await activity_service.log_activity(
             action="deleted",
             resource_type="vendor",
-            resource_name=vedor_name
+            resource_name=vendor_name,
+            pool=pool
         )

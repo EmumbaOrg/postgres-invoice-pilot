@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response, Query
 from typing import Literal
-from app.lifespan_manager import get_storage_service, get_config_service
+from app.lifespan_manager import get_storage_service, get_config_service, get_activity_log_service
 from azure.core.exceptions import ResourceNotFoundError
 import asyncpg
 from app.lifespan_manager import get_db_connection_pool
-from app.routers.activity_logs import get_activity_log_service
 
 import os
 
@@ -84,7 +83,8 @@ async def upload_document(file: UploadFile = File(...), storage_service = Depend
         await activity_service.log_activity(
             action="uploaded",
             resource_type="document",
-            resource_name=file.filename
+            resource_name=file.filename,
+            pool=pool
         )
         
         return {"message": f"Document {file.filename} uploaded successfully."}
@@ -104,7 +104,8 @@ async def delete_document(blob_name: str, storage_service = Depends(get_storage_
         await activity_service.log_activity(
             action="deleted",
             resource_type="document",
-            resource_name=blob_name
+            resource_name=blob_name,
+            pool=pool
         )
 
         return {"message": f"Document {blob_name} deleted successfully."}
