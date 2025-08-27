@@ -65,7 +65,7 @@ async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool),
         await activity_service.log_activity(
             action="created",
             resource_type="vendor",
-            resource_name=str(row['id'])
+            resource_name=vendor.name
         )
 
         return parse_obj_as(Vendor, dict(row))
@@ -101,6 +101,10 @@ async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activit
         sow_docs = await conn.fetch('SELECT document FROM sows where vendor_id = $1', id)
         invoice_docs = await conn.fetch('SELECT document FROM invoices where vendor_id = $1', id)
 
+        # fetch vendor name for logging
+        vendor = await conn.fetchrow('SELECT name FROM vendors WHERE id = $1;', id)
+        vedor_name = vendor['name'] if vendor else 'unknown'
+
         # delete the vendor
         result = await conn.execute('DELETE FROM vendors WHERE id = $1;', id)
         if result == 'DELETE 0':
@@ -115,5 +119,5 @@ async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activit
         await activity_service.log_activity(
             action="deleted",
             resource_type="vendor",
-            resource_name=str(id)
+            resource_name=vedor_name
         )
