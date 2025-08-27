@@ -20,15 +20,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Folder change check
         id: filter
         uses: dorny/paths-filter@v3
         with:
+          base: ${{ github.event.before }}
+          head: ${{ github.sha }}
           filters: |
             api:
               - 'src/api/**'
             portal:
               - 'src/userportal/**'
+      - name: Debug changed files
+        run: |
+          echo "api changed? ${{ steps.filter.outputs.api }}"
+          echo "portal changed? ${{ steps.filter.outputs.portal }}"
+          echo "Comparing ${{ github.event.before }} -> ${{ github.sha }}"
+          git --no-pager diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | sed -n '1,200p'
 
   api-build-and-deploy:
     name: API - Build & Deploy
