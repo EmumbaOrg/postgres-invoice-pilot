@@ -1,3 +1,5 @@
+from typing import Optional
+
 class ChatFunctions:
     def __init__(self, db_pool, embedding_client):
         self.pool = db_pool
@@ -63,7 +65,7 @@ class ChatFunctions:
         rows = await self.__execute_query(query)
         return [dict(row) for row in rows]
 
-    async def get_invoice_validation_results(self, invoice_id: int = None):
+    async def get_invoice_validation_results(self, invoice_id: Optional[int] = None):
         """
         Retrieves invoice accuracy and performance validation results for the specified invoice.
         If no invoice_id is provided, return all invoice validation results.
@@ -79,10 +81,19 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
-    async def get_invoices(self, invoice_id: int = None, vendor_id: int = None, sow_id: int = None):
+    async def get_invoices(self, invoice_id: Optional[int] = None, vendor_id: Optional[int] = None, sow_id: Optional[int] = None):
         """
-        Retrieves a list of invoices from the database for a specified vendor or sow.
-        If no vendor_id, invoice_id, or sow_id is provided, return all invoices.
+        Retrieves invoices from the database based on provided filters.
+
+        Args:
+            invoice_id (int, optional): If provided, returns the invoice with this ID.
+            vendor_id (int, optional): If provided (and invoice_id is not), returns all invoices for this vendor.
+            sow_id (int, optional): If provided with vendor_id, returns invoices for this vendor and SOW.
+                                    If provided alone, returns all invoices for this SOW.
+
+        Returns:
+            List[dict]: A list of invoice records matching the filter criteria.
+                        If no arguments are provided, returns all invoices.
         """
         # Define the columns to retrieve from the table
         # This excludes a few columns that are large and not needed for the chat function
@@ -159,7 +170,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query}')
         return [dict(row) for row in rows]
 
-    async def get_sow_validation_results(self, sow_id: int = None):
+    async def get_sow_validation_results(self, sow_id: Optional[int] = None):
         """
         Retrieves SOW accuracy and performance validation results for the specified SOW or vendor.
         If no sow_id is provided, return all SOW validation results
@@ -175,7 +186,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
-    async def get_sows(self, sow_id: int = None, vendor_id: int = None):
+    async def get_sows(self, sow_id: Optional[int] = None, vendor_id: Optional[int] = None):
         """
         Retrieves a list of statements of work (SOWs) from the database for the specified vendor.
         If no vendor_id or sow_id is provided, return all SOWs.
@@ -204,7 +215,7 @@ class ChatFunctions:
     The following methods are used for hybrid searches against the database.
     """
 
-    async def find_milestone_deliverables(self, user_query: str, sow_id: int = None):
+    async def find_milestone_deliverables(self, user_query: str, sow_id: Optional[int] = None):
         """
         Retrieves milestone deliverables similar to the user query for the specified SOW.
         If no sow_id is provided, return all similar deliverables.
@@ -232,7 +243,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
-    async def find_invoice_line_items(self, user_query: str, invoice_id: int = None):
+    async def find_invoice_line_items(self, user_query: str, invoice_id: Optional[int] = None):
         """
         Retrieves invoice line items similar to the user query for the specified invoice.
         If no invoice_id is provided, return all similar line items.
@@ -260,7 +271,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
-    async def find_invoice_validation_results(self, user_query: str, invoice_id: int = None):
+    async def find_invoice_validation_results(self, user_query: str, invoice_id: Optional[int] = None):
         """
         Retrieves invoice accuracy and performance validation results similar to the user query for specified invoice.
         If invoice_id is not provided, return all similar validation results.
@@ -290,7 +301,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
-    async def find_sow_chunks(self, user_query: str, sow_id: int = None):
+    async def find_sow_chunks(self, user_query: str, sow_id: Optional[int] = None):
         """
         Retrieves content chunks similar to the user query for the specified SOW.
         """
@@ -316,7 +327,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
-    async def find_sow_chunks_with_semantic_ranking(self, user_query: str, sow_id: int = None, max_results: int = 3):
+    async def find_sow_chunks_with_semantic_ranking(self, user_query: str, sow_id: Optional[int] = None, max_results: int = 3):
         """
         Retrieves content chunks similar to the user query for the specified SOW.
         """
@@ -344,7 +355,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
-    async def find_sow_validation_results(self, user_query: str, sow_id: int = None): 
+    async def find_sow_validation_results(self, user_query: str, sow_id: Optional[int] = None): 
         """
         Retrieves SOW accuracy and performance validation results similar to the user query for specified SOW.
         If no sow_id is provided, return all similar validation results.
