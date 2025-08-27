@@ -39,10 +39,11 @@ export default function ChatInterface() {
         <Row className="mb-3">
           <Col>
             <h1 className="display-5 fw-bold text-dark text-shadow">
-              Search using agentic AI
+              Search using AI
             </h1>
             <p className="text-secondary fs-6 mb-1">
-              Some description text goes here
+              Get instant insights and answers from your contract management
+              data using AI
             </p>
           </Col>
         </Row>
