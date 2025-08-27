@@ -1,7 +1,8 @@
-from app.lifespan_manager import get_db_connection_pool
+from app.lifespan_manager import get_db_connection_pool, get_storage_service
 from app.models import Vendor, VendorEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import parse_obj_as
+from app.routers.activity_logs import get_activity_log_service
 
 # Initialize the router
 router = APIRouter(
@@ -36,7 +37,7 @@ async def list_vendors(skip: int = 0, limit: int = 10, sortby: str = None, pool 
 
 
 @router.post('/', response_model=Vendor, status_code=status.HTTP_201_CREATED)
-async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool)):
+async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service)):
     """Adds a new vendor to the database."""
     
     async with pool.acquire() as conn:   
@@ -59,9 +60,15 @@ async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool))
 
         if row is None:
             raise HTTPException(status_code=500, detail='Failed to add vendor.')
-        
-        return parse_obj_as(Vendor, dict(row))
 
+        # Log the activity
+        await activity_service.log_activity(
+            action="created",
+            resource_type="vendor",
+            resource_name=vendor.name
+        )
+
+        return parse_obj_as(Vendor, dict(row))
 
 
 @router.get('/{id:int}', response_model = Vendor)
@@ -83,3 +90,34 @@ async def get_by_type(type: str, pool = Depends(get_db_connection_pool)):
             raise HTTPException(status_code=404, detail=f'No vendors with a type of "{type}" were found.')
         vendors = parse_obj_as(list[Vendor], [dict(row) for row in rows])
     return vendors
+
+@router.delete('/{id:int}', status_code=204)
+async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), storage_service = Depends(get_storage_service)
+):
+    """ Deletes a vendor and all its associated records """
+
+    async with pool.acquire() as conn:
+        # collect blob storage paths of SOW and INVOICE files uploaded by this vendor
+        sow_docs = await conn.fetch('SELECT document FROM sows where vendor_id = $1', id)
+        invoice_docs = await conn.fetch('SELECT document FROM invoices where vendor_id = $1', id)
+
+        # fetch vendor name for logging
+        vendor = await conn.fetchrow('SELECT name FROM vendors WHERE id = $1;', id)
+        vedor_name = vendor['name'] if vendor else 'unknown'
+
+        # delete the vendor
+        result = await conn.execute('DELETE FROM vendors WHERE id = $1;', id)
+        if result == 'DELETE 0':
+            raise HTTPException(status_code=404, detail='Vendor not found.')
+        
+        # delete associated SOW and INVOICE files from blob storage
+        for doc in sow_docs + invoice_docs:
+            if doc['document']:
+                result = await storage_service.delete_document(doc['document'])
+
+        # Log the activity
+        await activity_service.log_activity(
+            action="deleted",
+            resource_type="vendor",
+            resource_name=vedor_name
+        )
