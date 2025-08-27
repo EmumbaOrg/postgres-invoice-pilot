@@ -336,20 +336,15 @@ const NavigationStepper = () => {
               <div className="row g-3">
                 <div className="col-12">
                     <Form.Group className="mb-4">
-              <Form.Select
+              <input
                 value={formData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 required
-                className="py-3"
-               
-              >
-                <option value="">Select vendor name</option>
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.name}>
-                    {vendor.name}
-                  </option>
-                ))}
-              </Form.Select>
+                className="form-control p-3"
+                placeholder="Vendor Name"
+                type="text"
+
+              ></input>
             </Form.Group>
                 </div>
                 <div className="col-12">

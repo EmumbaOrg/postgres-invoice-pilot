@@ -1,33 +1,32 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/Api';
-import { Form, InputGroup, Dropdown } from 'react-bootstrap';
-// import { Button } from 'react-bootstrap';
-// import ConfirmModal from '../../components/ConfirmModal'; 
+import { Form, InputGroup, Dropdown, Button } from 'react-bootstrap';
+import ConfirmModal from '../../components/ConfirmModal'; 
 import PagedTable from '../../components/PagedTable';
 
 const VendorList = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [sowToDelete, setSowToDelete] = useState(null);
+  const [vendorToDelete, setVendorToDelete] = useState(null);
   const [reload, setReload] = useState(false);
   const [searchTerm, setSearchTerm] = useState("")
   
-  // const handleDelete = async () => {
-  //   if (!sowToDelete) return;
+  const handleDelete = async () => {
+    if (!vendorToDelete) return;
 
-  //   try {
-  //     await api.vendors.delete(sowToDelete);
-  //     setSuccess('Vendor deleted successfully!');
-  //     setError(null);
-  //     setShowDeleteModal(false);
-  //     setReload(true); // Refresh the data
-  //   } catch (err) {
-  //     setSuccess(null);
-  //     setError(err.message);
-  //   }
-  // }
+    try {
+      await api.vendors.delete(vendorToDelete);
+      setSuccess('Vendor deleted successfully!');
+      setError(null);
+      setShowDeleteModal(false);
+      setReload(true); // Refresh the data
+    } catch (err) {
+      setSuccess(null);
+      setError(err.message);
+    }
+  }
 
   const columns = React.useMemo(
     () => [
@@ -72,6 +71,10 @@ const VendorList = () => {
               <Dropdown.Item className="d-flex align-items-center gap-1" href={`/vendors/view/${row.original.id}`}>
                 <i className="fas fa-eye me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 View
+              </Dropdown.Item>
+               <Dropdown.Item className="d-flex align-items-center gap-1" onClick={() => { setVendorToDelete(row.original.id); setShowDeleteModal(true); }}>
+                <i className="fas fa-trash-alt me-2" style={{ color: 'var(--bs-danger)' }}></i>
+                Delete
               </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
@@ -142,12 +145,12 @@ const VendorList = () => {
       </div>
       <PagedTable columns={columns} fetchData={fetchVendors} reload={reload} key={searchTerm} noDataMesssage={'No vendors have been added yet.'} noDataDescription={'Click on "New Vendor" to begin adding vendors.'} />
 
-      {/* <ConfirmModal
+      <ConfirmModal
         show={showDeleteModal}
         handleClose={() => setShowDeleteModal(false)}
         handleConfirm={handleDelete}
         message="Are you sure you want to delete this Vendor?"
-      /> */}
+      />
     </div>
   );
 };

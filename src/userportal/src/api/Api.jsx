@@ -350,6 +350,9 @@ const Api = {
                 console.error('Error creating vendor:', error);
                 throw error;
             }
+        },
+        delete: async (id) => {
+            return await RESTHelper.delete(getUrl(`/vendors/${id}`));
         }
     }
 };

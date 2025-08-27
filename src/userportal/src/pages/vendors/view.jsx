@@ -28,6 +28,8 @@ const VendorView = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showDeleteSOWModal, setShowDeleteSOWModal] = useState(false);
   const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
+  const [showDeleteVendorModal, setShowDeleteVendorModal] = useState(false);
+  const [vendorToDelete, setVendorToDelete] = useState(null);
 
 
   useEffect(() => {
@@ -103,6 +105,23 @@ const VendorView = () => {
     }
   }
 
+  const handleDeleteVendor = async () => {
+    if (!vendorToDelete) return;
+
+    try {
+      await api.vendors.delete(vendorToDelete);
+      setSuccess('Vendor deleted successfully!');
+      setError(null);
+      setShowDeleteVendorModal(false);
+      // Redirect to vendors list after successful deletion
+      window.location.href = '/vendors';
+    } catch (err) {
+      setSuccess(null);
+      setError(err.message);
+      setShowDeleteVendorModal(false);
+    }
+  }
+
   const FileListItem = ({ file }) => (
     <div className="d-flex align-items-center justify-content-between p-3" style={{border: "1px solid #EBF2FF", borderRadius: "8px", marginBottom: "10px"}}>
       <div className="d-flex align-items-center">
@@ -142,7 +161,7 @@ const VendorView = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h2 mb-0 fw-bold text-dark">{name || "Adatum Corporation"}</h1>
         <div className="d-flex gap-2">
-          <Button variant="outline-danger">Delete</Button>
+          <Button variant="outline-danger" onClick={() => { setVendorToDelete(id); setShowDeleteVendorModal(true); }}>Delete</Button>
           <Button variant="primary" onClick={() => setShowCreateSOWModal(true)}>Add new SOW</Button>
         </div>
       </div>
@@ -298,6 +317,14 @@ const VendorView = () => {
         handleConfirm={handleDeleteSOW}
         message="Are you sure you want to delete this SOW?"
       />
+
+      <ConfirmModal
+        show={showDeleteVendorModal}
+        handleClose={() => setShowDeleteVendorModal(false)}
+        handleConfirm={handleDeleteVendor}
+        message="Are you sure you want to delete this Vendor? This action cannot be undone."
+      />
+
           <SOWCreateModal 
         show={showCreateSOWModal} 
         onHide={() => setShowCreateSOWModal(false)} 
