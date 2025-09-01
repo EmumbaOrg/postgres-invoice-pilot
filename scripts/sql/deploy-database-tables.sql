@@ -1,4 +1,21 @@
-/*  File to create tables and load sample data  */
+/* File to create, set up extensions, create tables, and load sample data */
+
+/* Create extensions */
+CREATE EXTENSION IF NOT EXISTS azure_ai;
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_diskann;
+
+/* Azure AI extension settings */
+SELECT azure_ai.set_setting('azure_openai.endpoint', '${OPENAI_ENDPOINT}');
+SELECT azure_ai.set_setting('azure_openai.subscription_key', '${OPENAI_KEY}');
+
+SELECT azure_ai.set_setting('azure_ml.scoring_endpoint','${AML_SCORING_ENDPOINT}');
+SELECT azure_ai.set_setting('azure_ml.endpoint_key', '${AML_ENDPOINT_KEY}');
+
+SELECT azure_ai.set_setting('azure_cognitive.endpoint', '${LANGUAGE_ENDPOINT}');
+SELECT azure_ai.set_setting('azure_cognitive.subscription_key', '${LANGUAGE_KEY}');
+
+/* End Azure AI Extension Settings */
 
 /* VENDORS */
 
@@ -78,6 +95,7 @@ CREATE TABLE IF NOT EXISTS sows (
     document text NOT NULL,
     metadata JSONB, --  additional metadata
     summary text,
+    embedding vector(1536),
     FOREIGN KEY (vendor_id) REFERENCES vendors (id) ON DELETE CASCADE
 );
 
@@ -139,6 +157,7 @@ CREATE TABLE IF NOT EXISTS sow_chunks (
     heading text NOT NULL,
     content text NOT NULL,
     page_number INT NOT NULL,
+    embedding vector(1536),
     FOREIGN KEY (sow_id) REFERENCES sows (id) ON DELETE CASCADE
 );
 
@@ -190,6 +209,7 @@ CREATE TABLE IF NOT EXISTS deliverables (
     description TEXT,
     amount NUMERIC(10, 2),
     status TEXT NOT NULL,
+    embedding vector(1536),
     due_date DATE NOT NULL,
     FOREIGN KEY (milestone_id) REFERENCES milestones (id) ON DELETE CASCADE
 );
@@ -217,6 +237,7 @@ CREATE TABLE IF NOT EXISTS sow_validation_results (
     datestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     result TEXT,
     validation_passed BOOLEAN,
+    embedding vector(1536),
     FOREIGN KEY (sow_id) REFERENCES sows (id) ON DELETE CASCADE
 );
 
@@ -258,6 +279,7 @@ CREATE TABLE IF NOT EXISTS invoices (
     document text NOT NULL, -- document path
     content text, --  text content from the invoice
     metadata JSONB, --  additional metadata
+    embedding vector(1536),
     FOREIGN KEY (vendor_id) REFERENCES vendors (id) ON DELETE CASCADE,
     FOREIGN KEY (sow_id) REFERENCES sows (id) ON DELETE CASCADE
 );
@@ -282,6 +304,7 @@ CREATE TABLE IF NOT EXISTS invoice_line_items (
     description TEXT,
     amount NUMERIC(10, 2),
     status TEXT NOT NULL,
+    embedding vector(1536),
     due_date DATE NOT NULL,
     FOREIGN KEY (invoice_id) REFERENCES invoices (id) ON DELETE CASCADE
 );
@@ -310,6 +333,7 @@ CREATE TABLE IF NOT EXISTS invoice_validation_results (
     datestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     result TEXT,
     validation_passed BOOLEAN,
+    embedding vector(1536),
     FOREIGN KEY (invoice_id) REFERENCES invoices (id) ON DELETE CASCADE
 );
 
@@ -368,3 +392,39 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 
 /* END_ACTIVITY_LOGS */
 
+
+/* Create Embeddings For All Tables With Embedding Column */
+
+UPDATE deliverables
+SET embedding = azure_openai.create_embeddings('embeddings', description, max_attempts => 5, retry_delay_ms => 500)
+WHERE embedding IS NULL;
+
+
+UPDATE invoice_line_items
+SET embedding = azure_openai.create_embeddings('embeddings', description, max_attempts => 5, retry_delay_ms => 500)
+WHERE embedding IS NULL;
+
+UPDATE invoice_validation_results
+SET embedding = azure_openai.create_embeddings('embeddings', result, max_attempts => 5, retry_delay_ms => 500)
+WHERE embedding IS NULL;
+
+UPDATE sow_chunks
+SET embedding = azure_openai.create_embeddings('embeddings', content, max_attempts => 5, retry_delay_ms => 500)
+WHERE embedding IS NULL;
+
+UPDATE sow_validation_results
+SET embedding = azure_openai.create_embeddings('embeddings', result, max_attempts => 5, retry_delay_ms => 500)
+WHERE embedding IS NULL;
+
+/* End Embedding Creation */
+
+
+/* Create a diskann index by using Cosine distance operator */
+
+CREATE INDEX deliverables_diskann_idx ON deliverables USING diskann (embedding vector_cosine_ops);
+CREATE INDEX line_items_diskann_idx ON invoice_line_items USING diskann (embedding vector_cosine_ops);
+CREATE INDEX invoice_validation_results_diskann_idx ON invoice_validation_results USING diskann (embedding vector_cosine_ops);
+CREATE INDEX sow_chunks_diskann_idx ON sow_chunks USING diskann (embedding vector_cosine_ops);
+CREATE INDEX sow_validation_results_diskann_idx ON sow_validation_results USING diskann (embedding vector_cosine_ops);
+
+/* End DiskAnn Index Creation */
