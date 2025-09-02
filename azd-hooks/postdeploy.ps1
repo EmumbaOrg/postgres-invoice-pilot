@@ -119,6 +119,7 @@ $openaiKeyEscaped        = ($env:AZURE_OPENAI_KEY        | ForEach-Object { $_ -
 $amlScoringUriEscaped    = ($amlScoringUri               | ForEach-Object { $_ -replace "'","''" })
 $languageEndpointEscaped = ($env:LANGUAGE_SERVICE_ENDPOINT | ForEach-Object { $_ -replace "'","''" })
 $languageKeyEscaped      = ($env:LANGUAGE_SERVICE_KEY      | ForEach-Object { $_ -replace "'","''" })
+$deployAmlModel          = ($env:DEPLOY_AML_MODEL        | ForEach-Object { $_ -replace "'","''" })
 
 
 # ##############################################################################
@@ -136,6 +137,20 @@ $dbSql = $dbSql.Replace('${OPENAI_KEY}', $openaiKeyEscaped)
 $dbSql = $dbSql.Replace('${LANGUAGE_ENDPOINT}', $languageEndpointEscaped)
 $dbSql = $dbSql.Replace('${LANGUAGE_KEY}', $languageKeyEscaped)
 $dbTempPath = "$PSScriptRoot/../scripts/sql/deploy-database-tables.tmp.sql"
+Set-Content -Path $dbTempPath -Value $dbSql
+
+az postgres flexible-server execute `
+          --admin-user "$username" `
+          --admin-password "$token" `
+          --name "${env:POSTGRESQL_SERVER_NAME}" `
+          --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
+          --file-path $dbTempPath
+
+# Create triggers and semantic_reranker function.
+$dbSqlPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.sql"
+$dbSql = Get-Content -Path $dbSqlPath -Raw
+$dbSql = $dbSql.Replace('${DEPLOY_AML_MODEL}', $deployAmlModel)
+$dbTempPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.tmp.sql"
 Set-Content -Path $dbTempPath -Value $dbSql
 
 az postgres flexible-server execute `
