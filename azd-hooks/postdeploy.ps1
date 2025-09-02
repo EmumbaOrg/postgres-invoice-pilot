@@ -1,4 +1,3 @@
-
 # If env:RUN_POSTDEPLOY_SCRIPT is set to false, exit the script
 if ($env:RUN_POSTDEPLOY_SCRIPT -eq $False) {
     Write-Host "Skipping Post-Deployment Script"
@@ -11,6 +10,7 @@ $ErrorActionPreference = "Stop"
 # Set Azure CLI Context
 # ##############################################################################
 az account set --subscription "${env:AZURE_SUBSCRIPTION_ID}"
+
 
 # ##############################################################################
 # Install Required Azure CLI Extensions
@@ -47,7 +47,7 @@ Start-Sleep -Seconds 5
 # Allow-list required PostgreSQL extensions (merge with existing)
 # ##############################################################################
 try {
-    $requiredExtensions = @('azure_ai','vector','pg_diskann')
+    $requiredExtensions = @('azure_ai','vector','pg_diskann','age','azure_storage')
     $currentExtensions = az postgres flexible-server parameter show `
         --resource-group "${env:AZURE_RESOURCE_GROUP}" `
         --server-name "${env:POSTGRESQL_SERVER_NAME}" `
@@ -82,6 +82,16 @@ try {
 } catch {
     Write-Warning "Failed to ensure azure.extensions allow-list: $($_.Exception.Message)"
 }
+
+# ##############################################################################
+# Set shared_preload_libraries parameter in PostgreSQL (required libraries)
+# ##############################################################################
+az postgres flexible-server parameter set `
+    --resource-group "${env:AZURE_RESOURCE_GROUP}" `
+    --server-name "${env:POSTGRESQL_SERVER_NAME}" `
+    --subscription "${env:AZURE_SUBSCRIPTION_ID}" `
+    --name shared_preload_libraries `
+    --value "age,azure_storage,pg_cron,pg_stat_statements" | Out-Null
 
 # ##############################################################################
 # Get workspace key 
@@ -146,24 +156,26 @@ az postgres flexible-server execute `
           --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
           --file-path $dbTempPath
 
+Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
+
 # Create triggers and semantic_reranker function.
 $dbSqlPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.sql"
 $dbSql = Get-Content -Path $dbSqlPath -Raw
 $dbSql = $dbSql.Replace('${DEPLOY_AML_MODEL}', $deployAmlModel)
-$dbTempPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.tmp.sql"
-Set-Content -Path $dbTempPath -Value $dbSql
+$dbTempPathT = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.tmp.sql"
+Set-Content -Path $dbTempPathT -Value $dbSql
 
 az postgres flexible-server execute `
           --admin-user "$username" `
           --admin-password "$token" `
           --name "${env:POSTGRESQL_SERVER_NAME}" `
           --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
-          --file-path $dbTempPath
+          --file-path $dbTempPathT
 
 Write-Host "Database Schema Configured"
 
 # Clean up temp file
-#Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
+Remove-Item -Path $dbTempPathT -ErrorAction SilentlyContinue
 
 # ##############################################################################
 # Grant Database Permissions to API Identity
@@ -192,6 +204,8 @@ az postgres flexible-server execute `
 
 Write-Host "Database Permissions Granted to API App Managed Identity"
 
+
+#Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 # ##############################################################################
 # Upload Sample Files to Blob Storage
 # ##############################################################################
@@ -335,7 +349,7 @@ Write-Host ("Model Deploy Total Duration: {0} hours {1} minutes {2} seconds" -f 
 # Update .env file to prevent postdeploy script from running again (this ensures that the script runs only once)
 # ##############################################################################
 
-#azd env set "RUN_POSTDEPLOY_SCRIPT" "false"
+azd env set "RUN_POSTDEPLOY_SCRIPT" "false"
 
 # ##############################################################################
 # Write completion message
