@@ -397,3 +397,9 @@ output SERVICE_USERPORTAL_ENDPOINT_URL string = userPortalApp.outputs.uri
 output SERVICE_API_ENDPOINT_URL string = apiApp.outputs.uri
 
 output RUN_POSTDEPLOY_SCRIPT bool = runPostDeployScript
+
+// Language Service outputs (forwarded from module)
+output LANGUAGE_SERVICE_NAME string = languageService.outputs.LANGUAGE_SERVICE_NAME
+output LANGUAGE_SERVICE_ENDPOINT string = languageService.outputs.LANGUAGE_SERVICE_ENDPOINT
+output LANGUAGE_SERVICE_KEY string = languageService.outputs.LANGUAGE_SERVICE_KEY
+output LANGUAGE_SERVICE_REGION string = languageService.outputs.LANGUAGE_SERVICE_REGION

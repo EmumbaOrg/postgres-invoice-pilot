@@ -56,6 +56,7 @@ export default function RecentActivity() {
         case 'view':
           // Open PDF preview modal
           const documentUrl = api.documents.getUrl(documentItem.blob_name);
+          console.log('Open PDF preview modal document url', documentUrl)
           setSelectedDocumentUrl(documentUrl);
           setShowPdfModal(true);
           break;

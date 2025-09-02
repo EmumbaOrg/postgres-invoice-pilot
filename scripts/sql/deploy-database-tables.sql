@@ -6,14 +6,14 @@ CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pg_diskann;
 
 /* Azure AI extension settings */
--- SELECT azure_ai.set_setting('azure_openai.endpoint', '<endpoint>');
--- SELECT azure_ai.set_setting('azure_openai.subscription_key', '<api-key>');
+SELECT azure_ai.set_setting('azure_openai.endpoint', '${OPENAI_ENDPOINT}');
+SELECT azure_ai.set_setting('azure_openai.subscription_key', '${OPENAI_KEY}');
 
--- SELECT azure_ai.set_setting('azure_ml.scoring_endpoint','<endpoint>');
--- SELECT azure_ai.set_setting('azure_ml.endpoint_key', '<api-key>');
+SELECT azure_ai.set_setting('azure_ml.scoring_endpoint','${AML_SCORING_ENDPOINT}');
+SELECT azure_ai.set_setting('azure_ml.endpoint_key', '${AML_ENDPOINT_KEY}');
 
--- SELECT azure_ai.set_setting('azure_cognitive.endpoint', '<endpoint>');
--- SELECT azure_ai.set_setting('azure_cognitive.subscription_key', '<api-key>');
+SELECT azure_ai.set_setting('azure_cognitive.endpoint', '${LANGUAGE_ENDPOINT}');
+SELECT azure_ai.set_setting('azure_cognitive.subscription_key', '${LANGUAGE_KEY}');
 
 /* End Azure AI Extension Settings */
 
