@@ -1,5 +1,9 @@
-
+SELECT azure_storage.account_add('${AZURE_STORAGE_ACCOUNT_NAME}', '${AZURE_STORAGE_ACCOUNT_KEY}');
 -- Extract data for the vendors node
+
+SELECT current_user;
+GRANT azure_storage_admin TO current_user;
+
 SELECT azure_storage.blob_put(
     '${AZURE_STORAGE_ACCOUNT_NAME}',
     'graph',

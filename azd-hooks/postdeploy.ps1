@@ -131,6 +131,7 @@ $languageEndpointEscaped = ($env:LANGUAGE_SERVICE_ENDPOINT | ForEach-Object { $_
 $languageKeyEscaped      = ($env:LANGUAGE_SERVICE_KEY      | ForEach-Object { $_ -replace "'","''" })
 $deployAmlModel          = ($env:DEPLOY_AML_MODEL        | ForEach-Object { $_ -replace "'","''" })
 $azureStorageAccountName = ($env:AZURE_STORAGE_ACCOUNT_NAME | ForEach-Object { $_ -replace "'","''" })
+$azureStorageAccountKey  = ($env:AZURE_STORAGE_ACCOUNT_KEY | ForEach-Object { $_ -replace "'","''" })
 
 
 # ##############################################################################
@@ -180,6 +181,7 @@ Write-Host "Export Graph Data"
 $dbSqlPath = "$PSScriptRoot/../scripts/sql/export-graph-data.sql"
 $dbSql = Get-Content -Path $dbSqlPath -Raw
 $dbSql = $dbSql.Replace('${AZURE_STORAGE_ACCOUNT_NAME}', $azureStorageAccountName)
+$dbSql = $dbSql.Replace('${AZURE_STORAGE_ACCOUNT_KEY}', $azureStorageAccountKey)
 $dbTempPath = "$PSScriptRoot/../scripts/sql/export-graph-data.tmp.sql"
 Set-Content -Path $dbTempPath -Value $dbSql
 

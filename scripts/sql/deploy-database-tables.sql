@@ -4,6 +4,9 @@
 CREATE EXTENSION IF NOT EXISTS azure_ai;
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pg_diskann;
+CREATE EXTENSION IF NOT EXISTS azure_storage;
+CREATE EXTENSION IF NOT EXISTS age;
+
 
 /* Azure AI extension settings */
 SELECT azure_ai.set_setting('azure_openai.endpoint', '${OPENAI_ENDPOINT}');

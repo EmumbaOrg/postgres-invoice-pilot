@@ -96,3 +96,4 @@ resource postgresStorageBlobDataContributorRole 'Microsoft.Authorization/roleAss
 
 output name string = storage.name
 output id string = storage.id
+output storageAccountKey string = storage.listKeys().keys[0].value
