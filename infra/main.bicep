@@ -5,6 +5,40 @@ param environmentName string
 
 @minLength(1)
 @description('Primary location for all resources')
+@allowed([
+  'australiaeast'
+  'brazilsouth'
+  'canadaeast'
+  'eastus'
+  'eastus2'
+  'francecentral'
+  'germanywestcentral'
+  'italynorth'
+  'japaneast'
+  'koreacentral'
+  'northcentralus'
+  'norwayeast'
+  'polandcentral'
+  'southafricanorth'
+  'southcentralus'
+  'southindia'
+  'swedencentral'
+  'switzerlandnorth'
+  'uaenorth'
+  'uksouth'
+  'westeurope'
+  'westus'
+  'westus3'
+])
+@metadata({
+  azd: {
+    type: 'location'
+    usageName : [
+      'OpenAI.Standard.gpt-4o, 10'
+      'OpenAI.Standard.text-embedding-ada-002, 10'
+    ]
+  }
+})
 param location string
 
 @description('Name of the resource group')

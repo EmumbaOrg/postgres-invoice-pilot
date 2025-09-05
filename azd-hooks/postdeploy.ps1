@@ -158,7 +158,7 @@ az postgres flexible-server execute `
           --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
           --file-path $dbTempPath
 
-Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
+#Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 
 # Create triggers and semantic_reranker function.
 $dbSqlPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.sql"
@@ -195,11 +195,11 @@ az postgres flexible-server execute `
 Write-Host "Graph Data Exported"
 
 # Clean up temp file
-Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
+#Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 
 Write-Host "Load Graph Data"
 # Load Graph Data from tables into Apache AGE graph
-$dbSqlPath = "$PSScriptRoot/../scripts/sql/graph_load_from_tables.sql"
+$dbSqlPath = "$PSScriptRoot/../scripts/sql/load-graph-from-tables.sql"
 az postgres flexible-server execute `
           --admin-user "$username" `
           --admin-password "$token" `

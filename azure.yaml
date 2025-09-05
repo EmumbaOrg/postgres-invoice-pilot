@@ -16,7 +16,16 @@ hooks:
     shell: pwsh
     continueOnError: false
     interactive: true
-    run: ./azd-hooks/preprovision.ps1
+    run: |
+          Write-Host "Running capacity validation..." -ForegroundColor Yellow
+          ./azd-hooks/preprovision-checklist.ps1
+           if ($LASTEXITCODE -ne 0) {
+           # Validation failed - script already showed error and cleaned up
+           exit $LASTEXITCODE
+            }
+          Write-Host "Capacity validation completed successfully!" -ForegroundColor Green
+          Write-Host "Running environment setup..." -ForegroundColor Yellow
+          ./azd-hooks/preprovision.ps1
   postdeploy:
     shell: pwsh
     continueOnError: false
