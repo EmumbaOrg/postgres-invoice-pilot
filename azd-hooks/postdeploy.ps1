@@ -47,7 +47,7 @@ Start-Sleep -Seconds 5
 # Allow-list required PostgreSQL extensions (merge with existing)
 # ##############################################################################
 try {
-    $requiredExtensions = @('azure_ai','vector','pg_diskann','age','azure_storage')
+    $requiredExtensions = @('azure_ai','vector','pg_diskann','age')
     $currentExtensions = az postgres flexible-server parameter show `
         --resource-group "${env:AZURE_RESOURCE_GROUP}" `
         --server-name "${env:POSTGRESQL_SERVER_NAME}" `
@@ -91,7 +91,7 @@ az postgres flexible-server parameter set `
     --server-name "${env:POSTGRESQL_SERVER_NAME}" `
     --subscription "${env:AZURE_SUBSCRIPTION_ID}" `
     --name shared_preload_libraries `
-    --value "age,azure_storage,pg_cron,pg_stat_statements" | Out-Null
+    --value "age,pg_cron,pg_stat_statements" | Out-Null
 
 # ##############################################################################
 # Get workspace key 
@@ -130,8 +130,6 @@ $amlScoringUriEscaped    = ($amlScoringUri               | ForEach-Object { $_ -
 $languageEndpointEscaped = ($env:LANGUAGE_SERVICE_ENDPOINT | ForEach-Object { $_ -replace "'","''" })
 $languageKeyEscaped      = ($env:LANGUAGE_SERVICE_KEY      | ForEach-Object { $_ -replace "'","''" })
 $deployAmlModel          = ($env:DEPLOY_AML_MODEL        | ForEach-Object { $_ -replace "'","''" })
-$azureStorageAccountName = ($env:AZURE_STORAGE_ACCOUNT_NAME | ForEach-Object { $_ -replace "'","''" })
-$azureStorageAccountKey  = ($env:AZURE_STORAGE_ACCOUNT_KEY | ForEach-Object { $_ -replace "'","''" })
 
 
 # ##############################################################################
@@ -175,24 +173,6 @@ az postgres flexible-server execute `
           --file-path $dbTempPathT
 
 Write-Host "Database Schema Configured"
-
-Write-Host "Export Graph Data"
-# Export Graph Data Into CSV Files from vendor, invoice, sow tables
-$dbSqlPath = "$PSScriptRoot/../scripts/sql/export-graph-data.sql"
-$dbSql = Get-Content -Path $dbSqlPath -Raw
-$dbSql = $dbSql.Replace('${AZURE_STORAGE_ACCOUNT_NAME}', $azureStorageAccountName)
-$dbSql = $dbSql.Replace('${AZURE_STORAGE_ACCOUNT_KEY}', $azureStorageAccountKey)
-$dbTempPath = "$PSScriptRoot/../scripts/sql/export-graph-data.tmp.sql"
-Set-Content -Path $dbTempPath -Value $dbSql
-
-az postgres flexible-server execute `
-          --admin-user "$username" `
-          --admin-password "$token" `
-          --name "${env:POSTGRESQL_SERVER_NAME}" `
-          --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
-          --file-path $dbTempPath
-
-Write-Host "Graph Data Exported"
 
 # Clean up temp file
 #Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue

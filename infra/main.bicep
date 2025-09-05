@@ -438,5 +438,3 @@ output LANGUAGE_SERVICE_ENDPOINT string = languageService.outputs.LANGUAGE_SERVI
 output LANGUAGE_SERVICE_KEY string = languageService.outputs.LANGUAGE_SERVICE_KEY
 output LANGUAGE_SERVICE_REGION string = languageService.outputs.LANGUAGE_SERVICE_REGION
 
-// storage key 
-output AZURE_STORAGE_ACCOUNT_KEY string = storage.outputs.storageAccountKey
