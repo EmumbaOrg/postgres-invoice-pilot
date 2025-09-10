@@ -1,4 +1,6 @@
 from typing import Optional
+from semantic_kernel.functions import kernel_function
+
 
 class ChatFunctions:
     def __init__(self, db_pool, embedding_client):
@@ -45,6 +47,7 @@ class ChatFunctions:
             row = await conn.fetchrow(query)
         return row
     
+    @kernel_function(description="Retrieves the ID of a specific invoice by its number.")
     async def get_invoice_id(self, number: str) -> int:
         """
         Retrieves the ID of a specific invoice by its number.
@@ -53,6 +56,7 @@ class ChatFunctions:
         row = await self.__execute_scalar_query(query)
         return row['id'] or None
 
+    @kernel_function(description="Retrieves the line items for a specific invoice by its ID.")
     async def get_invoice_line_items(self, invoice_id: int):
         """
         Retrieves the line items for a specific invoice by its ID.
@@ -65,6 +69,7 @@ class ChatFunctions:
         rows = await self.__execute_query(query)
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Retrieves invoice accuracy and performance validation results for the specified invoice.")
     async def get_invoice_validation_results(self, invoice_id: Optional[int] = None):
         """
         Retrieves invoice accuracy and performance validation results for the specified invoice.
@@ -81,6 +86,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Retrieves a list of invoices from the database based on provided filters.")
     async def get_invoices(self, invoice_id: Optional[int] = None, vendor_id: Optional[int] = None, sow_id: Optional[int] = None):
         """
         Retrieves invoices from the database based on provided filters.
@@ -114,6 +120,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
+    @kernel_function(description="Retrieves a list of unpaid invoices for a specific vendor using a graph query.")
     async def get_unpaid_invoices_for_vendor(self, vendor_id: int):
         """
         Retrieves a list of unpaid invoices for a specific vendor using a graph query.
@@ -128,6 +135,7 @@ class ChatFunctions:
         rows = await self.__execute_graph_query(graph_query)
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Retrieves the ID of a specific SOW by its number.")
     async def get_sow_id(self, number: str) -> int:
         """
         Retrieves the ID of a specific SOW by its number.
@@ -136,6 +144,7 @@ class ChatFunctions:
         row = await self.__execute_scalar_query(query)
         return row.get('id', None)
 
+    @kernel_function(description="Retrieves the content chunks for a specific statement of work (SOW) by its ID.")
     async def get_sow_chunks(self, sow_id: int):
         """
         Retrieves the content chunks for a specific statement of work (SOW) by its ID.
@@ -150,6 +159,7 @@ class ChatFunctions:
         rows = await self.__execute_query(query)
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Retrieves a list of milestones for a specific statement of work (SOW) by its ID.")
     async def get_sow_milestones(self, sow_id: int):
         """
         Retrieves a list of milestones for a specific statement of work (SOW) by its ID.
@@ -158,6 +168,7 @@ class ChatFunctions:
         rows = await self.__execute_query(query)
         return [dict(row) for row in rows]
     
+    @kernel_function(description="Retrieves the deliverables for a specific milestone by its ID.")
     async def get_milestone_deliverables(self, milestone_id: int):
         """
         Retrieves the deliverables for a specific milestone by its ID.
@@ -170,6 +181,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query}')
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Retrieves SOW accuracy and performance validation results for the specified SOW.")
     async def get_sow_validation_results(self, sow_id: Optional[int] = None):
         """
         Retrieves SOW accuracy and performance validation results for the specified SOW or vendor.
@@ -186,6 +198,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Retrieves a list of statements of work (SOWs) from the database for the specified vendor.")
     async def get_sows(self, sow_id: Optional[int] = None, vendor_id: Optional[int] = None):
         """
         Retrieves a list of statements of work (SOWs) from the database for the specified vendor.
@@ -206,6 +219,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Retrieves a list of vendors from the database.")
     async def get_vendors(self):
         """Retrieves a list of vendors from the database."""
         rows = await self.__execute_query('SELECT * FROM vendors;')
@@ -215,6 +229,7 @@ class ChatFunctions:
     The following methods are used for hybrid searches against the database.
     """
 
+    @kernel_function(description="Finds milestone deliverables similar to the user query for the specified SOW.")
     async def find_milestone_deliverables(self, user_query: str, sow_id: Optional[int] = None):
         """
         Retrieves milestone deliverables similar to the user query for the specified SOW.
@@ -243,6 +258,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
+    @kernel_function(description="Finds invoice line items similar to the user query for the specified invoice.")
     async def find_invoice_line_items(self, user_query: str, invoice_id: Optional[int] = None):
         """
         Retrieves invoice line items similar to the user query for the specified invoice.
@@ -271,6 +287,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Finds invoice accuracy and performance validation results similar to the user query for the specified invoice.")
     async def find_invoice_validation_results(self, user_query: str, invoice_id: Optional[int] = None):
         """
         Retrieves invoice accuracy and performance validation results similar to the user query for specified invoice.
@@ -301,6 +318,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
+    @kernel_function(description="Finds content chunks similar to the user query for the specified SOW.")
     async def find_sow_chunks(self, user_query: str, sow_id: Optional[int] = None):
         """
         Retrieves content chunks similar to the user query for the specified SOW.
@@ -327,6 +345,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
+    @kernel_function(description="Finds content chunks similar to the user query for the specified SOW using semantic ranking.")
     async def find_sow_chunks_with_semantic_ranking(self, user_query: str, sow_id: Optional[int] = None, max_results: int = 3):
         """
         Retrieves content chunks similar to the user query for the specified SOW.
@@ -355,6 +374,7 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
+    @kernel_function(description="Finds SOW accuracy and performance validation results similar to the user query for the specified SOW.")
     async def find_sow_validation_results(self, user_query: str, sow_id: Optional[int] = None): 
         """
         Retrieves SOW accuracy and performance validation results similar to the user query for specified SOW.

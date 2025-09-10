@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 import os
-from app.functions.chat_functions_semantic_kernel import ChatFunctions
+from app.functions.chat_functions import ChatFunctions
 from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_embedding_client, get_prompt_service
 from app.models import CompletionRequest, CompletionResponse
 from fastapi import APIRouter, Depends
