@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Modal, Button, Row, Col } from 'react-bootstrap';
 
+import PdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker';
 
-// Set the PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
-
+pdfjs.GlobalWorkerOptions.workerPort = new PdfWorker();
 
 const PdfPreviewModal = ({ show, handleClose, fileUrl }) => {
   const [numPages, setNumPages] = useState(0);
