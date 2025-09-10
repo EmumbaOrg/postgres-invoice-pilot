@@ -3,7 +3,7 @@ import json
 from azure.storage.blob import BlobServiceClient
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from semantic_kernel.text.text_chunker import split_plaintext_lines
 import openai
 import psycopg2
 import re
@@ -76,11 +76,11 @@ def extract_invoice_metadata(full_text):
 
 def semantic_chunking(text):
     """Chunk text into semantically meaningful pieces."""
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,         # Maximum characters per chunk
-        chunk_overlap=50        # Overlap between chunks
+    
+    return split_plaintext_lines(
+       max_token_per_line=100,
+       text=text
     )
-    return text_splitter.split_text(text)
 
 def generate_embeddings(text_chunks):
     """Generate embeddings for each chunk using OpenAI."""
