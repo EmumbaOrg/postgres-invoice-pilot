@@ -73,7 +73,6 @@ async def generate_chat_completion(
         plugins=[cf],
     )
 
-    # response = str((await agent.get_response(f"{history}")).content)
     response = str((await agent.get_response(messages=messages)).content)
 
     # Write the chat history to the database
