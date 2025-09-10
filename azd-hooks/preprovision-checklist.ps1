@@ -10,7 +10,19 @@ function Exit-WithError {
 
     Write-Host "ERROR: $message" -ForegroundColor Red
 
-    if ($errorType -eq "env_name") {
+    if ($errorType -eq "auth") {
+        Write-Host "" 
+        Write-Host "=============================================" -ForegroundColor Red
+        Write-Host "   AUTHENTICATION REQUIRED" -ForegroundColor Red
+        Write-Host "=============================================" -ForegroundColor Red
+        Write-Host "Azure CLI is not authenticated." -ForegroundColor Yellow
+        Write-Host "TO CONTINUE:" -ForegroundColor Cyan
+        Write-Host "  1. Run 'az login' (or 'azd auth login')" -ForegroundColor Yellow
+        Write-Host "  2. Re-run 'azd up'" -ForegroundColor Yellow
+        Write-Host "(Environment resources were not created, so no cleanup was needed.)" -ForegroundColor Green
+        Write-Host "=============================================" -ForegroundColor Red
+    }
+    elseif ($errorType -eq "env_name") {
         # For environment name errors, remove .azure folder to force re-setup
         Write-Host "Clearing environment configuration..." -ForegroundColor Yellow
         if (Test-Path ".azure") {
@@ -32,12 +44,17 @@ function Exit-WithError {
             $resourceGroup = azd env get-value "AZURE_RESOURCE_GROUP" 2>$null
 
             if ($resourceGroup) {
-                Write-Host "Deleting resource group: $resourceGroup" -ForegroundColor Yellow
-                az group delete --name $resourceGroup --yes --no-wait 2>$null
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host "Resource group deletion initiated (running in background)" -ForegroundColor Green
+                $rgExists = az group exists -n $resourceGroup -o tsv 2>$null
+                if ($rgExists -eq 'true') {
+                    Write-Host "Deleting resource group: $resourceGroup" -ForegroundColor Yellow
+                    az group delete --name $resourceGroup --yes --no-wait 2>$null
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "Resource group deletion initiated (running in background)" -ForegroundColor Green
+                    } else {
+                        Write-Host "Resource group delete command did not start successfully" -ForegroundColor Yellow
+                    }
                 } else {
-                    Write-Host "Could not delete resource group (it may not exist yet)" -ForegroundColor Yellow
+                    Write-Host "Resource group $resourceGroup not found (likely not created yet) - skipping deletion" -ForegroundColor Gray
                 }
             }
 
@@ -73,6 +90,25 @@ function Exit-WithError {
     exit $statusCode
 }
 
+# Authentication validation: ensure the user is logged into Azure CLI (top-level)
+function Test-AzureAuthentication {
+    Write-Host "Validating Azure CLI authentication..." -ForegroundColor Cyan
+    try {
+        $accountJson = az account show -o json 2>$null
+        if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($accountJson)) {
+            # Use centralized error handler for consistent cleanup & banner
+            Exit-WithError "You are not logged into Azure." 1 "auth"
+        }
+        $acct = $accountJson | ConvertFrom-Json
+        if (-not $acct.id) {
+            Exit-WithError "Azure CLI authentication invalid." 1 "auth"
+        }
+        Write-Host "Azure CLI authentication: OK (Subscription: $($acct.name) / $($acct.id))" -ForegroundColor Green
+    } catch {
+        Exit-WithError "Failed to verify Azure authentication." 1 "auth"
+    }
+}
+
 function Test-EnvironmentName {
     Write-Host "Validating environment name..." -ForegroundColor Cyan
 
@@ -84,7 +120,6 @@ function Test-EnvironmentName {
 
     if ($envName) {
         Write-Host "Environment name: $envName" -ForegroundColor Yellow
-
         # Check for invalid characters in environment name
         if ($envName -match '[^a-zA-Z0-9-]' -or $envName.Length -gt 50) {
             Write-Host "Invalid environment name detected!" -ForegroundColor Red
@@ -391,10 +426,17 @@ function Test-PostgreSQLSkuInRegion {
                 }
             } else {
                 Write-Host "Target SKU $targetSku not found" -ForegroundColor Yellow
-                $sampleSkus = $allSkus | Where-Object { $_.tier -eq 'GeneralPurpose' } | Select-Object -First 5
-                if ($sampleSkus) {
-                    Write-Host "Available GeneralPurpose SKUs:" -ForegroundColor Gray
-                    $sampleSkus | ForEach-Object { Write-Host "   $($_.name) ($($_.vCores) vCores, $($_.memoryPerVcoreMb)MB/vCore)" -ForegroundColor Gray }
+                # Prefer showing SKUs from same tier (if target declared tier known later) — here we don't yet know declared tier; show burstable first if present
+                $burstableSkus = $allSkus | Where-Object { $_.tier -eq 'Burstable' } | Select-Object -First 5
+                if ($burstableSkus -and $burstableSkus.Count -gt 0) {
+                    Write-Host "Available Burstable SKUs:" -ForegroundColor Gray
+                    $burstableSkus | ForEach-Object { Write-Host "   $($_.name) ($($_.vCores) vCores, $($_.memoryPerVcoreMb)MB/vCore)" -ForegroundColor Gray }
+                } else {
+                    $sampleSkus = $allSkus | Where-Object { $_.tier -eq 'GeneralPurpose' } | Select-Object -First 5
+                    if ($sampleSkus) {
+                        Write-Host "Available GeneralPurpose SKUs:" -ForegroundColor Gray
+                        $sampleSkus | ForEach-Object { Write-Host "   $($_.name) ($($_.vCores) vCores, $($_.memoryPerVcoreMb)MB/vCore)" -ForegroundColor Gray }
+                    }
                 }
                 return @{
                     Available = $false
@@ -635,13 +677,37 @@ function Test-PostgreSQLSku {
             Write-Host "   Reason: $($skuCheck.Reason)" -ForegroundColor Red
         }
 
-        # Show some available SKUs for debugging if we have them
+        # Show same-tier alternatives (if declared tier known) else fallback to Burstable then GeneralPurpose
         if ($skuCheck.AllSkus -and $skuCheck.AllSkus.Count -gt 0) {
-            $sampleSkus = $skuCheck.AllSkus | Where-Object { $_.tier -eq "GeneralPurpose" } | Select-Object -First 5
-            if ($sampleSkus) {
-                Write-Host "Available GeneralPurpose SKUs in ${infraLocation}:" -ForegroundColor Yellow
-                $sampleSkus | ForEach-Object {
-                    Write-Host "   $($_.name) ($($_.vCores) vCores, $($_.memoryPerVcoreMb)MB/vCore)" -ForegroundColor Yellow
+            $declaredTier = $skuConfig.Tier
+            $shown = $false
+            if ($declaredTier) {
+                $sameTier = $skuCheck.AllSkus | Where-Object { $_.tier -eq $declaredTier } | Select-Object -First 8
+                if ($sameTier -and $sameTier.Count -gt 0) {
+                    Write-Host "Available $declaredTier SKUs in ${infraLocation}:" -ForegroundColor Yellow
+                    $sameTier | ForEach-Object {
+                        Write-Host "   $($_.name) ($($_.vCores) vCores, $($_.memoryPerVcoreMb)MB/vCore)" -ForegroundColor Yellow
+                    }
+                    $shown = $true
+                }
+            }
+            if (-not $shown) {
+                $burstable = $skuCheck.AllSkus | Where-Object { $_.tier -eq 'Burstable' } | Select-Object -First 5
+                if ($burstable -and $burstable.Count -gt 0) {
+                    Write-Host "Available Burstable SKUs in ${infraLocation}:" -ForegroundColor Yellow
+                    $burstable | ForEach-Object {
+                        Write-Host "   $($_.name) ($($_.vCores) vCores, $($_.memoryPerVcoreMb)MB/vCore)" -ForegroundColor Yellow
+                    }
+                    $shown = $true
+                }
+            }
+            if (-not $shown) {
+                $general = $skuCheck.AllSkus | Where-Object { $_.tier -eq 'GeneralPurpose' } | Select-Object -First 5
+                if ($general) {
+                    Write-Host "Available GeneralPurpose SKUs in ${infraLocation}:" -ForegroundColor Yellow
+                    $general | ForEach-Object {
+                        Write-Host "   $($_.name) ($($_.vCores) vCores, $($_.memoryPerVcoreMb)MB/vCore)" -ForegroundColor Yellow
+                    }
                 }
             }
         }
@@ -694,8 +760,10 @@ Write-Host "===========================================" -ForegroundColor Cyan
 Write-Host "Azure Deployment Validation" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 
+# Validate Azure CLI login first
+Test-AzureAuthentication
 
-# First validate environment name
+# Validate environment name
 Test-EnvironmentName
 
 Write-Host ""
