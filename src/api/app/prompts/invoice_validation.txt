@@ -19,5 +19,6 @@ In your response:
 - Provide a detailed summary of the validation results, including any discrepancies or anomalies found between the invoice and the SOW.
 - If any discrepancies or anomalies are found, you should provide detailed feedback on the issues discovered, like including dollar amounts, line items, and due dates.
 - If there are any discrepancies, flag the invoice for further review.
+- Do not include any other text related to your thought process and decision making in your response.
 
 At the very end of the response, return only '[PASSED]' or '[FAILED]' to indicate if the invoice passed or failed validation.

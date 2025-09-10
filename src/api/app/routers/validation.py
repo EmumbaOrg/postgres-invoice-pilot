@@ -1,12 +1,21 @@
+from dotenv import load_dotenv
+load_dotenv()
+import os
 from datetime import datetime, timezone
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.tools import StructuredTool
 from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_prompt_service
 from app.models import Deliverable, InvoiceLineItem, InvoiceValidationResult, ListResponse, SowValidationResult, Vendor
 from fastapi import APIRouter, Depends, HTTPException
 from app.models.validation import InvoiceModel, SowModel, MilestoneModel
+from semantic_kernel.contents.chat_message_content import ChatMessageContent
+from semantic_kernel.functions import kernel_function
+from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
+from semantic_kernel.agents import ChatCompletionAgent
+
 from pydantic import parse_obj_as
+
+api_key = os.getenv("API_KEY_AZURE_OPENAI")
+endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
 # Initialize the router
 router = APIRouter(
@@ -26,7 +35,7 @@ async def list_invoice_validations(id: int, pool = Depends(get_db_connection_poo
 
 @router.post('/invoice/{id}', response_model = str)
 #async def validate_invoice_by_id(request: ValidationRequest, id: int, llm = Depends(get_chat_client)):
-async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt_service = Depends(get_prompt_service)):
+async def validate_invoice_by_id(id: int, prompt_service = Depends(get_prompt_service)):
     """Generate a chat completion to Validate the Invoice using the Azure OpenAI API."""
     
     # Define the system prompt for the validator.
@@ -34,34 +43,32 @@ async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
+    # Create a history of the conversation
+    messages = []
+
     # Provide the validation copilot with a persona using the system prompt.
-    messages = [{ "role": "system", "content": system_prompt }]
+    messages.append(ChatMessageContent(role="system", content=system_prompt))
 
     # Add the current user message to the messages list
-    userMessage = f"""validate Invoice with ID of {id}"""
-    messages.append({"role": "user", "content": userMessage})
+    userMessage = f"""validate Invoice with ID of {id}. Use the validate_invoice function to retrieve the invoice and it's associated line items, SOW, and milestones."""
+    messages.append(ChatMessageContent(role="user", content=userMessage))
+    
+    # Instantiate function tools' class
+    tools = InvoiceWithSow()
 
-    # Create a chat prompt template
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            ("user", "{input}"),
-            MessagesPlaceholder("agent_scratchpad")
-        ]
+    # Create an agent
+    agent = ChatCompletionAgent(
+        service=AzureChatCompletion(deployment_name=deployment_name,
+        api_key=api_key,
+        endpoint=endpoint),
+        instructions=system_prompt,
+        plugins=[tools]
     )
-    
-    # Define tools for the agent
-    tools = [
-         StructuredTool.from_function(coroutine=validate_invoice)
-    ]
-    
-    # Create an AI agent
-    agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
 
-    # Invoke the agent to perform a chat completion that provides the validation results.
-    completion = await agent_executor.ainvoke({"input": userMessage})
-    validationResult = completion['output']
+    # Get response from agent.
+    response = await agent.get_response(messages=messages)
+
+    validationResult = str(response.content)
 
     # Check if validationResult contains [PASSED] or [FAILED]
     # This is based on the prompt telling the AI to return either [PASSED] or [FAILED]
@@ -78,38 +85,7 @@ async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt
 
     return validationResult
 
-async def validate_invoice(id: int):
-    """Retrieves an Invoice and it's associated Line Items, SOW, and Milestones."""
 
-    pool = await get_db_connection_pool()
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', id)
-        if row is None:
-            raise HTTPException(status_code=404, detail=f'An invoice with an id of {id} was not found.')
-        invoice = parse_obj_as(InvoiceModel, dict(row))
-
-        # Get the vendor name
-        vendor_row = await conn.fetchrow('SELECT * FROM vendors WHERE id = $1;', invoice.vendor_id)
-        invoice.vendor = parse_obj_as(Vendor, dict(vendor_row))
-
-        # Get the invoice line items
-        line_item_rows = await conn.fetch('SELECT * FROM invoice_line_items WHERE invoice_id = $1;', id)
-        invoice.line_items = [parse_obj_as(InvoiceLineItem, dict(row)) for row in line_item_rows]
-
-        # Get the SOW
-        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', invoice.sow_id)
-        sow = parse_obj_as(SowModel, dict(sow_row))
-
-        # Get the milestones
-        milestone_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', invoice.sow_id)
-        sow.milestones = [parse_obj_as(MilestoneModel, dict(row)) for row in milestone_rows]
-
-        # Get the deliverables for each milestone
-        for milestone in sow.milestones:
-            deliverable_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.id)
-            milestone.deliverables = parse_obj_as(list[Deliverable], [dict(row) for row in deliverable_rows])
-
-    return invoice, sow
 
 @router.get("/sow/{id}", response_model=ListResponse[SowValidationResult])
 async def list_sow_validations(id: int, pool = Depends(get_db_connection_pool)):
@@ -119,8 +95,10 @@ async def list_sow_validations(id: int, pool = Depends(get_db_connection_pool)):
         validations = parse_obj_as(list[SowValidationResult], [dict(row) for row in rows])
     return ListResponse(data=validations, total = len(validations), skip = 0, limit = len(validations))
 
-@router.post('/sow/{id}', response_model = str)
-async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_service = Depends(get_prompt_service)):
+
+
+@router.post('/sow/new/{id}', response_model = str)
+async def validate_sow_by_id(id: int, prompt_service = Depends(get_prompt_service)):
     """Generate a chat completion to Validate the SOW using the Azure OpenAI API."""
 
     # Define the system prompt for the validator.
@@ -128,33 +106,31 @@ async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_ser
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
+    # Create a history of the conversation
+    messages = []
+
     # Provide the validation copilot with a persona using the system prompt.
-    messages = [{ "role": "system", "content": system_prompt }]
+    messages.append(ChatMessageContent(role="system", content=system_prompt))
 
     # Add the current user message to the messages list
-    userMessage = f"""validate SOW with ID {id}"""
-    messages.append({"role": "user", "content": userMessage})
+    userMessage = f"""validate SOW with ID {id}. Use the validate_sow function to retrieve the SOW and it's associated milestones and deliverables."""
+    messages.append(ChatMessageContent(role="user", content=userMessage))
 
-    # Create a chat prompt template
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            ("user", "{input}"),
-            MessagesPlaceholder("agent_scratchpad")
-        ]
+    # Instantiate function tools' class
+    tools = InvoiceWithSow()
+
+    # Create an agent
+    agent = ChatCompletionAgent(
+        service=AzureChatCompletion(deployment_name=deployment_name,
+        api_key=api_key,
+        endpoint=endpoint),
+        instructions=system_prompt,
+        plugins=[tools]
     )
 
-    tools = [
-         StructuredTool.from_function(coroutine=validate_sow)
-    ]
-    
-    # Create an agent
-    agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
-    #completion = await agent_executor.ainvoke({"input": request.message})
-    completion = await agent_executor.ainvoke({"input": userMessage})
-
-    validationResult = completion['output']
+    # Get response from agent.
+    response = await agent.get_response(messages=messages)
+    validationResult = str(response.content)
 
     # Check if validationResult contains [PASSED] or [FAILED]
     validation_passed = validationResult.find('[PASSED]') != -1
@@ -169,23 +145,82 @@ async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_ser
 
     return validationResult
 
+# Define function tools to be used by the agent
+class InvoiceWithSow:
+    @kernel_function(description="Used to retrieve an Invoice and it's associated Line Items, SOW, and Milestones. Call this function by passing the invoice id.")
+    async def validate_invoice(self, id: int):
+        """Retrieves an Invoice and it's associated Line Items, SOW, and Milestones."""
+
+        pool = await get_db_connection_pool()
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', id)
+            if row is None:
+                raise HTTPException(status_code=404, detail=f'An invoice with an id of {id} was not found.')
+            invoice = parse_obj_as(InvoiceModel, dict(row))
+
+            # Get the vendor name
+            vendor_row = await conn.fetchrow('SELECT * FROM vendors WHERE id = $1;', invoice.vendor_id)
+            invoice.vendor = parse_obj_as(Vendor, dict(vendor_row))
+
+            # Get the invoice line items
+            line_item_rows = await conn.fetch('SELECT * FROM invoice_line_items WHERE invoice_id = $1;', id)
+            invoice.line_items = [parse_obj_as(InvoiceLineItem, dict(row)) for row in line_item_rows]
+
+            # Get the SOW
+            sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', invoice.sow_id)
+            sow = parse_obj_as(SowModel, dict(sow_row))
+
+            # Get the milestones
+            milestone_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', invoice.sow_id)
+            sow.milestones = [parse_obj_as(MilestoneModel, dict(row)) for row in milestone_rows]
+
+            # Get the deliverables for each milestone
+            for milestone in sow.milestones:
+                deliverable_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.id)
+                milestone.deliverables = parse_obj_as(list[Deliverable], [dict(row) for row in deliverable_rows])
+
+        return invoice, sow
+
+    @kernel_function(description="Used to retrieve a SOW and it's associated Milestones and Deliverables. Call this function by passing the SOW id.")
+    async def validate_sow(self, id: int):
+        """Retrieves a SOW and it's associated Milestones and Deliverables."""
+
+        pool = await get_db_connection_pool()
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
+            if row is None:
+                raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
+            sow = parse_obj_as(SowModel, dict(row))
+
+            # Get the milestones
+            milestone_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', id)
+            sow.milestones = [parse_obj_as(MilestoneModel, dict(row)) for row in milestone_rows]
+
+            # Get the deliverables for each milestone
+            for milestone in sow.milestones:
+                deliverable_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.id)
+                milestone.deliverables = parse_obj_as(list[Deliverable], [dict(row) for row in deliverable_rows])
+
+        return sow
+
+
 async def validate_sow(id: int):
-    """Retrieves a SOW and it's associated Milestones and Deliverables."""
+        """Retrieves a SOW and it's associated Milestones and Deliverables."""
 
-    pool = await get_db_connection_pool()
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
-        if row is None:
-            raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
-        sow = parse_obj_as(SowModel, dict(row))
+        pool = await get_db_connection_pool()
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
+            if row is None:
+                raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
+            sow = parse_obj_as(SowModel, dict(row))
 
-        # Get the milestones
-        milestone_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', id)
-        sow.milestones = [parse_obj_as(MilestoneModel, dict(row)) for row in milestone_rows]
+            # Get the milestones
+            milestone_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', id)
+            sow.milestones = [parse_obj_as(MilestoneModel, dict(row)) for row in milestone_rows]
 
-        # Get the deliverables for each milestone
-        for milestone in sow.milestones:
-            deliverable_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.id)
-            milestone.deliverables = parse_obj_as(list[Deliverable], [dict(row) for row in deliverable_rows])
+            # Get the deliverables for each milestone
+            for milestone in sow.milestones:
+                deliverable_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.id)
+                milestone.deliverables = parse_obj_as(list[Deliverable], [dict(row) for row in deliverable_rows])
 
-    return sow
+        return sow
