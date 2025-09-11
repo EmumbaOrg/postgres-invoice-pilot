@@ -1,5 +1,5 @@
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
-from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion, AzureTextEmbedding
 
 class AzureOpenAIService:
     def __init__(self, credential: DefaultAzureCredential, openAiEndpoint: str):
@@ -13,19 +13,19 @@ class AzureOpenAIService:
 
     async def get_embedding_client(self):
         """Creates an Azure OpenAI embedding client."""
-        return AzureOpenAIEmbeddings(
-            azure_deployment = self.embedding_deployment_name,
-            azure_endpoint = self.azure_openai_endpoint,
-            azure_ad_token_provider = await self.__get_token_provider()
+        return AzureTextEmbedding(
+            deployment_name = self.embedding_deployment_name,
+            endpoint = self.azure_openai_endpoint,
+            ad_token_provider = await self.__get_token_provider()
         )
     
     async def get_chat_client(self):
         """Creates an Azure OpenAI chat client."""
-        return AzureChatOpenAI(
-            azure_deployment = self.completion_deployment_name,
-            azure_endpoint = self.azure_openai_endpoint,
+        return AzureChatCompletion(
+            deployment_name = self.completion_deployment_name,
+            endpoint = self.azure_openai_endpoint,
             api_version = self.azure_openai_api_version,
-            azure_ad_token_provider = await self.__get_token_provider()
+            ad_token_provider = await self.__get_token_provider()
         )
     
     async def __get_token_provider(self):

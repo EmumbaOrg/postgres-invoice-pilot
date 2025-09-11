@@ -1,4 +1,4 @@
-from typing import Optional
+
 from semantic_kernel.functions import kernel_function
 
 
@@ -11,10 +11,10 @@ class ChatFunctions:
         """
         Generates vector embeddings for the user query.
         """
-        # Create embeddings using the LangChain Azure OpenAI Embeddings client
+        # Create embeddings using the semantic kernel Azure OpenAI Embeddings client
         # This makes an API call to the Azure OpenAI service to generate embeddings,
         # which can be used to compare the user query with vectorized data in the database.
-        query_embeddings = await self.embedding_client.aembed_query(user_query)
+        query_embeddings = await self.embedding_client.generate_embeddings(user_query)
         return query_embeddings
     
     async def __execute_query(self, query: str):
@@ -49,18 +49,14 @@ class ChatFunctions:
     
     @kernel_function(description="Retrieves the ID of a specific invoice by its number.")
     async def get_invoice_id(self, number: str) -> int:
-        """
-        Retrieves the ID of a specific invoice by its number.
-        """
+
         query = f"SELECT id FROM invoices WHERE number = '{number}';"
         row = await self.__execute_scalar_query(query)
         return row['id'] or None
 
     @kernel_function(description="Retrieves the line items for a specific invoice by its ID.")
     async def get_invoice_line_items(self, invoice_id: int):
-        """
-        Retrieves the line items for a specific invoice by its ID.
-        """
+        
         # Define the columns to retrieve from the table
         # Exclude the embedding column in results
         columns = ["id", "invoice_id", "description", "amount", "status"]
@@ -69,12 +65,9 @@ class ChatFunctions:
         rows = await self.__execute_query(query)
         return [dict(row) for row in rows]
 
-    @kernel_function(description="Retrieves invoice accuracy and performance validation results for the specified invoice.")
-    async def get_invoice_validation_results(self, invoice_id: Optional[int] = None):
-        """
-        Retrieves invoice accuracy and performance validation results for the specified invoice.
-        If no invoice_id is provided, return all invoice validation results.
-        """
+    @kernel_function(description="Retrieves invoice accuracy and performance validation results for the specified invoice. If no invoice_id is provided, return all invoice validation results.")
+    async def get_invoice_validation_results(self, invoice_id: int = None):
+        
         # Define the columns to retrieve from the table
         # This excludes the embedding column in results
         columns = ["invoice_id", "datestamp", "result", "validation_passed"]
@@ -86,21 +79,21 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
-    @kernel_function(description="Retrieves a list of invoices from the database based on provided filters.")
-    async def get_invoices(self, invoice_id: Optional[int] = None, vendor_id: Optional[int] = None, sow_id: Optional[int] = None):
-        """
+    @kernel_function(description="""
         Retrieves invoices from the database based on provided filters.
 
         Args:
-            invoice_id (int, optional): If provided, returns the invoice with this ID.
-            vendor_id (int, optional): If provided (and invoice_id is not), returns all invoices for this vendor.
-            sow_id (int, optional): If provided with vendor_id, returns invoices for this vendor and SOW.
+            invoice_id (int, default None): If provided, returns the invoice with this ID.
+            vendor_id (int, default None): If provided (and invoice_id is not), returns all invoices for this vendor.
+            sow_id (int, default None): If provided with vendor_id, returns invoices for this vendor and SOW.
                                     If provided alone, returns all invoices for this SOW.
 
         Returns:
             List[dict]: A list of invoice records matching the filter criteria.
                         If no arguments are provided, returns all invoices.
-        """
+        """)
+    async def get_invoices(self, invoice_id: int = None, vendor_id: int = None, sow_id: int = None):
+    
         # Define the columns to retrieve from the table
         # This excludes a few columns that are large and not needed for the chat function
         columns = ["id", "number", "vendor_id", "sow_id", "amount", "invoice_date", "payment_status"]
@@ -122,9 +115,7 @@ class ChatFunctions:
     
     @kernel_function(description="Retrieves a list of unpaid invoices for a specific vendor using a graph query.")
     async def get_unpaid_invoices_for_vendor(self, vendor_id: int):
-        """
-        Retrieves a list of unpaid invoices for a specific vendor using a graph query.
-        """
+        
         # Define the graph query
         graph_query = f"""SELECT * FROM ag_catalog.cypher('vendor_graph', $$
         MATCH (v:vendor {{id: '{vendor_id}'}})-[rel:has_invoices]->(s:sow)
@@ -137,20 +128,18 @@ class ChatFunctions:
 
     @kernel_function(description="Retrieves the ID of a specific SOW by its number.")
     async def get_sow_id(self, number: str) -> int:
-        """
-        Retrieves the ID of a specific SOW by its number.
-        """
+        
         query = f"SELECT id FROM sows WHERE number = '{number}';"
         row = await self.__execute_scalar_query(query)
         return row.get('id', None)
 
-    @kernel_function(description="Retrieves the content chunks for a specific statement of work (SOW) by its ID.")
-    async def get_sow_chunks(self, sow_id: int):
-        """
+    @kernel_function(description="""
         Retrieves the content chunks for a specific statement of work (SOW) by its ID.
         Chunks include section headings and the text content under that header, along with page number
         the chunk can be found on in the document.
-        """
+        """)
+    async def get_sow_chunks(self, sow_id: int):
+        
         # Define the columns to retrieve from the table
         # This excludes the embedding column in results
         columns = ["id", "sow_id", "heading", "content", "page_number"]
@@ -161,18 +150,14 @@ class ChatFunctions:
 
     @kernel_function(description="Retrieves a list of milestones for a specific statement of work (SOW) by its ID.")
     async def get_sow_milestones(self, sow_id: int):
-        """
-        Retrieves a list of milestones for a specific statement of work (SOW) by its ID.
-        """
+        
         query = f'SELECT * FROM milestones WHERE sow_id = {sow_id};'
         rows = await self.__execute_query(query)
         return [dict(row) for row in rows]
     
     @kernel_function(description="Retrieves the deliverables for a specific milestone by its ID.")
     async def get_milestone_deliverables(self, milestone_id: int):
-        """
-        Retrieves the deliverables for a specific milestone by its ID.
-        """
+        
         # Define the columns to retrieve from the table
         # This excludes the embedding column in results
         columns = ["id", "milestone_id", "description", "amount", "status", "due_date"]
@@ -181,12 +166,12 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query}')
         return [dict(row) for row in rows]
 
-    @kernel_function(description="Retrieves SOW accuracy and performance validation results for the specified SOW.")
-    async def get_sow_validation_results(self, sow_id: Optional[int] = None):
-        """
+    @kernel_function(description="""
         Retrieves SOW accuracy and performance validation results for the specified SOW or vendor.
         If no sow_id is provided, return all SOW validation results
-        """
+        """)
+    async def get_sow_validation_results(self, sow_id: int = None):
+        
         # Define the columns to retrieve from the table
         # This excludes the embedding column in results
         columns = ["sow_id", "datestamp", "result", "validation_passed"]
@@ -198,12 +183,12 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
-    @kernel_function(description="Retrieves a list of statements of work (SOWs) from the database for the specified vendor.")
-    async def get_sows(self, sow_id: Optional[int] = None, vendor_id: Optional[int] = None):
-        """
+    @kernel_function(description="""
         Retrieves a list of statements of work (SOWs) from the database for the specified vendor.
         If no vendor_id or sow_id is provided, return all SOWs.
-        """
+        """)
+    async def get_sows(self, sow_id: int = None, vendor_id: int = None):
+        
         # Define the columns to retrieve from the table
         # This excludes a few columns that are large and not needed for the chat function
         columns = ["id", "number", "vendor_id", "start_date", "end_date", "budget", "summary"]
@@ -221,7 +206,7 @@ class ChatFunctions:
 
     @kernel_function(description="Retrieves a list of vendors from the database.")
     async def get_vendors(self):
-        """Retrieves a list of vendors from the database."""
+        
         rows = await self.__execute_query('SELECT * FROM vendors;')
         return [dict(row) for row in rows]
 
@@ -230,11 +215,8 @@ class ChatFunctions:
     """
 
     @kernel_function(description="Finds milestone deliverables similar to the user query for the specified SOW.")
-    async def find_milestone_deliverables(self, user_query: str, sow_id: Optional[int] = None):
-        """
-        Retrieves milestone deliverables similar to the user query for the specified SOW.
-        If no sow_id is provided, return all similar deliverables.
-        """
+    async def find_milestone_deliverables(self, user_query: str, sow_id: int = None):
+        
         # Define the columns to retrieve from the table
         # Exclude the embedding column in results
         columns = ["id", "milestone_id", "description", "status"]
@@ -258,12 +240,12 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
-    @kernel_function(description="Finds invoice line items similar to the user query for the specified invoice.")
-    async def find_invoice_line_items(self, user_query: str, invoice_id: Optional[int] = None):
-        """
+    @kernel_function(description="""
         Retrieves invoice line items similar to the user query for the specified invoice.
         If no invoice_id is provided, return all similar line items.
-        """
+        """)
+    async def find_invoice_line_items(self, user_query: str, invoice_id: int = None):
+        
         # Define the columns to retrieve from the table
         # Exclude the embedding column in results
         columns = ["id", "invoice_id", "description", "amount", "status"]
@@ -287,12 +269,12 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
-    @kernel_function(description="Finds invoice accuracy and performance validation results similar to the user query for the specified invoice.")
-    async def find_invoice_validation_results(self, user_query: str, invoice_id: Optional[int] = None):
-        """
+    @kernel_function(description="""
         Retrieves invoice accuracy and performance validation results similar to the user query for specified invoice.
         If invoice_id is not provided, return all similar validation results.
-        """
+        """)
+    async def find_invoice_validation_results(self, user_query: str, invoice_id: int = None):
+        
         # Define the columns to retrieve from the table
         # Exclude the embedding column in results
         columns = ["invoice_id", "datestamp", "result", "validation_passed"]
@@ -318,11 +300,9 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
 
-    @kernel_function(description="Finds content chunks similar to the user query for the specified SOW.")
-    async def find_sow_chunks(self, user_query: str, sow_id: Optional[int] = None):
-        """
-        Retrieves content chunks similar to the user query for the specified SOW.
-        """
+    @kernel_function(description="Retrieves content chunks similar to the user query for the specified SOW.")
+    async def find_sow_chunks(self, user_query: str, sow_id: int = None):
+        
         # Define the columns to retrieve from the table
         # Exclude the embedding column in results
         columns = ["id", "sow_id", "heading", "content", "page_number"]
@@ -345,11 +325,8 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
-    @kernel_function(description="Finds content chunks similar to the user query for the specified SOW using semantic ranking.")
-    async def find_sow_chunks_with_semantic_ranking(self, user_query: str, sow_id: Optional[int] = None, max_results: int = 3):
-        """
-        Retrieves content chunks similar to the user query for the specified SOW.
-        """
+    @kernel_function(description="Retrieves content chunks similar to the user query for the specified SOW.")
+    async def find_sow_chunks_with_semantic_ranking(self, user_query: str, sow_id: int = None, max_results: int = 3):
 
         # Get the embeddings for the user query
         query_embeddings = await self.__create_query_embeddings(user_query)
@@ -374,12 +351,9 @@ class ChatFunctions:
         rows = await self.__execute_query(f'{query};')
         return [dict(row) for row in rows]
     
-    @kernel_function(description="Finds SOW accuracy and performance validation results similar to the user query for the specified SOW.")
-    async def find_sow_validation_results(self, user_query: str, sow_id: Optional[int] = None): 
-        """
-        Retrieves SOW accuracy and performance validation results similar to the user query for specified SOW.
-        If no sow_id is provided, return all similar validation results.
-        """
+    @kernel_function(description="Retrieves SOW accuracy and performance validation results similar to the user query for specified SOW. If no sow_id is provided, return all similar validation results.")
+    async def find_sow_validation_results(self, user_query: str, sow_id: int = None): 
+        
         # Define the columns to retrieve from the table
         # Exclude the embedding column in results
         columns = ["sow_id", "datestamp", "result", "validation_passed"]

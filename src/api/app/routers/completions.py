@@ -1,17 +1,10 @@
-from dotenv import load_dotenv
-load_dotenv()
-import os
 from app.functions.chat_functions import ChatFunctions
-from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_embedding_client, get_prompt_service
+from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_embedding_client, get_prompt_service, get_chat_client
 from app.models import CompletionRequest, CompletionResponse
 from fastapi import APIRouter, Depends
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.agents import ChatCompletionAgent
 from semantic_kernel.contents.chat_message_content import ChatMessageContent
 
-api_key = os.getenv("API_KEY_AZURE_OPENAI")
-endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
 # Initialize the router
 router = APIRouter(
@@ -26,7 +19,8 @@ async def generate_chat_completion(
     request: CompletionRequest,
     db_pool = Depends(get_db_connection_pool),
     embedding_client = Depends(get_embedding_client),
-    prompt_service = Depends(get_prompt_service)):
+    prompt_service = Depends(get_prompt_service),
+):
     """Generate a chat completion using the Azure OpenAI API."""
         
     # Retrieve the copilot prompt
@@ -51,12 +45,7 @@ async def generate_chat_completion(
         chat_history_from_db = await get_chat_history(conn, session_id)
         
         for message in chat_history_from_db[-request.max_history:]:
-            if message["role"] == "system":
-                messages.append(ChatMessageContent(role="system", content=message["content"]))
-            elif message["role"] == "user":
-                messages.append(ChatMessageContent(role="user", content=message["content"]))
-            elif message["role"] == "assistant":
-                messages.append(ChatMessageContent(role="assistant", content=message["content"]))
+                messages.append(ChatMessageContent(role=message["role"], content=message["content"]))
    
     # add current user message to history
     messages.append(ChatMessageContent(role="user", content=request.message))
@@ -66,9 +55,7 @@ async def generate_chat_completion(
     
     # Create an agent
     agent = ChatCompletionAgent(
-        service=AzureChatCompletion(deployment_name=deployment_name,
-        api_key=api_key,
-        endpoint=endpoint),
+        service=await get_chat_client(),
         instructions=f"{system_prompt}",
         plugins=[cf],
     )

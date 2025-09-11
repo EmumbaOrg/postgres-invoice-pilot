@@ -1,6 +1,7 @@
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer.aio import DocumentAnalysisClient
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from semantic_kernel.text.text_chunker import split_plaintext_lines
+
 from typing import List
 from datetime import date, datetime
 import re
@@ -142,12 +143,12 @@ class AzureDocIntelligenceService:
         return False
 
     def semantic_chunking(self, text):
-        """Chunk text into semantically meaningful pieces."""
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,         # Maximum characters per chunk
-            chunk_overlap=50        # Overlap between chunks
+        """Chunk text into pieces."""
+        
+        return split_plaintext_lines(
+            max_token_per_line=100,
+            text=text
         )
-        return text_splitter.split_text(text)
 
 
     def extract_sow_metadata(self, full_text):

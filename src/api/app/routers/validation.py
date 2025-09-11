@@ -1,8 +1,5 @@
-from dotenv import load_dotenv
-load_dotenv()
-import os
 from datetime import datetime, timezone
-from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_prompt_service
+from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_prompt_service, get_chat_client
 from app.models import Deliverable, InvoiceLineItem, InvoiceValidationResult, ListResponse, SowValidationResult, Vendor
 from fastapi import APIRouter, Depends, HTTPException
 from app.models.validation import InvoiceModel, SowModel, MilestoneModel
@@ -12,10 +9,6 @@ from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.agents import ChatCompletionAgent
 
 from pydantic import parse_obj_as
-
-api_key = os.getenv("API_KEY_AZURE_OPENAI")
-endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
 # Initialize the router
 router = APIRouter(
@@ -58,9 +51,7 @@ async def validate_invoice_by_id(id: int, prompt_service = Depends(get_prompt_se
 
     # Create an agent
     agent = ChatCompletionAgent(
-        service=AzureChatCompletion(deployment_name=deployment_name,
-        api_key=api_key,
-        endpoint=endpoint),
+        service=await get_chat_client(),
         instructions=system_prompt,
         plugins=[tools]
     )
@@ -97,7 +88,7 @@ async def list_sow_validations(id: int, pool = Depends(get_db_connection_pool)):
 
 
 
-@router.post('/sow/new/{id}', response_model = str)
+@router.post('/sow/{id}', response_model = str)
 async def validate_sow_by_id(id: int, prompt_service = Depends(get_prompt_service)):
     """Generate a chat completion to Validate the SOW using the Azure OpenAI API."""
 
@@ -121,9 +112,7 @@ async def validate_sow_by_id(id: int, prompt_service = Depends(get_prompt_servic
 
     # Create an agent
     agent = ChatCompletionAgent(
-        service=AzureChatCompletion(deployment_name=deployment_name,
-        api_key=api_key,
-        endpoint=endpoint),
+        service=await get_chat_client(),
         instructions=system_prompt,
         plugins=[tools]
     )
@@ -204,23 +193,3 @@ class InvoiceWithSow:
         return sow
 
 
-async def validate_sow(id: int):
-        """Retrieves a SOW and it's associated Milestones and Deliverables."""
-
-        pool = await get_db_connection_pool()
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
-            if row is None:
-                raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
-            sow = parse_obj_as(SowModel, dict(row))
-
-            # Get the milestones
-            milestone_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', id)
-            sow.milestones = [parse_obj_as(MilestoneModel, dict(row)) for row in milestone_rows]
-
-            # Get the deliverables for each milestone
-            for milestone in sow.milestones:
-                deliverable_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.id)
-                milestone.deliverables = parse_obj_as(list[Deliverable], [dict(row) for row in deliverable_rows])
-
-        return sow
