@@ -77,7 +77,7 @@ async def get_credential():
     return credential
 
 async def get_chat_client():
-     return await aoai_service.get_chat_client()
+    return await aoai_service.get_chat_client()
 
 async def get_embedding_client():
     return await aoai_service.get_embedding_client()
