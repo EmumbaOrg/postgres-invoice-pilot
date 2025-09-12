@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
 import { useParams } from 'react-router-dom';
 import api from '../../api/Api';
@@ -69,11 +69,21 @@ const DeliverableEdit = () => {
     };
 
     return (
-    <div>
-        <h1>Edit Deliverable</h1>
-        <hr/>
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+    <div className='p-3 position-relative'>
+        <h3>Edit Deliverable</h3>
+          <div className='position-absolute top-0' style={{left:"38%"}}>
+
+     {error && (
+          <Alert variant="danger"  dismissible onClose={() => setError(null)}>
+           <i className="fa-solid fa-circle-exclamation" variant="danger"></i> {error}
+          </Alert>
+        )}
+         {success && (
+          <Alert variant="success"  dismissible onClose={() => setSuccess(null)}>
+           <i className="fa-solid fa-circle-check" variant="success"></i> {success}
+          </Alert>
+        )}
+      </div>
         <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>

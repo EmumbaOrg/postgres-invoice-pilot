@@ -5,6 +5,40 @@ param environmentName string
 
 @minLength(1)
 @description('Primary location for all resources')
+@allowed([
+  'australiaeast'
+  'brazilsouth'
+  'canadaeast'
+  'eastus'
+  'eastus2'
+  'francecentral'
+  'germanywestcentral'
+  'italynorth'
+  'japaneast'
+  'koreacentral'
+  'northcentralus'
+  'norwayeast'
+  'polandcentral'
+  'southafricanorth'
+  'southcentralus'
+  'southindia'
+  'swedencentral'
+  'switzerlandnorth'
+  'uaenorth'
+  'uksouth'
+  'westeurope'
+  'westus'
+  'westus3'
+])
+@metadata({
+  azd: {
+    type: 'location'
+    usageName : [
+      'OpenAI.Standard.gpt-4o, 10'
+      'OpenAI.Standard.text-embedding-ada-002, 10'
+    ]
+  }
+})
 param location string
 
 @description('Name of the resource group')
@@ -397,3 +431,10 @@ output SERVICE_USERPORTAL_ENDPOINT_URL string = userPortalApp.outputs.uri
 output SERVICE_API_ENDPOINT_URL string = apiApp.outputs.uri
 
 output RUN_POSTDEPLOY_SCRIPT bool = runPostDeployScript
+
+// Language Service outputs (forwarded from module)
+output LANGUAGE_SERVICE_NAME string = languageService.outputs.LANGUAGE_SERVICE_NAME
+output LANGUAGE_SERVICE_ENDPOINT string = languageService.outputs.LANGUAGE_SERVICE_ENDPOINT
+output LANGUAGE_SERVICE_KEY string = languageService.outputs.LANGUAGE_SERVICE_KEY
+output LANGUAGE_SERVICE_REGION string = languageService.outputs.LANGUAGE_SERVICE_REGION
+

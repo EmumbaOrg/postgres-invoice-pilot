@@ -1,31 +1,32 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/Api';
-// import { Button } from 'react-bootstrap';
-// import ConfirmModal from '../../components/ConfirmModal'; 
+import { Form, InputGroup, Dropdown, Button } from 'react-bootstrap';
+import ConfirmModal from '../../components/ConfirmModal'; 
 import PagedTable from '../../components/PagedTable';
 
 const VendorList = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [sowToDelete, setSowToDelete] = useState(null);
+  const [vendorToDelete, setVendorToDelete] = useState(null);
   const [reload, setReload] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("")
   
-  // const handleDelete = async () => {
-  //   if (!sowToDelete) return;
+  const handleDelete = async () => {
+    if (!vendorToDelete) return;
 
-  //   try {
-  //     await api.vendors.delete(sowToDelete);
-  //     setSuccess('Vendor deleted successfully!');
-  //     setError(null);
-  //     setShowDeleteModal(false);
-  //     setReload(true); // Refresh the data
-  //   } catch (err) {
-  //     setSuccess(null);
-  //     setError(err.message);
-  //   }
-  // }
+    try {
+      await api.vendors.delete(vendorToDelete);
+      setSuccess('Vendor deleted successfully!');
+      setError(null);
+      setShowDeleteModal(false);
+      setReload(true); // Refresh the data
+    } catch (err) {
+      setSuccess(null);
+      setError(err.message);
+    }
+  }
 
   const columns = React.useMemo(
     () => [
@@ -46,55 +47,110 @@ const VendorList = () => {
         accessor: 'contact_name',
       },
       {
-        Header: 'Contact Email',
+        Header: 'Email Address',
         accessor: 'contact_email',
       },
       {
-        Header: 'Contact Phone',
+        Header: 'Phone Number',
         accessor: 'contact_phone',
       },
       {
-        Header: 'Type',
-        accessor: 'contact_type',
-      },
-      {
-        Header: 'Actions',
+        Header: '',
         accessor: 'actions',
         Cell: ({ row }) => (
-          <div>
-            <a href={`/vendors/${row.original.id}`} className="btn btn-primary" aria-label="View">
-              View
-            </a>
-            {/* <Button variant="danger" onClick={() => { setSowToDelete(row.original.id); setShowDeleteModal(true); }} aria-label="Delete">
-              <i className="fas fa-trash-alt"></i>
-            </Button> */}
-          </div>
+          <Dropdown>
+             <Dropdown.Toggle
+              variant="outline-primary"
+              size="sm"
+              id={`dropdown-${row.original.id}`}
+              className="border-0"
+            >
+              <i className="fas fa-ellipsis-v"></i>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item className="d-flex align-items-center gap-1" href={`/vendors/view/${row.original.id}`}>
+                <i className="fas fa-eye me-2" style={{ color: 'var(--bs-primary)' }}></i>
+                View
+              </Dropdown.Item>
+               <Dropdown.Item className="d-flex align-items-center gap-1" onClick={() => { setVendorToDelete(row.original.id); setShowDeleteModal(true); }}>
+                <i className="fas fa-trash-alt me-2" style={{ color: 'var(--bs-danger)' }}></i>
+                Delete
+              </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
         ),
       },
     ],
     []
   );
 
+
   const fetchVendors = async (skip, limit, sortBy, search) => {
-    const response = await api.vendors.list(skip, limit, sortBy, search);
-    return response;
-  };
+    const response = await api.vendors.list(skip, limit, sortBy, search)
+
+    // Apply frontend search filter on vendor name if searchTerm exists
+    if (searchTerm && response.data) {
+      const filteredData = response.data.filter(
+        (vendor) => vendor.name && vendor.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      return {
+        ...response,
+        data: filteredData,
+        total: filteredData.length,
+      }
+    }
+
+    return response
+  }
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value)
+    setReload((prev) => !prev) 
+  }
+
+  const clearSearch = () => {
+    setSearchTerm("")
+    setReload((prev) => !prev) 
+  }
 
   return (
-    <div>
-      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Vendors</h1>
-        <Link to="/vendors/create" className="btn btn-primary">New <i className="fas fa-plus" /></Link>
+    <div className='px-5 py-3'>
+      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 className="h4">Vendors</h1>
+        <Link to="/vendors/create" className="btn btn-primary"><i className="fas fa-plus me-2" />New Vendor </Link>
       </div>
-      
-      <PagedTable columns={columns} fetchData={fetchVendors} reload={reload} />
+        {/* Search Bar */}
+        <div className="mb-4">
+        <Form.Group style={{ maxWidth: "650px" }}>
+          <InputGroup>
+            <InputGroup.Text>
+              <i className="fas fa-search"></i>
+            </InputGroup.Text>
+            <Form.Control
+              id="vendor-search"
+              type="text"
+              placeholder="Search by vendor name..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              style={{ fontSize: "14px" }}
+            />
+            {searchTerm && (
+              <InputGroup.Text style={{ cursor: "pointer" }} onClick={clearSearch} title="Clear search">
+                <i className="fas fa-times text-muted"></i>
+              </InputGroup.Text>
+            )}
+          </InputGroup>
+          {searchTerm && <Form.Text className="text-muted">Searching for: "{searchTerm}"</Form.Text>}
+        </Form.Group>
+      </div>
+      <PagedTable columns={columns} fetchData={fetchVendors} reload={reload} key={searchTerm} noDataMesssage={'No vendors have been added yet.'} noDataDescription={'Click on "New Vendor" to begin adding vendors.'} />
 
-      {/* <ConfirmModal
+      <ConfirmModal
         show={showDeleteModal}
         handleClose={() => setShowDeleteModal(false)}
         handleConfirm={handleDelete}
         message="Are you sure you want to delete this Vendor?"
-      /> */}
+      />
     </div>
   );
 };

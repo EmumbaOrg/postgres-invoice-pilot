@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTable, useSortBy } from 'react-table';
+import { WindowPlusIcon } from '../icon-svgs/icon-svgs';
 
-const Table = ({ columns, data, loading, onSortChange, enableSorting = false }) => {
+const Table = ({ columns, data, loading, onSortChange, enableSorting = false, noDataMesssage='No records to display', noDataDescription='' }) => {
   const {
     getTableProps,
     getTableBodyProps,
@@ -19,12 +20,12 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false }) 
 
   return (
     <div>
-      <table {...getTableProps()} className="table">
+      <table {...getTableProps()} className="table" style={{border:'1px solid #EBF2FF'}}>
         <thead>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
               {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps(enableSorting ? column.getSortByToggleProps() : undefined)} key={column.id}>
+                <th {...column.getHeaderProps(enableSorting ? column.getSortByToggleProps() : undefined)} key={column.id} className='py-2'>
                   {column.render('Header')}
                   {enableSorting && (
                   <span>
@@ -43,7 +44,11 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false }) 
         <tbody {...getTableBodyProps()}>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="text-center">No records to display</td>
+              <td colSpan={columns.length} className="text-center pt-5" style={{height:'300px'}}>
+               <p><WindowPlusIcon /></p> 
+               <p className='mb-0'>{noDataMesssage}</p> 
+               <p style={{color:'#787885', fontSize:'16px'}}>{noDataDescription}</p>
+                </td>
             </tr>
           ) : (
           rows.map(row => {
@@ -51,7 +56,7 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false }) 
             return (
               <tr {...row.getRowProps()} key={row.index}>
                 {row.cells.map(cell => (
-                  <td {...cell.getCellProps()} key={cell.column.id}>
+                  <td {...cell.getCellProps()} key={cell.column.id} >
                     {cell.render('Cell')}
                   </td>
                 ))}

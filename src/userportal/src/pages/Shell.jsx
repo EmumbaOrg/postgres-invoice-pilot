@@ -1,7 +1,6 @@
 // src/Shell.js
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-dom';
-// import UserProfile from './../../components/UserProfile';
+import  { useEffect,useState } from 'react';
+import {  Route, Routes, NavLink, useLocation } from 'react-router-dom';
 
 import { Dashboard } from './dashboard';
 import { DocumentList } from './documents';
@@ -10,29 +9,34 @@ import { DeliverableCreate, DeliverableEdit } from './deliverables';
 import { InvoiceList, InvoiceCreate, InvoiceEdit } from './invoices';
 import { InvoiceLineItemCreate, InvoiceLineItemEdit } from './invoiceLineItems';
 import { MilestoneCreate, MilestoneEdit } from './milestones';
-import { SOWList, SOWCreate, SOWEdit } from './sows';
-import { VendorList, VendorEdit } from './vendors';
+import { SOWList,  SOWEdit } from './sows';
+import { VendorList, VendorEdit, VendorCreate, VendorView } from './vendors';
+import CopilotChat from '../components/CopilotChat';
+import SideDrawer from '../components/side-drawer/side-drawer';
 
-const Shell = ({ isDarkTheme }) => {
+const Shell = ({onLogout}) => {
+  const [showDrawer, setShowDrawer] = useState(false);
+  const location = useLocation();
+
   //const userName = "John Doe"; // Replace with actual user name
   //const userAvatar = "user-avatar.svg"; // Replace with actual avatar URL
 
-  useEffect(() => {
-    const handleResize = () => {
-      const sidebarMenu = document.getElementById('sidebarMenu');
-      if (!sidebarMenu.classList.contains('offcanvas')) { //window.innerWidth >= 768) {
-        sidebarMenu.classList.remove('collapse');
-        sidebarMenu.classList.remove('show');
-      }
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     const sidebarMenu = document.getElementById('sidebarMenu');
+  //     if (!sidebarMenu.classList.contains('offcanvas')) { //window.innerWidth >= 768) {
+  //       sidebarMenu.classList.remove('collapse');
+  //       sidebarMenu.classList.remove('show');
+  //     }
+  //   };
 
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Call once to set initial state
+  //   window.addEventListener('resize', handleResize);
+  //   handleResize(); // Call once to set initial state
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('resize', handleResize);
+  //   };
+  // }, []);
 
   useEffect(() => {
     const navLinks = document.querySelectorAll('#sidebarMenu .nav-link');
@@ -49,16 +53,131 @@ const Shell = ({ isDarkTheme }) => {
       });
     };
   }, []);
+
+  const onAskAI = () =>{
+    setShowDrawer(true);
+  }
+  const handleCloseAIdrawer = () =>{
+    setShowDrawer(false);
+  }
  
   return (
-    <Router>
+    <>
+       <header className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top shadow-sm">
+      <div className="container-fluid px-3">
+        {/* Logo and Brand */}
+        <a className="navbar-brand d-flex align-items-center me-4" href="#">
+          <img src="/logo.png" alt="Invoice Pilot" className="me-2" style={{ height: "32px", width: "auto" }} />
+          <span className="fw-semibold text-dark fs-5">Invoice Pilot</span>
+        </a>
+
+        {/* Mobile Toggle Button */}
+        <button
+          className="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        {/* Navigation */}
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav mx-auto">
+            <li className="nav-item me-4">
+            <NavLink
+  className={
+    `nav-link d-flex align-items-center gap-2 px-2 py-2 position-relative ${
+      (location.pathname === '/' || location.pathname.startsWith('/chats'))
+        ? 'text-primary active-nav fw-bold'
+        : 'text-secondary'
+    }`
+  }
+  to="/"
+>
+                <i className="fas fa-home"></i>
+                <span>Dashboard</span>
+              </NavLink>
+            </li>
+            <li className="nav-item me-4">
+              <NavLink
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 px-2 py-2  position-relative ${
+                    isActive ? "text-primary active-nav fw-bold" : "text-secondary"
+                  }`
+                }
+                to="/vendors"
+              >
+                <i className="fas fa-briefcase"></i>
+                <span>Vendors</span>
+              </NavLink>
+            </li>
+            <li className="nav-item me-4">
+              <NavLink
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 px-2 py-2  position-relative ${
+                    isActive ? "text-primary active-nav fw-bold" : "text-secondary"
+                  }`
+                }
+                to="/sows"
+              >
+                <i className="fas fa-file-contract"></i>
+                <span>SOWs</span>
+              </NavLink>
+            </li>
+            <li className="nav-item me-4">
+              <NavLink
+                className={({ isActive }) =>
+                  `nav-link d-flex align-items-center gap-2 px-2 py-2  position-relative ${
+                    isActive ? "text-primary active-nav fw-bold" : "text-secondary"
+                  }`
+                }
+                to="/invoices"
+              >
+                <i className="fas fa-file-invoice"></i>
+                <span>Invoices</span>
+              </NavLink>
+            </li>
+        
+          </ul>
+
+          {/* Right side - Sign out */}
+          <div className="navbar-nav">
+          <a
+                className="nav-link d-flex align-items-center gap-2 p-2 text-primary fw-bold bordered-button"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  onAskAI()
+                }}
+              >
+                <i className="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Ask AI</span>
+              </a>
+            <a
+              className="nav-link text-primary fw-bold px-3 py-2 transition-all"
+              href="#"
+              onClick={(e) => {
+                e.preventDefault()
+                onLogout()
+              }}
+            >
+              Sign out
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
       <div className="container-fluid">
         <div className="row">
-          <div className="col-md-3 col-lg-2 p-0">
-            <div className={`sidebar offcanvas-md offcanvas-start ${isDarkTheme ? 'bg-dark text-white' : 'bg-light text-dark'}`} id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
-              <div className="offcanvas-header">
-              </div>
-              <div className="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto">
+          {/* <div className="col-md-3 col-lg-2 p-0"> */}
+            {/* <div className={`sidebar offcanvas-md offcanvas-start `} id="sidebarMenu" aria-labelledby="sidebarMenuLabel"> */}
+              {/* <div className="offcanvas-header">
+              </div> */}
+              {/* <div className="offcanvas-body d-md-flex flex-column p-0 pt-lg-3 overflow-y-auto">
                 <ul className="nav flex-column">
                   <li className="nav-item">
                     <NavLink className="nav-link d-flex align-items-center gap-2" to="/" end>
@@ -92,43 +211,15 @@ const Shell = ({ isDarkTheme }) => {
                     </NavLink>
                   </li>
                 </ul>
-                {/* <h6 className="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-body-secondary text-uppercase">
-                  Reports
-                  <button type="button" className="btn btn-sm btn-outline-secondary" title="New Report">
-                    <i className="fas fa-plus"></i>
-                  </button>
-                </h6>
-                <ul className="nav flex-column">
-                  <li className="nav-item">
-                    <a className="nav-link d-flex align-items-center gap-2" href="#">
-                      <i className="fas fa-chart-line"></i> Current month
-                    </a>
-                  </li>
-                  <li className="nav-item">
-                    <a className="nav-link d-flex align-items-center gap-2" href="#">
-                      <i className="fas fa-chart-line"></i> Last quarter
-                    </a>
-                  </li>
-                </ul>
-                <hr className="my-3" /> */}
-              </div>
-              {/* <div className="sidebar-sticky-bottom pt-3">
-                <ul className="nav flex-column">
-                <li className="nav-item">
-                    <a className="nav-link d-flex align-items-center gap-2" to="#">
-                      <i className="fas fa-cog"></i> Settings
-                    </a>
-                  </li>
-                  <li className='nav-item'>
-                    <UserProfile name={userName} avatar={userAvatar} />
-                  </li>
-                </ul>               
+
               </div> */}
-            </div>
-          </div>
-          <main className="col-md-9 ms-sm-auto col-lg-10">
+         
+            {/* </div> */}
+          {/* </div> */}
+          <main className="col-lg-12">
             <Routes>
               <Route exact path="/" element={<Dashboard />} />
+              <Route exact path="/chats" element={<CopilotChat/>}/>
               <Route path="/documents" element={<DocumentList />} />
               
               <Route path="/deliverables/create/:milestoneId" element={<DeliverableCreate />} />
@@ -146,17 +237,22 @@ const Shell = ({ isDarkTheme }) => {
               <Route path="/milestones/:id" element={<MilestoneEdit />} />
              
               <Route path="/sows" element={<SOWList />} />
-              <Route path="/sows/create" element={<SOWCreate />} />
-              <Route path="/sows/create/:vendorId" element={<SOWCreate />} />
+              {/* <Route path="/sows/create" element={<SOWCreate />} /> */}
+              {/* <Route path="/sows/create/:vendorId" element={<SOWCreate />} /> */}
               <Route path="/sows/:id" element={<SOWEdit />} />
 
               <Route path="/vendors" element={<VendorList />} />
+              <Route path="/vendors/create" element={<VendorCreate />} />
               <Route path="/vendors/:id" element={<VendorEdit />} />
+              <Route path="/vendors/view/:id" element={<VendorView />} />
             </Routes>
           </main>
         </div>
       </div>
-    </Router>
+      {showDrawer &&
+      <SideDrawer handleCloseAIdrawer={handleCloseAIdrawer} showDrawer={showDrawer}/>
+      }
+    </>
   );
 }
 

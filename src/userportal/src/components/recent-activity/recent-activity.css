@@ -1,0 +1,18 @@
+.section-wrapper{
+    background-color: white;
+    border-radius: 8px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+.tile-outer{
+    border-color: #9DC2FF !important;
+}
+.icon-bg{
+    background-color: #EBF2FF;
+    border-radius: 8px;
+    height: 40px;
+    width: 40px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

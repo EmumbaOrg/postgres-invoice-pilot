@@ -66,13 +66,14 @@ async def generate_chat_completion(
         StructuredTool.from_function(coroutine=cf.find_invoice_line_items),
         StructuredTool.from_function(coroutine=cf.find_invoice_validation_results),
         StructuredTool.from_function(coroutine=cf.find_milestone_deliverables),
-        StructuredTool.from_function(coroutine=cf.find_sow_chunks),
+        StructuredTool.from_function(coroutine=cf.find_sow_chunks_with_semantic_ranking),
         StructuredTool.from_function(coroutine=cf.find_sow_validation_results),
         # Get invoice data functions
         StructuredTool.from_function(coroutine=cf.get_invoice_id),
         StructuredTool.from_function(coroutine=cf.get_invoice_line_items),
         StructuredTool.from_function(coroutine=cf.get_invoice_validation_results),
         StructuredTool.from_function(coroutine=cf.get_invoices),
+        StructuredTool.from_function(coroutine=cf.get_unpaid_invoices_for_vendor),
         # Get SOW data functions
         StructuredTool.from_function(coroutine=cf.get_sow_chunks),
         StructuredTool.from_function(coroutine=cf.get_sow_id),

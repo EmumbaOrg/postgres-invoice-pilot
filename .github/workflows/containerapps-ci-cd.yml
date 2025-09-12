@@ -1,0 +1,136 @@
+name: Build and Deploy to Azure Container Apps (API & User Portal)
+
+on:
+  push:
+    branches: [ dev ]
+    paths:
+      - 'src/api/**'
+      - 'src/userportal/**'
+
+## Using repository variables (Settings > Variables) for non-secrets
+## Required vars: ACR_NAME, REGISTRY_LOGIN_SERVER, RESOURCE_GROUP, CONTAINER_APP_NAME_API, CONTAINER_APP_NAME_PORTAL
+
+jobs:
+  detect-changes:
+    name: Detect changed folders
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      portal: ${{ steps.filter.outputs.portal }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Folder change check
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          base: ${{ github.event.before }}
+          ref: ${{ github.sha }}
+          initial-fetch-depth: 0
+          filters: |
+            api:
+              - 'src/api/**'
+            portal:
+              - 'src/userportal/**'
+      - name: Debug changed files
+        run: |
+          echo "api changed? ${{ steps.filter.outputs.api }}"
+          echo "portal changed? ${{ steps.filter.outputs.portal }}"
+          echo "Comparing ${{ github.event.before }} -> ${{ github.sha }}"
+          git --no-pager diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | sed -n '1,200p'
+
+  api-build-and-deploy:
+    name: API - Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUB_ID }}
+
+      - name: Ensure Container Apps extension
+        run: |
+          az extension add --name containerapp --upgrade -y
+
+      - name: Log in to Azure Container Registry (ACR)
+        run: |
+          az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Build Docker image (API) with short commit SHA tag
+        run: |
+          COMMIT_ID=$(git rev-parse --short "$GITHUB_SHA")
+          echo "IMAGE_TAG=$COMMIT_ID" >> $GITHUB_ENV
+          docker build \
+            -f src/api/DOCKERFILE \
+            -t ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$COMMIT_ID \
+            src/api
+
+      - name: Push image to ACR (API)
+        run: |
+          docker push ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$IMAGE_TAG
+
+      - name: Deploy to Azure Container Apps (API)
+        run: |
+          az containerapp update \
+            --name ${{ vars.CONTAINER_APP_NAME_API }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --image ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$IMAGE_TAG
+
+  portal-build-and-deploy:
+    name: User Portal - Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    needs: detect-changes
+    if: needs.detect-changes.outputs.portal == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUB_ID }}
+
+      - name: Ensure Container Apps extension
+        run: |
+          az extension add --name containerapp --upgrade -y
+
+      - name: Log in to Azure Container Registry (ACR)
+        run: |
+          az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Build Docker image (User Portal) with short commit SHA tag
+        run: |
+          COMMIT_ID=$(git rev-parse --short "$GITHUB_SHA")
+          echo "IMAGE_TAG=$COMMIT_ID" >> $GITHUB_ENV
+          docker build \
+            -f src/userportal/DOCKERFILE \
+            -t ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$COMMIT_ID \
+            src/userportal
+
+      - name: Push image to ACR (User Portal)
+        run: |
+          docker push ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$IMAGE_TAG
+
+      - name: Deploy to Azure Container Apps (User Portal)
+        run: |
+          az containerapp update \
+            --name ${{ vars.CONTAINER_APP_NAME_PORTAL }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --image ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$IMAGE_TAG
