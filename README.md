@@ -13,9 +13,7 @@ This solution accelerator is designed as an end-to-end example of an AI-enabled 
 
 1. **LangChain Agent and Tool Framework:** Demonstrates how to build powerful LangChain-based Agents that interact with PostgreSQL and vector stores using Tools and Chains—bridging LLMs with data and application logic.
 2. **Vector Search with RAG Pattern Built into PostgreSQL:** The solution enables in-database Retrieval-Augmented Generation (RAG) using the `pgvector` extension for efficient vector search, making PostgreSQL a powerful foundation for intelligent applications that combine structured data with generative AI.
-3. **Semantic Re-ranking with Cross Encoder Models:** Enhances relevance ranking through semantic re-ranking, using configurable Cross Encoder models. The accelerator supports two options:
-    - `cross-encoder/ms-marco-MiniLM-L-6-v2 (lightweight and fast)`
-    - `bge-reranker-v2-m3 (higher accuracy, heavier model)`
+3. **Semantic Re-ranking:** Enhances retrieval quality by applying semantic re-ranking with the `azure_ai.rank()` operator. After initial vector search, candidate results are re-ordered based on semantic relevance, ensuring that the most contextually appropriate information is surfaced for downstream AI tasks.
 4. **GraphRAG with Apache AGE for Knowledge-Rich Context:** Extends RAG with GraphRAG, integrating `Apache AGE` (A Graph Extension for PostgreSQL) to enrich retrieval and grounding via knowledge graphs—ideal for complex relationships and semantic context.
 5. **High-Performance DiskANN Index Integration:** Supports `DiskANN` (Disk-Accelerated Approximate Nearest Neighbor), offering scalable and fast vector similarity search, optimized for large datasets and low-latency retrieval directly within PostgreSQL.
 6. **Azure AI Extension for PostgreSQL:** Leverages the Azure AI Extension, enabling direct embedding generation and model inference from Azure OpenAI or custom endpoints, eliminating the need for external model integration pipelines.
