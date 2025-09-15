@@ -1,8 +1,7 @@
-from app.lifespan_manager import get_db_connection_pool
+from app.lifespan_manager import get_db_connection_pool, get_activity_log_service
 from app.models import InvoiceLineItem, InvoiceLineItemEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, Form
 from datetime import datetime
-from app.routers.activity_logs import get_activity_log_service
 from pydantic import parse_obj_as
 
 # Initialize the router
@@ -89,7 +88,8 @@ async def create(
         action="created",
         resource_type="Invoice line item",
         resource_name=str(invoice_id),
-        custom_message=f"Invoice line item '{description}' created for invoice '{invoice_number}'"
+        custom_message=f"Invoice line item '{description}' created for invoice '{invoice_number}'",
+        pool=pool
     )
 
     return milestone
@@ -114,7 +114,8 @@ async def update(id: int, item: InvoiceLineItemEdit, pool = Depends(get_db_conne
         action="updated",
         resource_type="invoice line item",
         resource_name=str(item.invoice_id),
-        custom_message=f"Invoice line item '{item.description}' updated for invoice '{invoice_number}'"
+        custom_message=f"Invoice line item '{item.description}' updated for invoice '{invoice_number}'",
+        pool=pool
     )
 
     return milestone
@@ -137,7 +138,8 @@ async def delete(id: int, pool = Depends(get_db_connection_pool), activity_log_s
         action="deleted",
         resource_type="Invoice line item",
         resource_name= str(item.invoice_id),
-        custom_message=f"Invoice line item '{item.description}' deleted for invoice '{invoice_number}'"
+        custom_message=f"Invoice line item '{item.description}' deleted for invoice '{invoice_number}'",
+        pool=pool
         
     )
 

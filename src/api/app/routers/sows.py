@@ -1,8 +1,7 @@
-from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service
+from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service, get_activity_log_service
 from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from datetime import datetime
-from app.routers.activity_logs import get_activity_log_service
 from pydantic import parse_obj_as
 import json
 import traceback
@@ -146,7 +145,8 @@ async def analyze_sow(
         await activity_service.log_activity(
             action="created",
             resource_type="sow",
-            resource_name=str(sow.number)
+            resource_name=str(sow.number),
+            pool=pool
         )
 
         return SowAnalyzeResult(hasError=False, error=None, message="SOW analyzed successfully.", sow=sow)
@@ -187,7 +187,8 @@ async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_con
     await activity_service.log_activity(
         action="updated",
         resource_type="sow",
-        resource_name=str(updated_sow.number)
+        resource_name=str(updated_sow.number),
+        pool=pool
     )
     
     return updated_sow
@@ -211,7 +212,8 @@ async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_se
     await activity_service.log_activity(
         action="deleted",
         resource_type="sow",
-        resource_name=str(sow.number)
+        resource_name=str(sow.number),
+        pool=pool
     )
     
     return sow

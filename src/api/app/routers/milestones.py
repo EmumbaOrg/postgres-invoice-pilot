@@ -1,7 +1,6 @@
-from app.lifespan_manager import get_db_connection_pool
+from app.lifespan_manager import get_db_connection_pool, get_activity_log_service
 from app.models import Milestone, MilestoneEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, Form
-from app.routers.activity_logs import get_activity_log_service
 from pydantic import parse_obj_as
 
 # Initialize the router
@@ -71,7 +70,8 @@ async def create_milestone(
     await activity_log_service.log_activity(
         action="created",
         resource_type="Milestone",
-        resource_name=milestone.name
+        resource_name=milestone.name,
+        pool=pool
     )
     
     return milestone
@@ -96,7 +96,8 @@ async def update_milestone(
     await activity_log_service.log_activity(
         action="updated",
         resource_type="Milestone",
-        resource_name=milestone.name
+        resource_name=milestone.name,
+        pool=pool
     )   
 
     return milestone
@@ -116,7 +117,8 @@ async def delete_milestone(milestone_id: int, pool = Depends(get_db_connection_p
     await activity_log_service.log_activity(
         action="deleted",
         resource_type="Milestone",
-        resource_name=milestone.name
+        resource_name=milestone.name,
+        pool=pool
     )
 
     return milestone

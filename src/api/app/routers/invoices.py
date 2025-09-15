@@ -1,7 +1,6 @@
-from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service
+from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service, get_activity_log_service
 from app.models import Invoice, InvoiceEdit, ListResponse, InvoiceAnalyzeResult
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
-from app.routers.activity_logs import get_activity_log_service
 from datetime import datetime
 from pydantic import parse_obj_as
 import json
@@ -157,6 +156,7 @@ async def analyze_invoice(
             action="created" if invoice_id is None else "updated",
             resource_type="Invoice",
             resource_name=invoice_number,
+            pool=pool
         )
         
         return InvoiceAnalyzeResult(hasError=False, error=None, message="Invoice analyzed successfully.", invoice=invoice)
@@ -220,7 +220,8 @@ async def delete_invoice(invoice_id: int, pool = Depends(get_db_connection_pool)
     await activity_log_service.log_activity(
         action="deleted",
         resource_type="Invoice",
-        resource_name=str(invoice.number)
+        resource_name=str(invoice.number),
+        pool=pool
     )
 
     return invoice

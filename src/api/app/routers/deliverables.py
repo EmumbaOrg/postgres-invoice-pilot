@@ -1,8 +1,7 @@
-from app.lifespan_manager import get_db_connection_pool
+from app.lifespan_manager import get_db_connection_pool, get_activity_log_service
 from app.models import Deliverable, DeliverableEdit, ListResponse
 from fastapi import APIRouter, Depends, HTTPException, Form
 from datetime import datetime
-from app.routers.activity_logs import get_activity_log_service
 from pydantic import parse_obj_as
 
 # Initialize the router
@@ -79,7 +78,8 @@ async def create_deliverable(
     await activity_log_service.log_activity(
         action="created",
         resource_type="Deliverable",
-        resource_name=deliverable.description
+        resource_name=deliverable.description,
+        pool=pool
     )
 
     return deliverable
@@ -106,7 +106,8 @@ async def update_deliverable(
     await activity_log_service.log_activity(
         action="updated",
         resource_type="Deliverable",
-        resource_name=deliverable.description
+        resource_name=deliverable.description,
+        pool=pool
     )
 
     return deliverable
@@ -125,7 +126,8 @@ async def delete_deliverable(deliverable_id: int, pool = Depends(get_db_connecti
     await activity_log_service.log_activity(
         action="deleted",
         resource_type="Deliverable",
-        resource_name=deliverable.description
+        resource_name=deliverable.description,
+        pool=pool
     )
 
     return deliverable

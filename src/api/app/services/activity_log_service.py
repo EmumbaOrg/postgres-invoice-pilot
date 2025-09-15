@@ -2,14 +2,13 @@ import asyncpg
 from typing import List
 
 class ActivityLogService:
-    def __init__(self, pool: asyncpg.Pool):
-        self.pool = pool
-    
+        
     async def log_activity(
         self,
         action: str,
         resource_type: str,
         resource_name: str,
+        pool: asyncpg.Pool,
         custom_message: str = None
     ) -> int:
         """Log an activity to the database."""
@@ -19,7 +18,7 @@ class ActivityLogService:
             else:
                 message = f"{resource_type.capitalize()} '{resource_name}' is {action}"
 
-            async with self.pool.acquire() as conn:
+            async with pool.acquire() as conn:
                 activity_id = await conn.fetchval(
                     """
                     INSERT INTO activity_logs (action, resource_type, resource_name, message) 
@@ -32,9 +31,9 @@ class ActivityLogService:
         except:
             raise Exception("Failed to log activity. Please check the database connection and schema.")
     
-    async def get_activity_logs(self, limit:int) -> List[str]:
+    async def get_activity_logs(self, limit:int, pool:asyncpg) -> List[str]:
         """Retrieve recent activity log messages, limited by the given value."""
-        async with self.pool.acquire() as conn:
+        async with pool.acquire() as conn:
             rows = await conn.fetch(
                 """
                 SELECT message, timestamp
