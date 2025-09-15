@@ -18,6 +18,9 @@ python3 --version
 # Confirm pip version
 pip3 --version
 
+# Install API Python dependencies
+pip3 install -r /workspaces/postgres-sa-byoac/src/api/requirements.txt
+
 # Confirm Node.js version
 $node_version = node --version
 Write-Host "node version: $node_version"
