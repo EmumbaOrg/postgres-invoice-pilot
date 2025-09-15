@@ -11,6 +11,7 @@ $ErrorActionPreference = "Stop"
 # ##############################################################################
 az account set --subscription "${env:AZURE_SUBSCRIPTION_ID}"
 
+
 # ##############################################################################
 # Install Required Azure CLI Extensions
 # ##############################################################################
@@ -30,7 +31,8 @@ Write-Host "Access Token Retrieved for $username"
 # ##############################################################################
 Write-Host "Adding Firewall Rule for Local Machine IP Address..."
 
-$publicIpAddress =  (Invoke-RestMethod -Uri "http://ipinfo.io/ip")
+# Use HTTPS for IP lookup
+$publicIpAddress =  (Invoke-RestMethod -Uri "https://ipinfo.io/ip")
 az postgres flexible-server firewall-rule create `
     --resource-group "${env:AZURE_RESOURCE_GROUP}" `
     --name "${env:POSTGRESQL_SERVER_NAME}" `
@@ -42,18 +44,150 @@ Write-Host "Added Firewall Rule for $publicIpAddress"
 Start-Sleep -Seconds 5
 
 # ##############################################################################
+# Allow-list required PostgreSQL extensions (merge with existing)
+# ##############################################################################
+try {
+    $requiredExtensions = @('azure_ai','vector','pg_diskann','age')
+    $currentExtensions = az postgres flexible-server parameter show `
+        --resource-group "${env:AZURE_RESOURCE_GROUP}" `
+        --server-name "${env:POSTGRESQL_SERVER_NAME}" `
+        --name azure.extensions `
+        --query value -o tsv
+
+    $currentList = @()
+    if ($currentExtensions) {
+        $currentList = $currentExtensions -split '\s*,\s*' |
+            Where-Object { $_ -and $_.Trim() -ne '' } |
+            ForEach-Object { $_.Trim().ToLower() } |
+            Select-Object -Unique
+    }
+
+    $merged = ($currentList + $requiredExtensions) |
+        ForEach-Object { $_.ToLower() } |
+        Select-Object -Unique
+
+    $newValue = ($merged -join ',')
+
+    $currentExtensionsValue = if ($null -ne $currentExtensions) { $currentExtensions } else { '' }
+    if ($newValue -ne $currentExtensionsValue) {
+        Write-Host "Updating azure.extensions to: $newValue"
+        az postgres flexible-server parameter set `
+            --resource-group "${env:AZURE_RESOURCE_GROUP}" `
+            --server-name "${env:POSTGRESQL_SERVER_NAME}" `
+            --name azure.extensions `
+            --value $newValue | Out-Null
+    } else {
+        Write-Host "azure.extensions already includes required values: $newValue"
+    }
+} catch {
+    Write-Warning "Failed to ensure azure.extensions allow-list: $($_.Exception.Message)"
+}
+
+# ##############################################################################
+# Set shared_preload_libraries parameter in PostgreSQL (required libraries)
+# ##############################################################################
+az postgres flexible-server parameter set `
+    --resource-group "${env:AZURE_RESOURCE_GROUP}" `
+    --server-name "${env:POSTGRESQL_SERVER_NAME}" `
+    --subscription "${env:AZURE_SUBSCRIPTION_ID}" `
+    --name shared_preload_libraries `
+    --value "age,pg_cron,pg_stat_statements" | Out-Null
+
+# ##############################################################################
+# Get workspace key 
+# ##############################################################################
+
+az extension add -n ml -y | Out-Null
+
+if ($env:DEPLOY_AML_MODEL -and $env:DEPLOY_AML_MODEL -ne 'none') {
+  $amlKey = az ml online-endpoint get-credentials `
+    -g $env:AZURE_RESOURCE_GROUP `
+    -w $env:AZURE_AML_WORKSPACE_NAME `
+    -n $env:AZURE_AML_ENDPOINT_NAME `
+    --query primaryKey -o tsv
+
+}
+
+# Prepare AML key (escape single quotes for SQL); empty if not set
+$amlKeyEscaped = ""
+if ($amlKey) { $amlKeyEscaped = $amlKey -replace "'", "''" }
+
+# Derive AML scoring endpoint URL (needed by SQL) and escape
+$amlScoringUri = ""
+try {
+    if ($env:DEPLOY_AML_MODEL -and $env:DEPLOY_AML_MODEL -ne 'none' -and $env:AZURE_AML_ENDPOINT_NAME) {
+        $amlScoringUri = az ml online-endpoint show `
+            -g $env:AZURE_RESOURCE_GROUP `
+            -w $env:AZURE_AML_WORKSPACE_NAME `
+            -n $env:AZURE_AML_ENDPOINT_NAME `
+            --query scoring_uri -o tsv
+    }
+} catch { }
+
+$openaiEndpointEscaped   = ($env:AZURE_OPENAI_ENDPOINT   | ForEach-Object { $_ -replace "'","''" })
+$openaiKeyEscaped        = ($env:AZURE_OPENAI_KEY        | ForEach-Object { $_ -replace "'","''" })
+$amlScoringUriEscaped    = ($amlScoringUri               | ForEach-Object { $_ -replace "'","''" })
+$languageEndpointEscaped = ($env:LANGUAGE_SERVICE_ENDPOINT | ForEach-Object { $_ -replace "'","''" })
+$languageKeyEscaped      = ($env:LANGUAGE_SERVICE_KEY      | ForEach-Object { $_ -replace "'","''" })
+$deployAmlModel          = ($env:DEPLOY_AML_MODEL        | ForEach-Object { $_ -replace "'","''" })
+
+
+# ##############################################################################
 # Create Database Schema
 # ##############################################################################
 Write-Host "Configuring Database Schema..."
+
+# Token-replace ${AML_ENDPOINT_KEY} in the schema script and execute
+$dbSqlPath = "$PSScriptRoot/../scripts/sql/deploy-database-tables.sql"
+$dbSql = Get-Content -Path $dbSqlPath -Raw
+$dbSql = $dbSql.Replace('${AML_ENDPOINT_KEY}', $amlKeyEscaped)
+$dbSql = $dbSql.Replace('${AML_SCORING_ENDPOINT}', $amlScoringUriEscaped)
+$dbSql = $dbSql.Replace('${OPENAI_ENDPOINT}', $openaiEndpointEscaped)
+$dbSql = $dbSql.Replace('${OPENAI_KEY}', $openaiKeyEscaped)
+$dbSql = $dbSql.Replace('${LANGUAGE_ENDPOINT}', $languageEndpointEscaped)
+$dbSql = $dbSql.Replace('${LANGUAGE_KEY}', $languageKeyEscaped)
+$dbTempPath = "$PSScriptRoot/../scripts/sql/deploy-database-tables.tmp.sql"
+Set-Content -Path $dbTempPath -Value $dbSql
 
 az postgres flexible-server execute `
           --admin-user "$username" `
           --admin-password "$token" `
           --name "${env:POSTGRESQL_SERVER_NAME}" `
           --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
-          --file-path "$PSScriptRoot/../scripts/sql/deploy-database-tables.sql"
+          --file-path $dbTempPath
+
+#Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
+
+# Create triggers and semantic_reranker function.
+$dbSqlPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.sql"
+$dbSql = Get-Content -Path $dbSqlPath -Raw
+$dbSql = $dbSql.Replace('${DEPLOY_AML_MODEL}', $deployAmlModel)
+$dbTempPathT = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.tmp.sql"
+Set-Content -Path $dbTempPathT -Value $dbSql
+
+az postgres flexible-server execute `
+          --admin-user "$username" `
+          --admin-password "$token" `
+          --name "${env:POSTGRESQL_SERVER_NAME}" `
+          --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
+          --file-path $dbTempPathT
 
 Write-Host "Database Schema Configured"
+
+# Clean up temp file
+#Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
+
+Write-Host "Load Graph Data"
+# Load Graph Data from tables into Apache AGE graph
+$dbSqlPath = "$PSScriptRoot/../scripts/sql/load-graph-from-tables.sql"
+az postgres flexible-server execute `
+          --admin-user "$username" `
+          --admin-password "$token" `
+          --name "${env:POSTGRESQL_SERVER_NAME}" `
+          --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
+          --file-path $dbSqlPath
+
+Write-Host "Graph Data Loaded"
 
 # ##############################################################################
 # Grant Database Permissions to API Identity
@@ -82,6 +216,8 @@ az postgres flexible-server execute `
 
 Write-Host "Database Permissions Granted to API App Managed Identity"
 
+
+#Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 # ##############################################################################
 # Upload Sample Files to Blob Storage
 # ##############################################################################
