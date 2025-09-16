@@ -11,29 +11,27 @@ function Exit-WithError {
     Write-Host "ERROR: $message" -ForegroundColor Red
 
     if ($errorType -eq "auth") {
-        Write-Host "" 
-        Write-Host "=============================================" -ForegroundColor Red
-        Write-Host "   AUTHENTICATION REQUIRED" -ForegroundColor Red
-        Write-Host "=============================================" -ForegroundColor Red
-        Write-Host "Azure CLI is not authenticated." -ForegroundColor Yellow
-        Write-Host "TO CONTINUE:" -ForegroundColor Cyan
-        Write-Host "  1. Run 'az login' (or 'azd auth login')" -ForegroundColor Yellow
-        Write-Host "  2. Re-run 'azd up'" -ForegroundColor Yellow
-        Write-Host "(Environment resources were not created, so no cleanup was needed.)" -ForegroundColor Green
-        Write-Host "=============================================" -ForegroundColor Red
+    Write-Host "" 
+    Write-Host "=============================================" -ForegroundColor Red
+    Write-Host "   DEPLOYMENT STOPPED - AUTHENTICATION REQUIRED" -ForegroundColor Red
+    Write-Host "=============================================" -ForegroundColor Red
+    Write-Host "Run 'az login' to authenticate, then re-run 'azd up'." -ForegroundColor Cyan
+    Write-Host "(Environment resources were not created, so no cleanup was needed.)" -ForegroundColor Green
+    Write-Host "=============================================" -ForegroundColor Red
     }
     elseif ($errorType -eq "env_name") {
-        # For environment name errors, remove .azure folder to force re-setup
-        Write-Host "Clearing environment configuration..." -ForegroundColor Yellow
+        # Environment name validation failure: show next steps first, then clear local env config
+        Write-Host "Run 'azd env new' to create a new environment with a valid name (letters, numbers, hyphens, <=50 chars)." -ForegroundColor Green
+        Write-Host "Then run 'azd up' again to provision resources." -ForegroundColor Green
+        Write-Host "Clearing invalid environment configuration..." -ForegroundColor Yellow
         if (Test-Path ".azure") {
             Remove-Item ".azure" -Recurse -Force
-            Write-Host "Environment configuration cleared" -ForegroundColor Yellow
+            Write-Host "Removed .azure folder" -ForegroundColor Yellow
         }
         if (Test-Path ".env") {
             Remove-Item ".env" -Force
             Write-Host "Removed .env file" -ForegroundColor Yellow
         }
-        Write-Host "Please run 'azd up' again and choose a valid environment name." -ForegroundColor Green
     } else {
         # General error - completely clean up the environment
         Write-Host "Cleaning up failed deployment environment..." -ForegroundColor Yellow
@@ -127,7 +125,8 @@ function Test-EnvironmentName {
             Write-Host "  - Only contain letters, numbers, and hyphens" -ForegroundColor Yellow
             Write-Host "  - Be 50 characters or less" -ForegroundColor Yellow
             Write-Host "  - Current name: '$envName'" -ForegroundColor Red
-            Exit-WithError "Environment name '$envName' contains invalid characters or is too long" "env_name"
+            # Pass proper arguments so errorType is not mistaken for statusCode
+            Exit-WithError -message "Environment name '$envName' contains invalid characters or is too long" -statusCode 1 -errorType "env_name"
         }
 
         Write-Host "Environment name is valid" -ForegroundColor Green
