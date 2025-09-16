@@ -97,39 +97,20 @@ az postgres flexible-server parameter set `
 # Get workspace key 
 # ##############################################################################
 
-az extension add -n ml -y | Out-Null
 
-if ($env:DEPLOY_AML_MODEL -and $env:DEPLOY_AML_MODEL -ne 'none') {
-  $amlKey = az ml online-endpoint get-credentials `
-    -g $env:AZURE_RESOURCE_GROUP `
-    -w $env:AZURE_AML_WORKSPACE_NAME `
-    -n $env:AZURE_AML_ENDPOINT_NAME `
-    --query primaryKey -o tsv
+# Recreate escaped service endpoint/key variables (were removed earlier)
+$openaiEndpointEscaped   = ($env:AZURE_OPENAI_ENDPOINT   -replace "'","''")
+$openaiKeyEscaped        = ($env:AZURE_OPENAI_KEY        -replace "'","''")
+$languageEndpointEscaped = ($env:LANGUAGE_SERVICE_ENDPOINT -replace "'","''")
+$languageKeyEscaped      = ($env:LANGUAGE_SERVICE_KEY      -replace "'","''")
 
+if (-not $openaiEndpointEscaped -or -not $openaiKeyEscaped) {
+    Write-Host "[postdeploy] OpenAI endpoint/key missing; embedding creation may fail" -ForegroundColor Yellow
+}
+if (-not $languageEndpointEscaped -or -not $languageKeyEscaped) {
+    Write-Host "[postdeploy] Language service endpoint/key missing; language extension settings will be blank" -ForegroundColor Yellow
 }
 
-# Prepare AML key (escape single quotes for SQL); empty if not set
-$amlKeyEscaped = ""
-if ($amlKey) { $amlKeyEscaped = $amlKey -replace "'", "''" }
-
-# Derive AML scoring endpoint URL (needed by SQL) and escape
-$amlScoringUri = ""
-try {
-    if ($env:DEPLOY_AML_MODEL -and $env:DEPLOY_AML_MODEL -ne 'none' -and $env:AZURE_AML_ENDPOINT_NAME) {
-        $amlScoringUri = az ml online-endpoint show `
-            -g $env:AZURE_RESOURCE_GROUP `
-            -w $env:AZURE_AML_WORKSPACE_NAME `
-            -n $env:AZURE_AML_ENDPOINT_NAME `
-            --query scoring_uri -o tsv
-    }
-} catch { }
-
-$openaiEndpointEscaped   = ($env:AZURE_OPENAI_ENDPOINT   | ForEach-Object { $_ -replace "'","''" })
-$openaiKeyEscaped        = ($env:AZURE_OPENAI_KEY        | ForEach-Object { $_ -replace "'","''" })
-$amlScoringUriEscaped    = ($amlScoringUri               | ForEach-Object { $_ -replace "'","''" })
-$languageEndpointEscaped = ($env:LANGUAGE_SERVICE_ENDPOINT | ForEach-Object { $_ -replace "'","''" })
-$languageKeyEscaped      = ($env:LANGUAGE_SERVICE_KEY      | ForEach-Object { $_ -replace "'","''" })
-$deployAmlModel          = ($env:DEPLOY_AML_MODEL        | ForEach-Object { $_ -replace "'","''" })
 
 
 # ##############################################################################
@@ -140,8 +121,6 @@ Write-Host "Configuring Database Schema..."
 # Token-replace ${AML_ENDPOINT_KEY} in the schema script and execute
 $dbSqlPath = "$PSScriptRoot/../scripts/sql/deploy-database-tables.sql"
 $dbSql = Get-Content -Path $dbSqlPath -Raw
-$dbSql = $dbSql.Replace('${AML_ENDPOINT_KEY}', $amlKeyEscaped)
-$dbSql = $dbSql.Replace('${AML_SCORING_ENDPOINT}', $amlScoringUriEscaped)
 $dbSql = $dbSql.Replace('${OPENAI_ENDPOINT}', $openaiEndpointEscaped)
 $dbSql = $dbSql.Replace('${OPENAI_KEY}', $openaiKeyEscaped)
 $dbSql = $dbSql.Replace('${LANGUAGE_ENDPOINT}', $languageEndpointEscaped)
@@ -156,12 +135,13 @@ az postgres flexible-server execute `
           --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
           --file-path $dbTempPath
 
+Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
+
 #Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 
 # Create triggers and semantic_reranker function.
 $dbSqlPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.sql"
 $dbSql = Get-Content -Path $dbSqlPath -Raw
-$dbSql = $dbSql.Replace('${DEPLOY_AML_MODEL}', $deployAmlModel)
 $dbTempPathT = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.tmp.sql"
 Set-Content -Path $dbTempPathT -Value $dbSql
 
@@ -171,6 +151,8 @@ az postgres flexible-server execute `
           --name "${env:POSTGRESQL_SERVER_NAME}" `
           --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
           --file-path $dbTempPathT
+
+Remove-Item -Path $dbTempPathT -ErrorAction SilentlyContinue
 
 Write-Host "Database Schema Configured"
 
@@ -203,8 +185,9 @@ $sqlScript = Get-Content -Path "$PSScriptRoot/../scripts/sql/grant-permissions.s
 $sqlScript = $sqlScript.Replace('${env:POSTGRESQL_DATABASE_NAME}', $env:POSTGRESQL_DATABASE_NAME)
 $sqlScript = $sqlScript.Replace('${env:SERVICE_API_IDENTITY_PRINCIPAL_NAME}', $env:SERVICE_API_IDENTITY_PRINCIPAL_NAME)
 
-# Write sql file 
-Set-Content -Path "$PSScriptRoot/../scripts/sql/grant-permissions.tmp.sql" -Value $sqlScript
+# Write sql file using a variable for consistency
+$grantTempPath = "$PSScriptRoot/../scripts/sql/grant-permissions.tmp.sql"
+Set-Content -Path $grantTempPath -Value $sqlScript
 
 # Run script
 az postgres flexible-server execute `
@@ -212,12 +195,14 @@ az postgres flexible-server execute `
           --admin-password "$token" `
           --name "${env:POSTGRESQL_SERVER_NAME}" `
           --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
-          --file-path "$PSScriptRoot/../scripts/sql/grant-permissions.tmp.sql"
+          --file-path $grantTempPath
+
+Remove-Item -Path $grantTempPath -ErrorAction SilentlyContinue
 
 Write-Host "Database Permissions Granted to API App Managed Identity"
 
 
-#Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
+
 # ##############################################################################
 # Upload Sample Files to Blob Storage
 # ##############################################################################
@@ -330,32 +315,6 @@ Write-Host "Sample Files Uploaded to Blob Storage"
 
 # Write-Host "Event Grid Subscription 'StorageBlob' Created"
 
-
-# ##############################################################################
-# Deploy Chosen Cross Encoder Model to the Azure ML Workspace
-# ##############################################################################
-
-# Capture start time of model deploy
-$startTime = [datetime]::Now
-Write-Host "Model Deploy Start Time: $startTime"
-
-Write-Host "If a model was chosen, now deploying Cross Encoder Model to the Azure ML Workspace..."
-Write-Host "Chosen model is: $env:DEPLOY_AML_MODEL"
-
-switch ($env:DEPLOY_AML_MODEL) {
-    "mini"  { & (Resolve-Path "$PSScriptRoot\..\scripts\aml\deploy_model_mini.ps1") -ErrorAction Stop }
-    "bge"   { & (Resolve-Path "$PSScriptRoot\..\scripts\aml\deploy_model_bge.ps1") -ErrorAction Stop }
-    "none"  { Write-Host "Skipping Semantic Re-ranker post-deployment script." }
-    default { Write-Error "Unknown DEPLOY_AML_MODEL value: $env:DEPLOY_AML_MODEL" }
-}
-
-# Capture end time of model deploy and calculate duration
-$endTime = [datetime]::Now
-$duration = $endTime - $startTime
-
-# Write out the duration of the model deploy
-Write-Host "Model Deploy End Time: $endTime"
-Write-Host ("Model Deploy Total Duration: {0} hours {1} minutes {2} seconds" -f $duration.Hours, $duration.Minutes, $duration.Seconds)
 
 # ##############################################################################
 # Update .env file to prevent postdeploy script from running again (this ensures that the script runs only once)
