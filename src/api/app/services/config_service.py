@@ -60,7 +60,12 @@ class ConfigService:
 
     async def get_doc_intelligence_endpoint(self) -> str:
         return await self.__get_setting("doc-intelligence-endpoint")
-
+    
+    def get_chat_model_deployment(self) -> str:
+        return "completions"
+    
+    def get_embedding_model_deployment(self) -> str:
+        return "embeddings"
+    
     def get_document_container_name(self) -> str:
         return "documents"
-

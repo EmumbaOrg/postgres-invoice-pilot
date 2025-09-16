@@ -1,5 +1,5 @@
 from app.functions.chat_functions import ChatFunctions
-from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_embedding_client, get_prompt_service
+from app.lifespan_manager import get_chat_client, get_config_service, get_db_connection_pool, get_embedding_client, get_prompt_service
 from app.models import CompletionRequest, CompletionResponse
 from fastapi import APIRouter, Depends
 from langchain.agents import AgentExecutor, create_openai_functions_agent
@@ -20,7 +20,9 @@ async def generate_chat_completion(
     llm = Depends(get_chat_client),
     db_pool = Depends(get_db_connection_pool),
     embedding_client = Depends(get_embedding_client),
-    prompt_service = Depends(get_prompt_service)):
+    prompt_service = Depends(get_prompt_service),
+    app_config = Depends(get_config_service),
+):
     """Generate a chat completion using the Azure OpenAI API."""
         
     # Retrieve the copilot prompt
@@ -58,7 +60,7 @@ async def generate_chat_completion(
     )
 
     # Get the chat functions
-    cf = ChatFunctions(db_pool, embedding_client)
+    cf = ChatFunctions(db_pool, embedding_client, app_config.get_chat_model_deployment())
 
     # Define tools for the agent to retrieve data from the database
     tools = [
@@ -73,6 +75,7 @@ async def generate_chat_completion(
         StructuredTool.from_function(coroutine=cf.get_invoice_line_items),
         StructuredTool.from_function(coroutine=cf.get_invoice_validation_results),
         StructuredTool.from_function(coroutine=cf.get_invoices),
+        StructuredTool.from_function(coroutine=cf.get_unpaid_invoices_for_vendor),
         # Get SOW data functions
         StructuredTool.from_function(coroutine=cf.get_sow_chunks),
         StructuredTool.from_function(coroutine=cf.get_sow_id),

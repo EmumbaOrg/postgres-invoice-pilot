@@ -1,8 +1,9 @@
 from typing import Optional
 
 class ChatFunctions:
-    def __init__(self, db_pool, embedding_client):
+    def __init__(self, db_pool, embedding_client, chat_model_deployment):
         self.pool = db_pool
+        self.model = chat_model_deployment
         self.embedding_client = embedding_client
 
     async def __create_query_embeddings(self, user_query: str):
@@ -336,19 +337,25 @@ class ChatFunctions:
         query_embeddings = await self.__create_query_embeddings(user_query)
 
         # Create a vector search query
-        cte_query = f"SELECT content FROM sow_chunks"
+        cte_query = f"SELECT array_agg(content) AS contents FROM ("
+        cte_query += f" SELECT content FROM sow_chunks"
         cte_query += f" WHERE sow_id = {sow_id}" if sow_id is not None else ""
         cte_query += f" ORDER BY embedding <=> '{query_embeddings}'"
         cte_query += f" LIMIT 10"
+        cte_query += f")"
 
         # Create the semantic ranker query
         query = f"""
         WITH vector_results AS (
             {cte_query}
+        ),
+        ranked AS (
+            SELECT r.idx, r.relevance
+            FROM vector_results, azure_ai.rank('{user_query}', contents, '{self.model}') AS r(idx, relevance)
         )
-        SELECT content, relevance
-        FROM semantic_reranking('{user_query}',  ARRAY(SELECT content from vector_results))
-        ORDER BY relevance DESC
+        SELECT contents[ranked.idx + 1] AS content, ranked.relevance
+        FROM ranked, vector_results
+        ORDER BY ranked.relevance DESC
         LIMIT {max_results};
         """
 
