@@ -55,10 +55,25 @@ services:
     docker:
       context: ./
       registry: ${AZURE_CONTAINER_REGISTRY_ENDPOINT}
-      path: DOCKERFILE
       remoteBuild: true
-      buildArgs:
-        - SERVICE_API_ENDPOINT_URL=${SERVICE_API_ENDPOINT_URL}
+      path: DOCKERFILE
+    hooks:
+      prebuild:
+        shell: pwsh
+        interactive: true
+        continueOnError: false
+        run: |
+          Write-Host "[prebuild] Preparing .env.local for Vite" -ForegroundColor Cyan
+          $apiUrl = azd env get-value SERVICE_API_ENDPOINT_URL
+          if (-not $apiUrl -or $apiUrl.Trim() -eq '') {
+            Write-Host "[prebuild] SERVICE_API_ENDPOINT_URL empty; using placeholder http://localhost:8000" -ForegroundColor Yellow
+            $apiUrl = 'http://localhost:8000'
+          }
+            # Ensure trailing slash
+          if ($apiUrl[-1] -ne '/') { $apiUrl = "$apiUrl/" }
+          $line = "VITE_SERVICE_API_ENDPOINT_URL=$apiUrl"
+          Set-Content -Path .\\.env.local -Value $line -NoNewline
+          Write-Host "[prebuild] Wrote .env.local => $line" -ForegroundColor Green
     dependsOn:
       - infra
 
