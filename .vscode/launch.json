@@ -1,50 +1,34 @@
-{
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Portal Debugger",
-            "type": "node-terminal",
-            "request": "launch",
-            "command": "npm run dev",
-            "preLaunchTask": "npm: install",
-            "cwd": "${workspaceFolder}/src/userportal"
-        },
-        {
-            "name": "API Debugger (Windows)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/api/app/main.py",
-            "args": [
-                "run",
-                "uvicorn",
-                "main:app",
-                "--reload"
-            ],
-            "jinja": true,
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/src/api"
+    {
+        // Use IntelliSense to learn about possible attributes.
+        // Hover to view descriptions of existing attributes.
+        // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Portal Debugger",
+                "type": "node-terminal",
+                "request": "launch",
+                "command": "npm run dev",
+                "preLaunchTask": "npm: install",
+                "cwd": "${workspaceFolder}/src/userportal"
             },
-            "python": "${command:python.interpreterPath}",
-        },
-        {
-            "name": "API Debugger (macOS)",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/api/app/main.py",
-            "args": [
-                "run",
-                "uvicorn",
-                "main:app",
-                "--reload"
-            ],
-            "jinja": true,
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}/src/api"
-            },
-            "python": "${command:python.interpreterPath}",
-        }
-    ]
-}
+            {
+                "name": "API Debugger",
+                "type": "debugpy",
+                "request": "launch",
+                "module": "uvicorn",
+                "cwd": "${workspaceFolder}/src/api",
+                "args": [
+                    "app.main:app",
+                    "--reload",
+                    "--host", "127.0.0.1",
+                    "--port", "8000"
+                ],
+                "console": "integratedTerminal",
+                "jinja": true,
+                "env": {
+                    "PYTHONPATH": "${workspaceFolder}/usr/bin/python3"
+                }
+            }
+        ]
+    }
