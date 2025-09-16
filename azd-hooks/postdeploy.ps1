@@ -364,6 +364,21 @@ Write-Host ("Model Deploy Total Duration: {0} hours {1} minutes {2} seconds" -f 
 azd env set "RUN_POSTDEPLOY_SCRIPT" "false"
 
 # ##############################################################################
+# Remove transient build-time env file from UserPortal (cleanup)
+# ##############################################################################
+try {
+    $envLocalPath = Join-Path $PSScriptRoot "..\src\userportal\.env.local"
+    if (Test-Path $envLocalPath) {
+        Remove-Item $envLocalPath -Force
+        Write-Host "Removed local build env file: $envLocalPath" -ForegroundColor DarkGray
+    } else {
+        Write-Host ".env.local not present (nothing to clean)" -ForegroundColor DarkGray
+    }
+} catch {
+    Write-Warning "Failed to remove .env.local: $($_.Exception.Message)"
+}
+
+# ##############################################################################
 # Write completion message
 # ##############################################################################
 
