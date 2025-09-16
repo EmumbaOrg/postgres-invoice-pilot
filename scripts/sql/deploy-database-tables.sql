@@ -11,9 +11,6 @@ CREATE EXTENSION IF NOT EXISTS age;
 SELECT azure_ai.set_setting('azure_openai.endpoint', '${OPENAI_ENDPOINT}');
 SELECT azure_ai.set_setting('azure_openai.subscription_key', '${OPENAI_KEY}');
 
-SELECT azure_ai.set_setting('azure_ml.scoring_endpoint','${AML_SCORING_ENDPOINT}');
-SELECT azure_ai.set_setting('azure_ml.endpoint_key', '${AML_ENDPOINT_KEY}');
-
 SELECT azure_ai.set_setting('azure_cognitive.endpoint', '${LANGUAGE_ENDPOINT}');
 SELECT azure_ai.set_setting('azure_cognitive.subscription_key', '${LANGUAGE_KEY}');
 

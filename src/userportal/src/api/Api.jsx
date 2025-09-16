@@ -1,6 +1,6 @@
 import RESTHelper from './RESTHelper';
 
-const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'https://ca-api-m3ohtmntl37aq.wittyisland-e1286043.eastus.azurecontainerapps.io/';
+const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://localhost:8000';
 
 const getUrl = (url) => {
     return `${APIUrl}${url}`;

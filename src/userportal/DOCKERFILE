@@ -10,16 +10,9 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# test
-
 # Now copy the rest of the application code
 COPY . .
 
-# Build environment variables into .env
-ARG SERVICE_API_ENDPOINT_URL
-RUN echo "VITE_SERVICE_API_ENDPOINT_URL=${SERVICE_API_ENDPOINT_URL}" > .env
-
-# Build the production assets
 RUN npm run build
 
 # Stage 2: Serve the app with Nginx

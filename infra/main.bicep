@@ -53,14 +53,6 @@ param principalType string = 'User'
 @description('Name of the PostgreSQL database')
 param postgresqlDatabaseName string = 'contracts'
 
-@description('Determines what model to deploy to the Azure Machine Learning workspace used for Semantic Re-ranking')
-@allowed([
-  'mini'
-  'bge'
-  'none'
-])
-param deployAMLModel string
-
 @description('Version of the OpenAI model to deploy')
 @allowed([
   '2024-05-13'
@@ -389,20 +381,7 @@ module languageService './shared/language-service.bicep' = {
   scope: rg
 }
 
-module amlWorkspace './shared/aml-workspace.bicep' = if (deployAMLModel != 'none') {
-  name: 'amlWorkspace'
-  params: {
-    location: location
-    workspaceName: '${abbrs.machineLearningServicesWorkspaces}${resourceToken}'
-    endpointName: '${abbrs.machineLearningServicesOnlineEndpoints}${resourceToken}'
-    keyVaultName: keyVault.outputs.name
-    appInsightsName: monitoring.outputs.applicationInsightsName
-    storageAccountName: storage.outputs.name
-    containerRegistryName: registry.outputs.name
-    principalId: principalId
-  }
-  scope: rg
-}
+
 
 output AZURE_RESOURCE_GROUP string = rg.name
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = registry.outputs.loginServer
@@ -421,9 +400,6 @@ output POSTGRESQL_DATABASE_NAME string = postgresqlDatabaseName
 output AZURE_OPENAI_ENDPOINT string = openAi.outputs.endpoint
 output AZURE_OPENAI_KEY string = openAi.outputs.key
 
-output DEPLOY_AML_MODEL string = deployAMLModel
-output AZURE_AML_WORKSPACE_NAME string = (deployAMLModel != 'none') ? amlWorkspace.outputs.AML_WORKSPACE_NAME : ''
-output AZURE_AML_ENDPOINT_NAME string = (deployAMLModel != 'none') ? amlWorkspace.outputs.AML_ENDPOINT_NAME : ''
 
 output SERVICE_API_IDENTITY_PRINCIPAL_NAME string = apiApp.outputs.identityPrincipalName
 
