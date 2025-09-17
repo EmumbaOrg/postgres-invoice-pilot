@@ -129,7 +129,7 @@ const VendorView = () => {
           <i className="fas fa-file-pdf text-primary" style={{ fontSize: "24px" }}></i>
         </div>
         <div>
-          <div className="fw-medium text-dark text-truncate" style={{ maxWidth: '400px' }}>{file?.number} {file?.document} </div>
+          <div className="fw-medium text-dark text-truncate" style={{ maxWidth: '320px' }}>{file?.number} {file?.document} </div>
           <small className="text-muted">
             {file?.start_date || file?.invoice_date}
           </small>
@@ -138,10 +138,16 @@ const VendorView = () => {
       <div className="d-flex gap-2">
         <Button variant="text-primary" className="btn-link" size="sm" onClick={()=>onPreviewPDFClick(file)}>
           <i className="fas fa-eye"></i>
+          </Button>
+        <Button
+          variant="text-primary"
+          className="btn-link"
+          size="sm"
+          onClick={() => window.open(api.documents.getUrl(file?.document), "_blank", "noopener,noreferrer")}
+          aria-label="Download"
+        >
+          <i className="fas fa-download"></i>
         </Button>
-        <a href={`${api.documents.getUrl(file?.document)}`} target="_blank" rel="noopener noreferrer" className="btn btn-link" aria-label="Download">
-              <i className="fas fa-download"></i>
-        </a>
         <Button variant="text-danger" style={{color:"#0d6efd"}}  size="sm" onClick={()=> setShowDeleteSOWModal(true)}>
           <i className="fas fa-trash-alt"></i>
         </Button>
