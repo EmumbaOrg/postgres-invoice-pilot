@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import api from "../api/Api" 
 
 export const useChatSession = () => {
-  const [sessionId, setSessionId] = useState(-1);
+  const [sessionId, setSessionId] = useState(-1); // -1 indicates not yet established with backend
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null)
@@ -21,45 +21,47 @@ export const useChatSession = () => {
     }
   }
 
-  const handleSendMessage = async (e) => {
-      // Prevent form submission if called from form
-      if (e) {
-        e.preventDefault()
-      }
+  const inflightRef = useRef(false);
+  const suppressNextHistoryLoadRef = useRef(false); // avoids overwriting optimistic first exchange
 
-    if (input.trim() === "") return
-
-    const prompt = input;
+  const handleSendMessage = async (e, explicitMessage) => {
+    if (e) e.preventDefault();
+    const prompt = (explicitMessage ?? input).trim();
+    if (!prompt) return;
+    if (inflightRef.current) {
+      // Optionally queue or ignore; for now ignore to prevent overlap
+      return;
+    }
+    inflightRef.current = true;
     setInput("");
     setIsThinking(true);
+    setError("");
 
-    // Add the user's message to the local message history
-    const userMessage = { role: "user", content: prompt }
-    setMessages([...messages, userMessage])
-    setError("")
+    const userMessage = { role: "user", content: prompt };
+    setMessages(prev => [...prev, userMessage]);
+
     try {
-      // Get the completion from the API
-      const output = await api.completions.chat(sessionId, prompt)
-      // make sure request for a different session doesn't update the messages
-      if (sessionId === output.session_id) {
-        // Add the assistant's response to the messages
-        const assistantMessage = { role: "assistant", content: output.content }
-        setMessages([...messages, userMessage, assistantMessage])
+      // Mark to skip immediate history load if we don't yet have a server session
+      if (sessionId === -1) {
+        suppressNextHistoryLoadRef.current = true;
+      }
+      const output = await api.completions.chat(sessionId, prompt);
+      const assistantMessage = { role: "assistant", content: output.content };
+
+      // Ensure session id is updated first so future sends use correct id
+      if (sessionId === -1 || sessionId !== output.session_id) {
+        setSessionId(output.session_id);
       }
 
-      // only update the messages if the session ID is the same
-      // This keeps a processing completion from updating messages after a new session is created
-      if (sessionId === -1 || sessionId !== output.session_id) {
-        // Update the session ID
-        setSessionId(output.session_id)
-      }
-    } catch (error) {
-      console.error("Error sending message:", error)
-      setError("Error sending message. Please try again.")
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setError("Error sending message. Please try again.");
     } finally {
+      inflightRef.current = false;
       setIsThinking(false);
     }
-  }
+  };
 
   const createNewSession = async () => {
     setSessionId(-1)
@@ -71,18 +73,28 @@ export const useChatSession = () => {
 
   const loadSessionHistory = async () => {
     if (!sessionId || sessionId <= 0) {
-      setMessages([])
-      return
+      setMessages([]);
+      return;
+    }
+
+    if (suppressNextHistoryLoadRef.current) {
+      // Skip the first automatic history load; let optimistic messages stand
+      suppressNextHistoryLoadRef.current = false;
+      return;
     }
 
     try {
-      const data = await api.completions.getHistory(sessionId)
-      setMessages(data)
+      const data = await api.completions.getHistory(sessionId);
+      setMessages(prev => {
+        // If backend has fewer messages (race), keep optimistic ones
+        if (data.length < prev.length) return prev;
+        return data;
+      });
     } catch (error) {
-      console.error("Error loading session history:", error)
-      setError("Error loading session history. Please try again.")
+      console.error("Error loading session history:", error);
+      setError("Error loading session history. Please try again.");
     }
-  }
+  };
 
   useEffect(() => {
     loadSessionHistory()
