@@ -4,8 +4,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from typing import List
 from datetime import date, datetime
 import re
-
-
+import json
 
 class TextChunk:
     heading: str
@@ -150,20 +149,25 @@ class AzureDocIntelligenceService:
         return text_splitter.split_text(text)
 
 
-    def extract_sow_metadata(self, full_text):
-        """Extract SOW metadata"""
-        metadata = {
-            "content": full_text
-        }
+    async def format_data_to_json(self, full_text:str, llm, prompt_service):
+        """Use LLM to format data into JSON structure"""
 
-        # Extract SOW Number
-        match = re.search(r'SOW Number:\s*(SOW-\S+)', full_text, re.IGNORECASE)
-        if match:
-            metadata['sow_number'] = match.group(1)
-        else:
-            metadata['sow_number'] = None
+        # retrieve the prompt
+        prompt = prompt_service.get_prompt("format_text_to_json")
 
-        return metadata
+        # Prepare messages for the LLM
+        messages = [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": full_text}
+        ]
+        
+        # Call the LLM to get the formatted JSON
+        response = await llm.ainvoke(messages)
+
+        json_response = json.loads(response.content)
+
+        return json_response
+
 
     def extract_invoice_metadata(self, full_text):
         """Extract invoice metadata such as number, amount, and invoice_date from text."""
