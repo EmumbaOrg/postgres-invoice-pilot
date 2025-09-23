@@ -179,48 +179,45 @@ async def validate_sow(id: int):
         if row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
 
-        # Convert row to dict 
+
         sow_dict = dict(row)
 
+        metadata = sow_dict.get("metadata")
+
         # convet date to text format as it is easier for LLM to understand
-        sow_dict = await format_dates(sow_dict)            
+        sow_dict = await format_dates(metadata)            
 
     return sow_dict
 
-async def format_dates(sow_dict):
+async def format_dates(metadata):
     """Formats dates to a textual format."""
     
     try:
 
-        sow_dict['start_date'] = sow_dict['start_date'].strftime('%d %B %Y')
-        sow_dict['end_date'] = sow_dict['end_date'].strftime('%d %B %Y')
+        metadata_dict = json.loads(metadata)
 
-        metadata = json.loads(sow_dict.get("metadata"))
-
-        metadata['Effective_Date'] = to_textual_date(metadata.get('Effective_Date'))
-        metadata['Project_Completion_Date'] = to_textual_date(metadata.get('Project_Completion_Date'))
+        metadata_dict['Effective_Date'] = to_textual_date(metadata_dict.get('Effective_Date'))
+        metadata_dict['Project_Completion_Date'] = to_textual_date(metadata_dict.get('Project_Completion_Date'))
 
         # Format Schedules dates
-        if "Schedules" in metadata:
-            for milestone, date_str in metadata["Schedules"].items():
-                metadata["Schedules"][milestone] = to_textual_date(date_str)
+        if "Schedules" in metadata_dict:
+            for schedule in metadata_dict["Schedules"]:
+                schedule["Milestone_Completion_Due_Date"] = to_textual_date(schedule.get("Milestone_Completion_Due_Date"))
 
         # Format Project_Deliverables dates
-        if "Project_Deliverables" in metadata:
-            for deliverable in metadata["Project_Deliverables"]:
+        if "Project_Deliverables" in metadata_dict:
+            for deliverable in metadata_dict["Project_Deliverables"]:
                 date_str = deliverable.get("Milestone_Payment_Due_Date")
                 deliverable["Milestone_Payment_Due_Date"] = to_textual_date(date_str)
 
 
-        sow_dict["metadata"] = json.dumps(metadata)
-
-        return sow_dict
+        return metadata_dict
 
 
     except Exception as e:
         print(f"Error formatting dates: {e}. Try again")
 
-        return sow_dict
+        return metadata
 
 def to_textual_date(date_str):
     """Convert a date string (ISO or textual) to textual format 'D Month YYYY'."""

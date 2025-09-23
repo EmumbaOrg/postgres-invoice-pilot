@@ -19,9 +19,10 @@ Identify all distinct fields, sections, and tabular data present in the text.
    "Project_Scope": project scope as a string,
    "Project_Objectives":  as a list of strings,
    "Tasks": as a list of strings,
-   "Schedules":{
-      "key":"value"
-      For the date over here, use the key "Milestone_Completion_Due_Date". This date will *ALWAYS BE IN YYYY-MM-DD FORMAT*. 
+   "Schedules": a list of json. each json has following keys {
+         "Milestone_Name": str,
+         "Milestone_Completion_Due_Date": This date will *ALWAYS BE IN YYYY-MM-DD FORMAT*
+      }
    },
    "Requirements": as a list of strings,
    "Payments": {
