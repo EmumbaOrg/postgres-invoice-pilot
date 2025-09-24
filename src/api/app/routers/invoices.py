@@ -1,4 +1,4 @@
-from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service, get_activity_log_service
+from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service, get_activity_log_service, get_chat_client, get_prompt_service
 from app.models import Invoice, InvoiceEdit, ListResponse, InvoiceAnalyzeResult
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from datetime import datetime
@@ -64,7 +64,9 @@ async def analyze_invoice(
     pool = Depends(get_db_connection_pool),
     storage_service = Depends(get_storage_service),
     doc_intelligence_service = Depends(get_azure_doc_intelligence_service),
-    activity_log_service = Depends(get_activity_log_service)
+    activity_log_service = Depends(get_activity_log_service),
+    llm = Depends(get_chat_client),
+    prompt_service = Depends(get_prompt_service)
     ):
     """Analyze an Invoice document and create a new invoice in the database."""
     try:
@@ -84,16 +86,16 @@ async def analyze_invoice(
         full_text = analysis_result.full_text
 
         text_chunks = doc_intelligence_service.semantic_chunking(full_text)
-        metadata = doc_intelligence_service.extract_invoice_metadata(full_text)
+
+        # format text into json object
+        metadata = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_invoice_text_to_json"))
 
         # Incorporate extracted field values, or use default if not found
-        invoice_number = metadata['number'] or f"INV-{datetime.now().strftime('%Y-%m%d')}"
-        amount = metadata['amount'] or 0
-        invoice_date = metadata['invoice_date'] or datetime.now().date()
-        payment_status = metadata['payment_status'] or "Pending"
-        sow_number = metadata['sow_number'] or None
-
-        metadata['invoice_date'] = None # clear this since object of type date is not json serializable
+        invoice_number = metadata['Invoice_Number'] or f"INV-{datetime.now().strftime('%Y-%m%d')}"
+        amount = metadata['Total_Amount'] or 0
+        invoice_date = datetime.strptime(metadata['Invoice_Date'], '%Y-%m-%d').date() or datetime.now().date()
+        payment_status = "Pending"
+        sow_number = metadata['SOW_Number'] or None
 
 
         # Get Invoice ID if Invoice Number already exists for this Vendor
