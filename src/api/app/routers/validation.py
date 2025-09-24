@@ -105,7 +105,6 @@ async def validate_invoice(id: int):
 
         combined_information = f"""Vendor Information: {json.dumps(vendor)}\n\nSOW Information: {json.dumps(sow_metadata)}\n\nInvoice Information: {json.dumps(invoice_metadata)}\n\n"""
 
-
     return combined_information
 
 
@@ -176,7 +175,6 @@ async def validate_sow(id: int):
         if row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
 
-
         sow_dict = dict(row)
 
         metadata = sow_dict.get("metadata")
@@ -207,9 +205,7 @@ async def format_sow_dates(metadata):
                 date_str = deliverable.get("Milestone_Payment_Due_Date")
                 deliverable["Milestone_Payment_Due_Date"] = to_textual_date(date_str)
 
-
         return metadata_dict
-
 
     except Exception as e:
         print(f"Error formatting sow dates: {e}. Try again")
@@ -222,7 +218,6 @@ async def format_invoice_dates(metadata):
     try:
 
         metadata_dict = json.loads(metadata)
-
         metadata_dict['Invoice_Date'] = to_textual_date(metadata_dict.get('Invoice_Date'))
 
         if "Project_Deliverables" in metadata_dict:
@@ -230,9 +225,7 @@ async def format_invoice_dates(metadata):
                 date_str = deliverable.get("Milestone_Payment_Due_Date")
                 deliverable["Milestone_Payment_Due_Date"] = to_textual_date(date_str)
 
-
         return metadata_dict
-
 
     except Exception as e:
         print(f"Error formatting invoice dates: {e}. Try again")
