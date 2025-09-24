@@ -119,10 +119,12 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse --short "$GITHUB_SHA")
           echo "IMAGE_TAG=$COMMIT_ID" >> $GITHUB_ENV
+          cd  src/userportal
+          echo "VITE_SERVICE_API_ENDPOINT_URL="https://ca-api-m3ohtmntl37aq.wittyisland-e1286043.eastus.azurecontainerapps.io/"" >> .env.local
           docker build \
-            -f src/userportal/DOCKERFILE \
+            -f DOCKERFILE \
             -t ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$COMMIT_ID \
-            src/userportal
+            .
 
       - name: Push image to ACR (User Portal)
         run: |
