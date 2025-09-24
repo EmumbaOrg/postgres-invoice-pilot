@@ -149,11 +149,8 @@ class AzureDocIntelligenceService:
         return text_splitter.split_text(text)
 
 
-    async def format_data_to_json(self, full_text:str, llm, prompt_service):
+    async def format_text_to_json(self, full_text:str, llm, prompt):
         """Use LLM to format data into JSON structure"""
-
-        # retrieve the prompt
-        prompt = prompt_service.get_prompt("format_text_to_json")
 
         # Prepare messages for the LLM
         messages = [
@@ -169,41 +166,41 @@ class AzureDocIntelligenceService:
         return json_response
 
 
-    def extract_invoice_metadata(self, full_text):
-        """Extract invoice metadata such as number, amount, and invoice_date from text."""
-        metadata = {}
+    # def extract_invoice_metadata(self, full_text):
+    #     """Extract invoice metadata such as number, amount, and invoice_date from text."""
+    #     metadata = {}
 
-        # Extract Vendor Name
-        # match = re.search(r'Vendor:\s*([^\n]+)', full_text, re.IGNORECASE)
-        # metadata['vendor'] = match.group(1).strip() if match else "UNKNOWN"
+    #     # Extract Vendor Name
+    #     # match = re.search(r'Vendor:\s*([^\n]+)', full_text, re.IGNORECASE)
+    #     # metadata['vendor'] = match.group(1).strip() if match else "UNKNOWN"
 
-        # Extract invoice number
-        #match = re.search(r"Invoice Number[:\s]+([A-Za-z0-9-]+)", full_text, re.IGNORECASE)
-        match = re.search(r'Invoice Number:\s*(INV-\S+)', full_text, re.IGNORECASE)
-        metadata['number'] = match.group(1) if match else "UNKNOWN"
+    #     # Extract invoice number
+    #     #match = re.search(r"Invoice Number[:\s]+([A-Za-z0-9-]+)", full_text, re.IGNORECASE)
+    #     match = re.search(r'Invoice Number:\s*(INV-\S+)', full_text, re.IGNORECASE)
+    #     metadata['number'] = match.group(1) if match else "UNKNOWN"
 
-        # Extract invoice amount
-        match = re.search(r"Total Amount[:\s]+[$]?([\d,]+(?:\.\d{1,2})?)", full_text, re.IGNORECASE)
-        metadata['amount'] = float(match.group(1).replace(",", "")) if match else 0.0
+    #     # Extract invoice amount
+    #     match = re.search(r"Total Amount[:\s]+[$]?([\d,]+(?:\.\d{1,2})?)", full_text, re.IGNORECASE)
+    #     metadata['amount'] = float(match.group(1).replace(",", "")) if match else 0.0
 
-        # Extract invoice date
-        match = re.search(r"Invoice Date[:\s]+([\d/-]{8,10})", full_text, re.IGNORECASE)
-        if match:
-            try:
-                metadata['invoice_date'] = datetime.strptime(match.group(1), "%Y-%m-%d").date()
-            except ValueError:
-                metadata['invoice_date'] = None
-        else:
-            metadata['invoice_date'] = None
+    #     # Extract invoice date
+    #     match = re.search(r"Invoice Date[:\s]+([\d/-]{8,10})", full_text, re.IGNORECASE)
+    #     if match:
+    #         try:
+    #             metadata['invoice_date'] = datetime.strptime(match.group(1), "%Y-%m-%d").date()
+    #         except ValueError:
+    #             metadata['invoice_date'] = None
+    #     else:
+    #         metadata['invoice_date'] = None
 
-        # Extract SOW Number
-        match = re.search(r'SOW Number:\s*(SOW-\S+)', full_text, re.IGNORECASE)
-        if match:
-            metadata['sow_number'] = match.group(1)
-        else:
-            metadata['sow_number'] = None
+    #     # Extract SOW Number
+    #     match = re.search(r'SOW Number:\s*(SOW-\S+)', full_text, re.IGNORECASE)
+    #     if match:
+    #         metadata['sow_number'] = match.group(1)
+    #     else:
+    #         metadata['sow_number'] = None
 
-        # Default payment status
-        metadata['payment_status'] = "Pending"
+    #     # Default payment status
+    #     metadata['payment_status'] = "Pending"
 
-        return metadata
+    #     return metadata

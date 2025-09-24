@@ -95,7 +95,7 @@ async def analyze_sow(
         full_text = analysis_result.full_text
 
         # format text into json object
-        metadata = await doc_intelligence_service.format_data_to_json(full_text, llm, prompt_service)
+        metadata = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_sow_text_to_json"))
 
         # extract required fields from metadata json
         start_date = datetime.strptime(metadata['Effective_Date'], '%Y-%m-%d').date() if metadata.get('Effective_Date') else start_date
