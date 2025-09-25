@@ -249,8 +249,8 @@ module postgresql './shared/postgresql.bicep' = {
   params: {
     location: location
     serverName: '${abbrs.dBforPostgreSQLServers}data${resourceToken}'
-    skuName: 'Standard_B2ms'
-    skuTier: 'Burstable'
+    skuName: 'Standard_D2ds_v4'
+    skuTier: 'GeneralPurpose'
     highAvailabilityMode: 'Disabled'
     tags: tags
     appConfigName: appConfig.outputs.name
