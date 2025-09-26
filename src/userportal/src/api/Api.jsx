@@ -78,7 +78,7 @@ const Api = {
             return getUrl(`/documents/${blobName}`);
         },
         get: async (createdAt) =>{
-            return await RESTHelper.get(getUrl(`documents?sort_by=${createdAt}`));
+            return await RESTHelper.get(getUrl(`/documents?sort_by=${createdAt}`));
         },
         upload: async (file) => {
             if (!file) return;
@@ -119,7 +119,7 @@ const Api = {
     },
     activities: {
         getRecent: async (limit = 3) => {
-            return await RESTHelper.get(getUrl(`activity_logs?limit=${limit}`));
+            return await RESTHelper.get(getUrl(`/activity_logs?limit=${limit}`));
         },
     },
     invoices: {
