@@ -55,6 +55,7 @@ async def get_by_id(id: int, pool = Depends(get_db_connection_pool)):
 
 @router.post("/", response_model=InvoiceLineItem)
 async def create(
+    milestone_of_line_item: str = Form(...),
     invoice_id: int = Form(...),
     description: str = Form(...),
     amount: float = Form(...),
@@ -71,11 +72,11 @@ async def create(
     async with pool.acquire() as conn:
         id = await conn.fetchval('''
             INSERT INTO invoice_line_items
-            (invoice_id, description, amount, status, due_date)
+            (invoice_id, milestone_of_line_item, description, amount, status, due_date)
             VALUES
-            ($1, $2, $3, $4, $5)
+            ($1, $2, $3, $4, $5, $6)
             RETURNING id;
-        ''', invoice_id, description, amount, status, due_date_parsed)
+        ''', invoice_id, milestone_of_line_item, description, amount, status, due_date_parsed)
         row = await conn.fetchrow('SELECT * FROM invoice_line_items WHERE id = $1;', id)
         milestone = parse_obj_as(InvoiceLineItem, dict(row))
    
@@ -88,7 +89,7 @@ async def create(
         action="created",
         resource_type="Invoice line item",
         resource_name=str(invoice_id),
-        custom_message=f"Invoice line item '{description}' created for invoice '{invoice_number}'",
+        custom_message=f"Invoice line item '{description}' belonging to milestone '{milestone_of_line_item}' created for invoice '{invoice_number}'",
         pool=pool
     )
 
@@ -100,8 +101,8 @@ async def update(id: int, item: InvoiceLineItemEdit, pool = Depends(get_db_conne
         await conn.execute('''
             UPDATE invoice_line_items
             SET invoice_id = $1, description = $2, amount = $3, status = $4, due_date = $5
-            WHERE id = $6;
-        ''', item.invoice_id, item.description, item.amount, item.status, item.due_date, id)
+            WHERE id = $6, milestone_of_line_item = $7;
+        ''', item.invoice_id, item.description, item.amount, item.status, item.due_date, id, item.milestone_of_line_item)
         row = await conn.fetchrow('SELECT * FROM invoice_line_items WHERE id = $1;', id)
         milestone = parse_obj_as(InvoiceLineItem, dict(row))
 

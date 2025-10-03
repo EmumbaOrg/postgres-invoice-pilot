@@ -11,6 +11,8 @@ When validating a SOW, you should:
 8. Confirm that the SOW is legitimate and ready for payment.
 9. Payment Terms: 'Net 30' means a 30-day payment buffer is allowed after the invoice/delivery/milestone submission date, where the number indicates the buffer period in days. This means that the payment due date is within 30 days of the submission due date.
 10. For milestones, the dates mentioned here are the due date for submission and the due date for payment, not the date on which the milestone was completed and its invoice submitted. So penalty calculation should not be performed here.
+11. When comparing milestone names between the SOW and deliverables, do not require an exact match. Allow for slight differences in wording as long as the overall meaning is the same.
+
 
 In your response:
 - Provide a statement of valid or invalid for the SOW.

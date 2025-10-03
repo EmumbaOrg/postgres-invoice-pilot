@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS sows (
 );
 
 -- Insert sow values only if the specific sow number does not exist
-INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
+INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata, summary)
 SELECT 'SOW-2024-073',
        1,
        '2024-11-01',
@@ -166,10 +166,11 @@ SELECT 'SOW-2024-073',
     "Adatum Corporation": "Elizabeth Moore",
     "Woodgrove Bank": "Chris Green"
   }
-}'
+}',
+'Adatum Corporation has been tasked with optimizing Azure resources for Woodgrove Bank, with a focus on performance, scalability, cost efficiency, and minimal downtime. The project, effective November 1, 2024, aims to establish comprehensive monitoring, automate scaling, conduct cost optimization, and ensure robust troubleshooting for applications hosted on Azure. Deliverables include setting up monitoring tools, implementing scaling strategies, and applying cost-saving measures, with a final wrap-up by the end of 2024. Payments are structured with a penalty for late deliveries or payments, and strict compliance with data security, access control, auditing, incident response, and regulatory standards is mandatory. The total projected cost for all deliverables is $43,600, with a final deadline for all tasks and troubleshooting completed by early 2025 or shortly thereafter. The project involves close collaboration between Adatum Corporation and Woodgrove Bank''s IT team, with necessary approvals required to progress through the phases.'
 WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-073');
 
-INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
+INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata, summary)
 SELECT 'SOW-2024-038',
        2,
        '2024-05-01',
@@ -229,202 +230,9 @@ SELECT 'SOW-2024-038',
     "Trey Research": "Serena Davis",
     "Woodgrove Bank": "Chris Green"
   }
-}'
+}',
+'Trey Research has been tasked with implementing comprehensive DevOps services for a project commencing on May 1, 2024, with completion expected by the end of August 2025. The project''s objectives include developing a DevOps strategy, implementing CI/CD pipelines, adopting Infrastructure as Code, and integrating security, monitoring, and optimization into DevOps processes. Payments are structured with a penalty for late deliveries or payments, and strict data security and access control measures are in place, including encryption and multi-factor authentication. The project will adhere to GDPR, PCI DSS, and ISO 27001 standards, with deliverables including a DevOps roadmap, CI/CD pipeline deployment, Infrastructure as Code implementation, and a detailed security integration plan, all with specified due dates and financial expectations. Regular audits, incident response protocols, and a focus on compliance underscore the project''s commitment to security and regulatory adherence. The overall goal is to enhance the client''s DevOps capabilities through a structured timeline and clear deliverables.'
 WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-038');
-
-INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
-SELECT 'SOW-2024-081',
-       3,
-       '2024-12-01',
-       '2024-12-31',
-       33000.00,
-       '3/sow/Statement_of_Work_Lucerne_Publishing_Woodgrove_Bank_20241201.pdf',
-       '{
-  "Project_Name": "Digital Platform Branding",
-  "Effective_Date": "2024-12-01",
-  "Project_Completion_Date": "2024-12-31",
-  "SOW_Number": "SOW-2024-081",
-  "Project_Scope": "Lucerne Publishing will provide comprehensive branding services for Woodgrove Bank''s digital platform, including brand identity design, marketing materials, and UI/UX design.",
-  "Project_Objectives": [
-    "Develop a cohesive brand identity for the digital platform.",
-    "Create marketing and print design materials.",
-    "Design UI/UX for the website and mobile applications.",
-    "Provide detailed guidelines and documentation."
-  ],
-  "Tasks": [
-    "Brand Identity & Design Strategy",
-    "Marketing & Print Design",
-    "Digital & UI/UX Design"
-  ],
-  "Schedules": [
-    {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-12-01"},
-    {"Milestone_Name": "Brand Identity & Design Strategy", "Milestone_Completion_Due_Date": "2024-12-05"},
-    {"Milestone_Name": "Marketing & Print Design", "Milestone_Completion_Due_Date": "2024-12-15"},
-    {"Milestone_Name": "Digital & UI/UX Design", "Milestone_Completion_Due_Date": "2024-12-25"}
-  ],
-  "Requirements": [
-    "Access to Woodgrove Bank''s branding assets and guidelines.",
-    "Collaboration with the marketing team for feedback and approvals.",
-    "Approval of design drafts before finalization."
-  ],
-  "Payments": {
-    "terms": "Net 30",
-    "penalty": "10% for late deliveries or payments"
-  },
-  "Compliance": {
-    "Data Security": "All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256).",
-    "Access Control": "Access to the branding assets and sensitive client information will be granted only to authorized personnel.",
-    "Multi-factor authentication (MFA)": "MFA will be enforced for all administrative access.",
-    "Audit and Monitoring": "Lucerne Publishing will maintain comprehensive logs of all access and changes to branding assets. Regular audits will be conducted to ensure compliance with security protocols.",
-    "Incident Response": "In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps.",
-    "Regulatory Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of branding assets."
-  },
-  "Project_Deliverables": [
-    {"Milestone_Name": "Brand Identity & Design", "Deliverables": "Brand Identity Guidelines & Design Framework", "Amount": "5000", "Milestone_Payment_Due_Date": "2025-01-05"},
-    {"Milestone_Name": "Brand Identity & Design", "Deliverables": "Typography & Color Palette Selection", "Amount": "3000", "Milestone_Payment_Due_Date": "2025-01-05"},
-    {"Milestone_Name": "Marketing & Print Design", "Deliverables": "Bank Brochure & Print Collateral", "Amount": "4000", "Milestone_Payment_Due_Date": "2025-01-15"},
-    {"Milestone_Name": "Marketing & Print Design", "Deliverables": "Advertisement & Promotional Materials", "Amount": "6000", "Milestone_Payment_Due_Date": "2025-01-15"},
-    {"Milestone_Name": "Digital & UI/UX Design", "Deliverables": "Website & Mobile UI/UX Mockups", "Amount": "8000", "Milestone_Payment_Due_Date": "2025-01-25"},
-    {"Milestone_Name": "Digital & UI/UX Design", "Deliverables": "Infographics & Data Visualization for Reports", "Amount": "4000", "Milestone_Payment_Due_Date": "2025-01-25"},
-    {"Milestone_Name": "Digital & UI/UX Design", "Deliverables": "Social Media Graphics Package", "Amount": "3000", "Milestone_Payment_Due_Date": "2025-01-25"}
-  ],
-  "Total_Amount": "33000",
-  "Signatures": {
-    "Lucerne Publishing": "Ana Bowman",
-    "Woodgrove Bank": "Chris Green"
-  }
-}'
-WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-081');
-
-INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
-SELECT 'SOW-2024-070',
-       4,
-       '2024-10-01',
-       '2025-09-30',
-       55000.00,
-       '4/sow/Statement_of_Work_VanArsdel_Ltd_Woodgrove_Bank_20241001.pdf',
-       '{
-  "Project_Name": "Anti Money Laundering (AML) Design",
-  "Effective_Date": "2024-10-01",
-  "Project_Completion_Date": "2025-09-30",
-  "SOW_Number": "SOW-2024-070",
-  "Project_Scope": "VanArsdel, Ltd. will provide comprehensive AML strategy and system design services, including risk assessment, system integration planning, and performance optimization.",
-  "Project_Objectives": [
-    "Develop a comprehensive AML strategy and risk assessment framework.",
-    "Design and integrate a transaction monitoring and alert system.",
-    "Conduct pilot testing and optimize system performance."
-  ],
-  "Tasks": [
-    "AML Strategy & Risk Assessment",
-    "System Design & Integration Planning",
-    "Testing, Optimization & Implementation"
-  ],
-  "Schedules": [
-    {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-10-01"},
-    {"Milestone_Name": "AML Strategy & Risk Assessment", "Milestone_Completion_Due_Date": "2024-10-15"},
-    {"Milestone_Name": "System Design & Integration Planning", "Milestone_Completion_Due_Date": "2024-11-01"},
-    {"Milestone_Name": "Testing, Optimization & Implementation", "Milestone_Completion_Due_Date": "2024-12-01"}
-  ],
-  "Requirements": [
-    "Access to relevant financial data and systems.",
-    "Collaboration with the compliance team for risk assessment.",
-    "Approval of milestone completion before moving to subsequent phases."
-  ],
-  "Payments": {
-    "terms": "Net 30",
-    "penalty": "10% for late deliveries or payments"
-  },
-  "Compliance": {
-    "Data Security": "All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256).",
-    "Access Control": "Access to the financial data and systems will be granted only to authorized personnel.",
-    "Multi-factor authentication (MFA)": "will be enforced for all administrative access.",
-    "Audit and Monitoring": "VanArsdel Ltd. will maintain comprehensive logs of all access and changes to financial data and systems. Regular audits will be conducted to ensure compliance with security protocols.",
-    "Incident Response": "In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps.",
-    "Regulatory Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of financial data and systems."
-  },
-  "Project_Deliverables": [
-    {"Milestone_Name": "AML Risk Assessment & Compliance Framework", "Deliverables": "AML Risk Assessment & Compliance Framework", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-10-15"},
-    {"Milestone_Name": "Transaction Monitoring & Alert System Design", "Deliverables": "Transaction Monitoring & Alert System Design", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-11-01"},
-    {"Milestone_Name": "Integration Plan for Regulatory Reporting", "Deliverables": "Integration Plan for Regulatory Reporting", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-11-15"},
-    {"Milestone_Name": "Pilot Testing & Performance Optimization Report", "Deliverables": "Pilot Testing & Performance Optimization Report", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-12-01"}
-  ],
-  "Total_Amount": "55000",
-  "Signatures": {
-    "VanArsdel Ltd.": "Gabriel Diaz",
-    "Woodgrove Bank": "Chris Green"
-  }
-}'
-WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-070');
-
-INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
-SELECT 'SOW-2024-052',
-       5,
-       '2024-06-01',
-       '2025-11-30',
-       115000.00,
-       '5/sow/Statement_of_Work_Contoso_Ltd_Woodgrove_Bank_20240601.pdf',
-       '{
-  "Project_Name": "Mobile Integration with Core Banking System",
-  "Effective_Date": "2024-06-01",
-  "Project_Completion_Date": "2024-11-30",
-  "SOW_Number": "SOW-2024-052",
-  "Project_Scope": "Contoso, Ltd. will provide comprehensive mobile integration services with the core banking system, including requirements gathering, backend API development, and frontend implementation.",
-  "Project_Objectives": [
-    "Ensure seamless integration of mobile applications with the core banking system.",
-    "Implement secure authentication and data encryption.",
-    "Optimize performance and conduct thorough testing.",
-    "Provide detailed documentation and knowledge transfer."
-  ],
-  "Tasks": [
-    "Requirements Gathering & Planning",
-    "Core Banking System Development",
-    "Web & Mobile Application Development",
-    "Security & Compliance Implementation",
-    "Performance Optimization & Testing",
-    "Deployment & Knowledge Transfer"
-  ],
-  "Schedules": [
-    {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-06-01"},
-    {"Milestone_Name": "Requirements Gathering & Planning", "Milestone_Completion_Due_Date": "2024-06-15"},
-    {"Milestone_Name": "Core Banking System Development", "Milestone_Completion_Due_Date": "2024-07-01"},
-    {"Milestone_Name": "Web & Mobile Application Development", "Milestone_Completion_Due_Date": "2024-08-01"},
-    {"Milestone_Name": "Security & Compliance Implementation", "Milestone_Completion_Due_Date": "2024-09-01"},
-    {"Milestone_Name": "Performance Optimization & Testing", "Milestone_Completion_Due_Date": "2024-10-01"},
-    {"Milestone_Name": "Deployment & Knowledge Transfer", "Milestone_Completion_Due_Date": "2024-11-01"}
-  ],
-  "Requirements": [
-    "Access to the core banking system and necessary credentials.",
-    "Active collaboration from the IT team for resource planning and feedback.",
-    "Approval of milestone completion before moving to subsequent phases."
-  ],
-  "Payments": {
-    "terms": "Net 30",
-    "penalty": "10% for late deliveries or payments"
-  },
-  "Compliance": {
-    "Data Security": "All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256).",
-    "Access Control": "Access to the core banking system and sensitive client information will be granted only to authorized personnel.",
-    "Multi-factor authentication (MFA)": "MFA will be enforced for all administrative access.",
-    "Audit and Monitoring": "Contoso Ltd. will maintain comprehensive logs of all access and changes to the core banking system. Regular audits will be conducted to ensure compliance with security protocols.",
-    "Incident Response": "In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps.",
-    "Regulatory Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of the core banking system."
-  },
-  "Project_Deliverables": [
-    {"Milestone_Name": "Requirements Gathering & Planning", "Deliverables": "Requirements & Functional Specifications", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-06-15"},
-    {"Milestone_Name": "Requirements Gathering & Planning", "Deliverables": "Architecture & System Design", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-06-30"},
-    {"Milestone_Name": "Core Banking System Development", "Deliverables": "API Development & Integration", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-07-31"},
-    {"Milestone_Name": "Web & Mobile Application Development", "Deliverables": "UI/UX & Frontend Implementation", "Amount": "25000", "Milestone_Payment_Due_Date": "2024-07-31"},
-    {"Milestone_Name": "Security & Compliance Implementation", "Deliverables": "Authentication & Data Encryption Setup", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-07-31"},
-    {"Milestone_Name": "Performance Optimization & Testing", "Deliverables": "Load & Performance Testing Report", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-08-31"},
-    {"Milestone_Name": "Deployment & Knowledge Transfer", "Deliverables": "Fusion Deployment & Maintenance Guide", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-12-30"}
-  ],
-  "Total_Amount": "115000",
-  "Signatures": {
-    "Contoso Ltd.": "Nicole Wagner",
-    "Woodgrove Bank": "Chris Green"
-  }
-}'
-WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-052');
 
 -- SOW Chunks table: Holds the content of the SOW in sections
 CREATE TABLE IF NOT EXISTS sow_chunks (
@@ -446,7 +254,16 @@ VALUES
 (1, 'Schedules', 'Project kick-off: November 01, 2024 - Initial monitoring setup: November 08, 2024 - Scaling implementation: November 15, 2024 - Cost optimization review: November 22, 2024 - Maintenance practices established: December 13, 2024 - Final troubleshooting and wrap-up: December 31, 2025', 1),
 (1, 'Payments', 'Payment terms are Net 30. Invoices will be issued upon the completion of each milestone and are payable within 30 days. A penalty of 10% will be applied for late deliveries or payments.', 1),
 (1, 'Compliance', '- Data Security: All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256). - Access Control: Access to the Azure resources and sensitive client information will be granted only to authorized personnel. Multi-factor authentication (MFA) will be enforced for all administrative access. - Audit and Monitoring: Adatum Corporation will maintain comprehensive logs of all access and changes to Azure resources. Regular audits will be conducted to ensure compliance with security protocols. - Incident Response: In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps. - Regulatory Compliance: The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of Azure resources.', 2),
-(1, 'Project Deliverables', 'Milestone Name Deliverables Amount Due Date 1 Monitoring Monitoring of resources $8,600.00 2024-11-08 2 Resource Scaling Implementation of automated scaling $7,000.00 2024-11-15 3 Cost Management Cost Management Implementation $7,000.00 2024-11-22 4 Maintenance Practices Maintenance & troubleshooting practice $10,500.00 2024-11-27 5 App Troubleshooting Identify Azure application issues $2,000.00 2024-11-27 5 App Troubleshooting Resolution of Azure application issues $3,500.00 2024-12-13 5 App Troubleshooting Implementation of app monitoring $5,000.00 2024-12-31 Total $43,600.00 Signatures (Adatum Corporation - Elizabeth Moore) (Woodgrove Bank - Sora Kim)', 2);
+(1, 'Project Deliverables', 'Milestone Name Deliverables Amount Due Date 1 Monitoring Monitoring of resources $8,600.00 2024-11-08 2 Resource Scaling Implementation of automated scaling $7,000.00 2024-11-15 3 Cost Management Cost Management Implementation $7,000.00 2024-11-22 4 Maintenance Practices Maintenance & troubleshooting practice $10,500.00 2024-11-27 5 App Troubleshooting Identify Azure application issues $2,000.00 2024-11-27 5 App Troubleshooting Resolution of Azure application issues $3,500.00 2024-12-13 5 App Troubleshooting Implementation of app monitoring $5,000.00 2024-12-31 Total $43,600.00 Signatures (Adatum Corporation - Elizabeth Moore) (Woodgrove Bank - Sora Kim)', 2),
+(2, 'Project Scope', 'Trey Research will provide comprehensive DevOps implementation services, including strategy and planning, CI/CD pipeline implementation, infrastructure as code, and security, monitoring, and optimization.', 1),
+(2, 'Project Objectives', 'Develop a comprehensive DevOps strategy and roadmap. Implement CI/CD pipelines for automated build and deployment. Implement infrastructure as code (IaC) for consistent and repeatable infrastructure management. Integrate security, monitoring, and optimization practices into the DevOps processes.', 1),
+(2, 'Tasks', '1. DevOps Strategy & Planning 2. CI/CD Pipeline Implementation 3. Infrastructure as Code (IaC) 4. Security, Monitoring & Optimization', 1),
+(2, 'Schedules', 'Project kick-off: May 01, 2024 - DevOps Strategy & Planning: May 15, 2024 - CI/CD Pipeline Implementation: June 01, 2024 - Infrastructure as Code (IaC): September 01, 2024 - Security, Monitoring & Optimization: December 01, 2024', 1),
+(2, 'Payments', 'Payment terms are Net 30. Invoices will be issued upon the completion of each milestone and are payable within 30 days. A penalty of 10% will be applied for late deliveries or payments.', 1),
+(2, 'Compliance', '- Data Security: All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256). - Access Control: Access to the infrastructure and sensitive client information will be granted only to authorized personnel. Multi-factor authentication (MFA) will be enforced for all administrative access. - Audit and Monitoring: Trey Research will maintain comprehensive logs of all access and changes to the infrastructure. Regular audits will be conducted to ensure compliance with security protocols. - Incident Response: In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps. - Regulatory Compliance: The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of infrastructure.', 2),
+(2, 'Project Deliverables', 'Milestone Name Deliverables Amount Due Date 1 DevOps Strategy & Planning DevOps Roadmap & Report $10,000.00 2024-05-30 2 CI/CD Pipeline Implementation Deployment Pipeline, Version Control Implementation, Branching Strategy $20,000.00 2024-06-28 3 Infrastructure as Code (IaC) Infrastructure as Code Implementation, Containerization, Orchestration Setup $15,000.00 2024-09-15 4 Security, Monitoring & Optimization Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization $15,000.00 2024-12-01 Total $60,000.00 Signatures (Trey Research - Serena Davis) (Woodgrove Bank - Sora Kim)', 2);
+
+
 
 CREATE SEQUENCE IF NOT EXISTS sow_chunks_id_seq;
 SELECT setval('sow_chunks_id_seq', COALESCE((SELECT MAX(id) FROM sow_chunks), 1) + 1);
@@ -500,7 +317,11 @@ VALUES
 (5,'Identify Azure application issues',2000.00,'In Progress', '2024-11-27'),
 (5,'Resolution of Azure application issues',3500.00,'Completed', '2024-12-13'),
 (5,'Implementation of app monitoring',5000.00,'In Progress', '2024-12-31'),
-(6,'DevOps Roadmap & Report',10000.00,'Completed','2024-11-20');
+(6,'DevOps Roadmap & Report, CI/CD Pipeline Design',10000.00,'Completed','2024-11-20'),
+(7,'Deployment Pipeline, Version Control Implementation, Branching Strategy Implementation',20000.00,'pending','2024-05-17'),
+(8,'Infrastructure as Code Implementation, Containerization & Orchestration Setup',15000.00,'pending','2024-06-15'),
+(9,'Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization',15000.00,'pending','2024-11-01');
+
 
 CREATE SEQUENCE IF NOT EXISTS deliverables_id_seq;
 SELECT setval('deliverables_id_seq', COALESCE((SELECT MAX(id) FROM deliverables), 1) + 1);
@@ -529,11 +350,7 @@ VALUES
     (1, CURRENT_TIMESTAMP - INTERVAL '1 hour', 'Deliverables section contains wrong information and incorrect total billable amount for milestone 1.', FALSE),
     (1, CURRENT_TIMESTAMP, 'The SOW has been correct and is now correct.', TRUE),
     (2, CURRENT_TIMESTAMP - INTERVAL '1 hour', 'Incorrect milestone dates.', FALSE),
-    (2, CURRENT_TIMESTAMP, 'Everything is correct now.', TRUE),
-    (3, CURRENT_TIMESTAMP, 'SOW looks good.', TRUE),
-    (4, CURRENT_TIMESTAMP, 'The required compliance section is missing.', FALSE),
-    (4, CURRENT_TIMESTAMP, 'All fields are valid.', TRUE),
-    (5, CURRENT_TIMESTAMP, 'All fields are valid.', TRUE);
+    (2, CURRENT_TIMESTAMP, 'Everything is correct now.', TRUE);
 
 CREATE SEQUENCE IF NOT EXISTS sow_validation_results_id_seq;
 SELECT setval('sow_validation_results_id_seq', COALESCE((SELECT MAX(id) FROM sow_validation_results), 1) + 1);
@@ -563,11 +380,117 @@ CREATE TABLE IF NOT EXISTS invoices (
 -- Insert starter data for invoices
 INSERT INTO invoices (id, number, vendor_id, sow_id, amount, invoice_date, payment_status, document, content, metadata)
 VALUES
-    (1, 'INV-AC2024-001', 1, 1, 15600, '2024-12-08', 'Paid', '1/invoice/INV-AC2024-001.pdf',  '{"Invoice Number: INV-AC2024-001 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-08 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone  Deliverables Amount Due Date Monitoring Monitoring of resources $8600.00 2024-12-08 Cost Management Cost Mangement Implementation $7000.00 2024-12-08 Total Amount $15600.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{}'),
-    (2, 'INV-AC2024-002', 1, 1, 7000, '2024-12-22', 'Paid', '2/invoice/INV-AC2024-002.pdf', '{"Invoice Number: INV-AC2024-002 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-22 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Resource Scaling Implementation of automated scaling $7000.00 2024-12-22 Total Amount $7000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-002 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{}'),
-    (3, 'INV-AC2024-003', 1, 1, 12500, '2024-12-27', 'In Review', '3/invoice/INV-AC2024-003.pdf',  '{"Invoice Number: INV-AC2024-003 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-27 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Maintenance Practices Maintenance and troubleshooting practices $10500.00 2024-12-27 App Troubleshooting Identify Azure application issues $2000.00 2024-12-27 Total Amount $12500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-003 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{}'),
-    (4, 'INV-AC2024-004', 1, 1, 8500, '2024-01-31', 'Pending', '4/invoice/INV-AC2024-004.pdf',  '{"Invoice Number: INV-AC2024-004 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-12-01 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date App Troubleshooting Resolution of Azure application issues $3500.00 2024-12-31 App Troubleshooting Implementation of app monitoring 5,000.00 2024-12-31 Total Amount $8500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-004 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{}'),
-    (5, 'INV-TR2024-001', 2, 2, 10000, '2024-11-20', 'Paid', '5/invoice/INV-TR2024-001.pdf',  '{"Invoice Number: INV-TR2024-001 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2024-11-20 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date DevOps Strategy DevOps Roadmap & Report $10000.00 2024-12-20 Total Amount $10000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 41536685 To help us allocate money correctly, please reference your invoice number: INV-TR2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{}');
+    (1, 'INV-AC2024-001', 1, 1, 15600, '2024-11-08', 'Paid', '1/invoice/INV-AC2024-001.pdf',  '{"Invoice Number: INV-AC2024-001 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-08 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone  Deliverables Amount Due Date Monitoring Monitoring of resources $8600.00 2024-12-08 Cost Management Cost Mangement Implementation $7000.00 2024-12-08 Total Amount $15600.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+  "Invoice_Number": "INV-AC2024-001",
+  "Vendor": "Adatum Corporation",
+  "Vendor_Address": "789 Goldsmith Road, MainTown City",
+  "Vendor_Contact_Name": "Elizabeth Moore",
+  "Vendor_Contact_Email": "elizabeth.moore@adatum.com",
+  "Vendor_Contact_Number": "555-789-7890",
+  "SOW_Number": "SOW-2024-073",
+  "Invoice_Date": "2024-11-08",
+  "Client": "Woodgrove Bank",
+  "Client_Contact_Name": "Chris Green",
+  "Client_Contact_Email": "chris.green@woodgrovebank.com",
+  "Total_Amount": "15600",
+  "Payment_Account_Name": "Adatum Corporation",
+  "Payment_Account_Number": "48273615",
+  "Payment_Terms": [
+    "Payment is due within 30 days of the invoice date.",
+    "A penalty of 10% will be applied for late payments."
+  ]
+}'),
+    (2, 'INV-AC2024-002', 1, 1, 7000, '2024-11-22', 'Paid', '2/invoice/INV-AC2024-002.pdf', '{"Invoice Number: INV-AC2024-002 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-22 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Resource Scaling Implementation of automated scaling $7000.00 2024-12-22 Total Amount $7000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-002 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+        "Invoice_Number": "INV-AC2024-002",
+        "Vendor": "Adatum Corporation",
+        "Vendor_Address": "789 Goldsmith Road, MainTown City",
+        "Vendor_Contact_Name": "Elizabeth Moore",
+        "Vendor_Contact_Email": "elizabeth.moore@adatum.com",
+        "Vendor_Contact_Number": "555-789-7890",
+        "SOW_Number": "SOW-2024-073",
+        "Invoice_Date": "2024-11-22",
+        "Client": "Woodgrove Bank",
+        "Client_Contact_Name": "Chris Green",
+        "Client_Contact_Email": "chris.green@woodgrovebank.com",
+        "Total_Amount": "7000",
+        "Payment_Account_Name": "Adatum Corporation",
+        "Payment_Account_Number": "48273615",
+        "Payment_Terms": [
+            "Payment is due within 30 days of the invoice date.",
+            "A penalty of 10% will be applied for late payments."
+        ]
+    }'),
+    (3, 'INV-AC2024-003', 1, 1, 12500, '2024-11-27', 'In Review', '3/invoice/INV-AC2024-003.pdf',  '{"Invoice Number: INV-AC2024-003 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-27 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Maintenance Practices Maintenance and troubleshooting practices $10500.00 2024-12-27 App Troubleshooting Identify Azure application issues $2000.00 2024-12-27 Total Amount $12500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-003 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+        "Invoice_Number": "INV-AC2024-003",
+        "Vendor": "Adatum Corporation",
+        "Vendor_Address": "789 Goldsmith Road, MainTown City",
+        "Vendor_Contact_Name": "Elizabeth Moore",
+        "Vendor_Contact_Email": "elizabeth.moore@adatum.com",
+        "Vendor_Contact_Number": "555-789-7890",
+        "SOW_Number": "SOW-2024-073",
+        "Invoice_Date": "2024-11-27",
+        "Client": "Woodgrove Bank",
+        "Client_Contact_Name": "Chris Green",
+        "Client_Contact_Email": "chris.green@woodgrovebank.com",
+        "Total_Amount": "12500",
+        "Payment_Account_Name": "Adatum Corporation",
+        "Payment_Account_Number": "48273615",
+        "Payment_Terms": [
+            "Payment is due within 30 days of the invoice date.",
+            "A penalty of 10% will be applied for late payments."
+        ]
+    }'),
+    (4, 'INV-AC2024-004', 1, 1, 8500, '2025-01-01', 'Pending', '4/invoice/INV-AC2024-004.pdf',  '{"Invoice Number: INV-AC2024-004 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2025-01-01 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date App Troubleshooting Resolution of Azure application issues $3500.00 2025-01-31 App Troubleshooting Implementation of app monitoring 5,000.00 2025-01-31 Total Amount $8500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-004 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+        "Invoice_Number": "INV-AC2024-004",
+        "Vendor": "Adatum Corporation",
+        "Vendor_Address": "789 Goldsmith Road, MainTown City",
+        "Vendor_Contact_Name": "Elizabeth Moore",
+        "Vendor_Contact_Email": "elizabeth.moore@adatum.com",
+        "Vendor_Contact_Number": "555-789-7890",
+        "SOW_Number": "SOW-2024-073",
+        "Invoice_Date": "2025-01-01",
+        "Client": "Woodgrove Bank",
+        "Client_Contact_Name": "Chris Green",
+        "Client_Contact_Email": "chris.green@woodgrovebank.com",
+        "Total_Amount": "8500",
+        "Payment_Account_Name": "Adatum Corporation",
+        "Payment_Account_Number": "48273615",
+        "Payment_Terms": [
+            "Payment is due within 30 days of the invoice date.",
+            "A penalty of 10% will be applied for late payments."
+        ]
+    }'),
+    (5, 'INV-TR2024-001', 2, 2, 10000, '2024-11-20', 'Paid', '5/invoice/INV-TR2024-001.pdf',  '{"Invoice Number: INV-TR2024-001 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2024-11-20 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date DevOps Strategy DevOps Roadmap & Report $10000.00 2024-12-20 Total Amount $10000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 41536685 To help us allocate money correctly, please reference your invoice number: INV-TR2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+        "Invoice_Number": "INV-TR2024-001",
+        "Vendor": "Trey Research",
+        "Vendor_Address": "456 Research Avenue, Redmond",
+        "Vendor_Contact_Name": "Serena Davis",
+        "Vendor_Contact_Email": "serena.davis@treyresearch.net",
+        "Vendor_Contact_Number": "555-867-5309",
+        "SOW_Number": "SOW-2024-038",
+        "Invoice_Date": "2024-11-20",
+        "Client": "Woodgrove Bank",
+        "Client_Contact_Name": "Chris Green",
+        "Client_Contact_Email": "chris.green@woodgrovebank.com",
+        "Total_Amount": "10000.00",
+        "Payment_Account_Name": "Trey Research",
+        "Payment_Account_Number": "61809232",
+        "Payment_Terms": [
+            "Payment is due within 30 days of the invoice date.",
+            "A penalty of 10% will be applied for late payments."
+        ]
+    }'),
+    (6, 'INV-TR2024-002', 2, 2, 20000.00, '2024-11-27', 'Pending', '2/invoices/INV-TR2024-002.pdf',
+'Invoice Number: INV-TR2024-002 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2024-11-27 Client: Woodgrove Bank Contact Name: Chris Green Contact Email: chris.green@woodgrovebank.com Milestone Deliverable Amount Due Date CI/CD Pipeline Build, Deployment, Source Control $20,000.00 2024-12-27 Total Amount $20,000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 61809232 To help us allocate money correctly, please reference your invoice number: INV-TR2024-002 Payment Terms: - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments.',
+'{"Client": "Woodgrove Bank", "Vendor": "Trey Research", "Payment_Terms": ["Payment is due within 30 days of the invoice date.", "A penalty of 10% will be applied for late payments."], "Vendor_Address": "456 Research Avenue, Redmond", "Client_Contact_Name": "Chris Green", "Vendor_Contact_Name": "Serena Davis", "Client_Contact_Email": "chris.green@woodgrovebank.com", "Payment_Account_Name": "Trey Research", "Vendor_Contact_Email": "serena.davis@treyresearch.net", "Vendor_Contact_Number": "555-867-5309", "Payment_Account_Number": "61809232"}'),
+
+(7, 'INV-TR2024-003', 2, 2, 15000.00, '2024-12-16', 'Pending', '2/invoices/INV-TR2024-003.pdf',
+'Invoice Number: INV-TR2024-003 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2024-12-16 Client: Woodgrove Bank Contact Name: Chris Green Contact Email: chris.green@woodgrovebank.com Milestone Deliverable Amount Due Date Infrastructure as Code Implementation of IaC, Containerization $15,000.00 2025-01-15 Total Amount $15,000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 61809232 To help us allocate money correctly, please reference your invoice number: INV-TR2024-003 Payment Terms: - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments.',
+'{"Client": "Woodgrove Bank", "Vendor": "Trey Research", "Payment_Terms": ["Payment is due within 30 days of the invoice date.", "A penalty of 10% will be applied for late payments."], "Vendor_Address": "456 Research Avenue, Redmond", "Client_Contact_Name": "Chris Green", "Vendor_Contact_Name": "Serena Davis", "Client_Contact_Email": "chris.green@woodgrovebank.com", "Payment_Account_Name": "Trey Research", "Vendor_Contact_Email": "serena.davis@treyresearch.net", "Vendor_Contact_Number": "555-867-5309", "Payment_Account_Number": "61809232"}'),
+
+(8, 'INV-TR2024-004', 2, 2, 15000.00, '2025-01-01', 'Pending', '2/invoices/INV-TR2024-004.pdf',
+'Invoice Number: INV-TR2024-004 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2025-01-01 Client: Woodgrove Bank Contact Name: Chris Green Contact Email: chris.green@woodgrovebank.com Milestone Deliverable Amount Due Date Security and Monitoring Security & Compliance Integration $15,000.00 2025-01-31 Total Amount $15,000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 61809232 To help us allocate money correctly, please reference your invoice number: INV-TR2024-004 Payment Terms: - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments.',
+'{"Client": "Woodgrove Bank", "Vendor": "Trey Research", "Payment_Terms": ["Payment is due within 30 days of the invoice date.", "A penalty of 10% will be applied for late payments."], "Vendor_Address": "456 Research Avenue, Redmond", "Client_Contact_Name": "Chris Green", "Vendor_Contact_Name": "Serena Davis", "Client_Contact_Email": "chris.green@woodgrovebank.com", "Payment_Account_Name": "Trey Research", "Vendor_Contact_Email": "serena.davis@treyresearch.net", "Vendor_Contact_Number": "555-867-5309", "Payment_Account_Number": "61809232"}');
 
 CREATE SEQUENCE IF NOT EXISTS invoices_id_seq;
 SELECT setval('invoices_id_seq', COALESCE((SELECT MAX(id) FROM invoices), 1) + 1);
@@ -577,6 +500,7 @@ ALTER TABLE invoices ALTER COLUMN id SET DEFAULT nextval('invoices_id_seq');
 CREATE TABLE IF NOT EXISTS invoice_line_items (
     id BIGSERIAL PRIMARY KEY,
     invoice_id BIGINT NOT NULL,
+    milestone_of_line_item TEXT,
     description TEXT,
     amount NUMERIC(10, 2),
     status TEXT NOT NULL,
@@ -586,17 +510,19 @@ CREATE TABLE IF NOT EXISTS invoice_line_items (
 );
 
 -- Insert starter data for invoice_line_items
-INSERT INTO invoice_line_items (invoice_id, description, amount, status, due_date)
+INSERT INTO invoice_line_items (invoice_id, milestone_of_line_item, description, amount, status, due_date)
 VALUES
-
-(1,'Monitoring of resources',8600,'Completed','2024-12-08'),
-(1,'Cost Management Implementation',7000,'Completed','2024-12-08'),
-(2,'Implementation of automated scaling',7000,'Completed','2024-12-22'),
-(3,'Maintenance and troubleshooting practices',10500,'Completed','2024-12-27'),
-(3,'Identify Azure application issues',2000,'In Progress','2024-12-27'),
-(4,'Resolution of Azure application issues',3500,'Completed','2025-01-31'),
-(4,'Implementation of app monitoring',5000,'In Progress','2025-01-31'),
-(5,'DevOps Roadmap & Report',10000,'Completed','2024-12-20');
+(1,'Monitoring','Monitoring of resources',8600,'Completed','2024-12-08'),
+(1,'Resource Scaling','Implementation of automated scaling',7000,'Completed','2024-12-08'),
+(2,'Cost Management','Cost Management Implementation',7000,'Completed','2024-12-22'),
+(3,'Maintenance Practices','Maintenance and troubleshooting practices',10500,'Completed','2024-12-27'),
+(3,'App Troubleshooting','Identify Azure application issues',2000,'In Progress','2024-12-27'),
+(4,'App Troubleshooting','Resolution of Azure application issues',3500,'Completed','2025-01-31'),
+(4,'App Troubleshooting','Implementation of app monitoring',5000,'In Progress','2025-01-31'),
+(5,'DevOps Strategy','DevOps Roadmap & Report',10000,'Completed','2024-12-20'),
+(6,'CI/CD Pipeline','Build, Deployment, Source Control',20000,'Completed','2024-12-27'),
+(7,'Infrastructure as Code','Implementation of IaC, Containerization',15000,'Pending','2025-01-15'),
+(8,'Security and Monitoring','Security & Compliance Integration',15000,'Pending','2025-01-31');
 
 CREATE SEQUENCE IF NOT EXISTS invoice_line_items_id_seq;
 SELECT setval('invoice_line_items_id_seq', COALESCE((SELECT MAX(id) FROM invoice_line_items), 1) + 1);
