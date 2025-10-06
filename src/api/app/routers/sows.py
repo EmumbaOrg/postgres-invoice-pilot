@@ -106,9 +106,9 @@ async def analyze_sow(
 
         # extract required fields from metadata json and then remove them from metadata
         sow_number = str(metadata['SOW_Number'] or sow_number)
-        start_date = datetime.strptime(metadata['Effective_Date'], '%Y-%m-%d').date() if metadata.get('Effective_Date') else start_date
-        end_date = datetime.strptime(metadata['Project_Completion_Date'], '%Y-%m-%d').date() if metadata.get('Project_Completion_Date') else end_date
-        budget = round(float(metadata['Total_Amount']),2) if metadata.get('Total_Amount') else budget
+        start_date = datetime.strptime(metadata['Effective_Date'], '%Y-%m-%d').date() if metadata.get('Effective_Date')!="" else start_date
+        end_date = datetime.strptime(metadata['Project_Completion_Date'], '%Y-%m-%d').date() if metadata.get('Project_Completion_Date')!="" else end_date
+        budget = round(float(metadata['Total_Amount']),2) if metadata.get('Total_Amount')!="" else budget
         project_deliverables = metadata.get('Project_Deliverables', [])
 
         # Remove extracted fields from metadata

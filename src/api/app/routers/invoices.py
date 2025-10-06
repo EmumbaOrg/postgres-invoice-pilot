@@ -92,10 +92,10 @@ async def analyze_invoice(
         
         # extract required fields from metadata and then remove them from metadata
         invoice_number = str(metadata['Invoice_Number']) or f"INV-{datetime.now().strftime('%Y-%m%d')}"
-        amount = metadata['Total_Amount'] or 0
-        invoice_date = datetime.strptime(metadata['Invoice_Date'], '%Y-%m-%d').date() or datetime.now().date()
+        amount = metadata['Total_Amount'] if metadata['Total_Amount']!="" else 0
+        invoice_date = datetime.strptime(metadata['Invoice_Date'], '%Y-%m-%d').date() if metadata['Invoice_Date']!="" else datetime.now().date()
         payment_status = "Pending"
-        sow_number = metadata['SOW_Number'] or None
+        sow_number = metadata['SOW_Number'] if metadata['SOW_Number']!="" else None
         project_deliverables = metadata.get('Project_Deliverables', None)
         # remove these fields from metadata
         for key in ['Invoice_Number', 'Total_Amount', 'Invoice_Date', 'SOW_Number', 'Project_Deliverables']:

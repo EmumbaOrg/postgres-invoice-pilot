@@ -34,6 +34,7 @@ Identify all distinct fields, sections, and tabular data present in the text.
    "Payment_Account_Number": str,
    "Payment_Terms": list of str
 }
+8. For any missing information, use an empty string "" as the default value.
 
 ### Input:
 {RAW_TEXT_HERE}

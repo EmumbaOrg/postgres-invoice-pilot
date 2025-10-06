@@ -40,6 +40,7 @@ Identify all distinct fields, sections, and tabular data present in the text.
    "Total_Amount": as a string with only numeric values. No currency signs or commas,
    "Signatures": a json with vendor company name as key and person name as value
 }
+8. For any missing information, use an empty string "" as the default value.
 
 
 ### Input:
