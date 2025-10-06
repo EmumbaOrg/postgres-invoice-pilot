@@ -173,11 +173,11 @@ async def validate_sow(id: int):
 
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
-        row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
-        if row is None:
+        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
+        if sow_row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
 
-        sow_dict = dict(row)
+        sow_dict = dict(sow_row)
 
         sow_metadata_dict = json.loads(sow_dict.get("metadata"))
 
@@ -187,7 +187,11 @@ async def validate_sow(id: int):
         # convert dates to text format as it becomes easier for LLM to understand
         sow_dict = await format_sow_dates(sow_metadata_dict_updated)            
 
-    return sow_dict
+        # get vendor information
+        vendor_row = await conn.fetchrow('SELECT name,contact_name,contact_email FROM vendors WHERE id = $1;', sow_row.get("vendor_id"))
+        vendor = dict(vendor_row)
+        
+    return f"sow information: {json.dumps(sow_dict)}\n\nvendor information: {json.dumps(vendor)}"
 
 async def format_sow_dates(metadata):
     """Formats sow metadata dates to a textual format."""
@@ -268,11 +272,13 @@ async def update_metadata_sow(sow_dict, metadata_dict, conn):
     
     """Add information from the SOW, Milestones and Deliverables to the metadata."""
 
+    # add information from SOW table
     metadata_dict['SOW_Number'] = str(sow_dict.get('number'))
     metadata_dict['Total_Amount'] = str(sow_dict.get('budget'))
     metadata_dict['Effective_Date'] = sow_dict.get('start_date').isoformat()
     metadata_dict['Project_Completion_Date'] = sow_dict.get('end_date').isoformat()
 
+    # add information from milestones and deliverables table
     milestones_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', sow_dict.get("id"))
     milestones = [dict(row) for row in milestones_rows]
     

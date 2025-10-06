@@ -56,8 +56,9 @@ async def get_by_id(sow_id: int, pool = Depends(get_db_connection_pool)):
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {sow_id} was not found.')
         
         sow_dict = dict(row)
-        # remove unnecessary trailing and leading characters
-        sow_dict['summary'] = sow_dict.get('summary', '')[2:-2]
+        # remove unnecessary trailing and leading characters if present
+        if sow_dict.get('summary').startswith('{"') and sow_dict.get('summary').endswith('"}'):
+            sow_dict['summary'] = sow_dict.get('summary', '')[2:-2]
         
         sow = parse_obj_as(Sow, sow_dict)
  
