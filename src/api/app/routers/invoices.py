@@ -124,7 +124,7 @@ async def analyze_invoice(
         # Create invoice in the database
         async with pool.acquire() as conn:
             if (invoice_id is None):
-                # Create new SOW
+                # Create new invoice
                 row = await conn.fetchrow('''
                 INSERT INTO invoices (vendor_id, sow_id, "number", amount, invoice_date, payment_status, document, metadata, content)
                 VALUES (
@@ -176,6 +176,9 @@ async def analyze_invoice(
         )
         
         return InvoiceAnalyzeResult(hasError=False, error=None, message="Invoice analyzed successfully.", invoice=invoice)
+
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(e) # output error to console
