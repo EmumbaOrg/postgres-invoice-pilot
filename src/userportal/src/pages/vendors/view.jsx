@@ -30,7 +30,9 @@ const VendorView = () => {
   const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
   const [showDeleteVendorModal, setShowDeleteVendorModal] = useState(false);
   const [vendorToDelete, setVendorToDelete] = useState(null);
-
+  const [sowToDelete, setSowToDelete] = useState(null);
+  const [reload, setReload] = useState(false);
+  const [deleteItemType, setDeleteItemType] = useState("");
 
   useEffect(() => {
     // Fetch vendor data when component mounts
@@ -44,6 +46,7 @@ const VendorView = () => {
     }
     fetchSOW()
   }, [id])
+
 
   const updateDisplay = (data) => {
     setName(data.name)
@@ -74,7 +77,7 @@ const VendorView = () => {
 
     const fetchInvoices = async () => {
         setFetchingInvoices(true);
-      const response = await api.invoices.list(-1, 0, 10);
+      const response = await api.invoices.list(id, 0, 10);
       setInvoices(response.data);
       setFetchingInvoices(false);
       return response;
@@ -85,6 +88,13 @@ const VendorView = () => {
         fetchSows();
     },[])
 
+    useEffect(() => {
+        if (reload) {
+            fetchSows();
+            setReload(false); // Reset the reload state
+        }
+    }, [reload])
+
     const onPreviewPDFClick=(file)=>{
         const url = api.documents.getUrl(file?.document);
         setPdfUrl(url);
@@ -92,16 +102,25 @@ const VendorView = () => {
     }
 
     const handleDeleteSOW = async () => {
+    if (!sowToDelete) return;
 
     try {
-      await api.sows.delete(sowToDelete);
-      setReload(true); // Refresh the data
+      if (deleteItemType === 'sow') {
+        await api.sows.delete(sowToDelete);
+        setReload(true); // Refresh the SOWs data
+        setSuccess('SOW successfully deleted!');
+      } else if (deleteItemType === 'invoice') {
+        await api.invoices.delete(sowToDelete);
+        // Refresh invoices data
+        fetchInvoices();
+        setSuccess('Invoice successfully deleted!');
+      }
       setError(null);
-      setShowDeleteModal(false);
-      setSuccess('SOW successfully deleted!');
+      setShowDeleteSOWModal(false);
     } catch (err) {
       setSuccess(null);
       setError(err.message);
+      setShowDeleteSOWModal(false);
     }
   }
 
@@ -122,7 +141,7 @@ const VendorView = () => {
     }
   }
 
-  const FileListItem = ({ file }) => (
+  const FileListItem = ({ file, type }) => (
     <div className="d-flex align-items-center justify-content-between p-3" style={{border: "1px solid #EBF2FF", borderRadius: "8px", marginBottom: "10px"}}>
       <div className="d-flex align-items-center">
         <div className="me-3">
@@ -148,7 +167,7 @@ const VendorView = () => {
         >
           <i className="fas fa-download"></i>
         </Button>
-        <Button variant="text-danger" style={{color:"#0d6efd"}}  size="sm" onClick={()=> setShowDeleteSOWModal(true)}>
+        <Button variant="text-danger" style={{color:"#0d6efd"}}  size="sm" onClick={()=> {setSowToDelete(file.id); setDeleteItemType(type); setShowDeleteSOWModal(true)}}>
           <i className="fas fa-trash-alt"></i>
         </Button>
       </div>
@@ -285,6 +304,11 @@ const VendorView = () => {
             <Spinner animation="border" role="status" variant="primary">
             </Spinner>
         </div>}
+                {!fetchingSows && sows.length === 0 && (
+                  <div className="text-center py-4">
+                    <p className="text-muted">No SOWs have been added yet.</p>
+                  </div>
+                )}
                 {sows.map((sow) => (
                   <FileListItem key={sow.id} file={sow} type="sow" />
                 ))}
@@ -304,6 +328,11 @@ const VendorView = () => {
             <Spinner animation="border" role="status" variant="primary">
             </Spinner>
         </div>}
+                {!fetchingInvoices && invoices.length === 0 && (
+                  <div className="text-center py-4">
+                    <p className="text-muted">No Invoices have been added yet.</p>
+                  </div>
+                )}
                 {invoices.map((invoice) => (
                   <FileListItem key={invoice.id} file={invoice} type="invoice" />
                 ))}
@@ -321,7 +350,7 @@ const VendorView = () => {
         show={showDeleteSOWModal}
         handleClose={() => setShowDeleteSOWModal(false)}
         handleConfirm={handleDeleteSOW}
-        message="Are you sure you want to delete this SOW?"
+        message={`Are you sure you want to delete this ${deleteItemType === 'sow' ? 'SOW' : 'Invoice'}?`}
       />
 
       <ConfirmModal
