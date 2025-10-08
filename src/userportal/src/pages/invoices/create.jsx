@@ -93,9 +93,8 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
       newInvoiceId = result.invoice.id
 
     } catch (err) {
-      console.error(err);
       setShowUpload(true);
-      setError('Error analyzing document');
+      setError(err.message || 'Error analyzing the document');
       setErrorDetail(null);
       setSuccess(null);
       setLoading(null);

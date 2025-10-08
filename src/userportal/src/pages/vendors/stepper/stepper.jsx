@@ -315,10 +315,6 @@ const NavigationStepper = () => {
     }
   };
 
-  const handleSave = () => {
-    console.log("Saving vendor data:", formData);
-    // Handle save logic here
-  };
 
   const getStepStatus = (stepIndex) => {
     if (stepIndex < currentStep) return "completed";
@@ -892,13 +888,6 @@ const NavigationStepper = () => {
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <div className="d-flex gap-2">
-                    <Button
-                      variant="outline-secondary"
-                      className="btn btn-save"
-                      onClick={handleSave}
-                    >
-                      Save Vendor
-                    </Button>
                     <Button
                       className="btn btn-save-next"
                       onClick={handleSaveAndNext}
