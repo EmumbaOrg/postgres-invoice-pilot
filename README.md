@@ -2,6 +2,7 @@
 
 This solution accelerator is designed as an end-to-end example of an AI-enabled application built on Azure Postgres. It demonstrates the implementation of generative AI capabilities to enhance an existing application with AI-driven data validation, vector search, DiskANN, semantic re-ranking, LangChain agent/tools framework, and GraphRAG on Azure Database for PostgreSQL, and illustrates how they can be combined to deliver high quality responses to financial questions via an intelligent copilot. The app uses a small sample dataset made up of statements of work (SOWs) and invoices.
 
+[![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=dev&repo=1013163299&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2)
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/EmumbaOrg/postgres-sa-byoac)
 
 
