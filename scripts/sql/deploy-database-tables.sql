@@ -601,6 +601,9 @@ UPDATE deliverables
 SET embedding = azure_openai.create_embeddings('embeddings', description, max_attempts => 5, retry_delay_ms => 500)
 WHERE embedding IS NULL;
 
+UPDATE invoices
+SET embedding = azure_openai.create_embeddings('embeddings', content, max_attempts => 5, retry_delay_ms => 500)
+WHERE embedding IS NULL;
 
 UPDATE invoice_line_items
 SET embedding = azure_openai.create_embeddings('embeddings', description, max_attempts => 5, retry_delay_ms => 500)
