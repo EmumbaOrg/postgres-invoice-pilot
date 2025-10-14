@@ -257,7 +257,7 @@ Start by accessing the frontend application using the URL that was output during
 
 Once the application loads, you'll see the main dashboard which provides an overview of your financial documents, validation statistics, and quick access to key features.
 
-    ![Main dashboard overview](data/assets/images/dashboard-interface.png)
+![Main dashboard overview](data/assets/images/dashboard-interface.png)
 
 ### 3. Access the SOW Management Tab
 
