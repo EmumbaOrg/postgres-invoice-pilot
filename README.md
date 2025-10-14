@@ -86,7 +86,6 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
     - **`GlobalStandard` GPT-4o:** 10K TPM - `AZURE_OPENAI_CHAT_DEPLOYMENT_CAPACITY`
     - **`GlobalStandard` text-embedding-ada-002:** 10K TPM - `AZURE_OPENAI_EMBED_DEPLOYMENT_CAPACITY`
 
-    If you have changed the above parameters from the `main.parameters.json` file, you **must change** the following configuration in `main.bicep` file so that the changes are reflected in automatic Azure OpenAI region filtering as well:
 
     ```sh
     @metadata({
@@ -103,7 +102,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 3. Before the `azd` workflow proceeds, checks are performed in the selected infra region and recommendations are generated on failure for following cases to ensure that the deployment is successful.
     - Azure CLI login
-    - Azure Flexible Server for PostgreSQL SKU [we recommend avoiding burstable instances as they might result in "Illegal Instruction" error in certain regions for vector queries]
+    - Azure Flexible Server for PostgreSQL SKU 
     - Azure Container Apps quota
     - azd env name
 
