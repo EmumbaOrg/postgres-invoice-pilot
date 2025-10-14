@@ -29,6 +29,12 @@ Write-Host "node version: $node_version"
 $npm_version = npm --version
 Write-Host "npm version: $npm_version"
 
+# Install Frontend Node.js dependencies
+Write-Host "Installing frontend dependencies..."
+Set-Location /workspaces/postgres-sa-byoac/src/userportal
+npm install
+Write-Host "✅ Frontend dependencies installed"
+
 # Check if Docker works
 Write-Host "Checking Docker access..."
 try {
