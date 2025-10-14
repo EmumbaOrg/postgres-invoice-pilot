@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Button, Form, InputGroup, Alert, Dropdown} from 'react-bootstrap';
+import React, { useState, useCallback } from 'react';
+import { Button, Alert, Dropdown} from 'react-bootstrap';
 
 import ConfirmModal from '../../components/ConfirmModal'; 
 import PagedTable from '../../components/PagedTable';
+import SearchInput from '../../components/SearchInput';
 import api from '../../api/Api';
 import SOWCreateModal from './create';
+import { useDebouncedSearch } from '../../hooks/useDebounce';
 
 const SOWList = () => {
   const [error, setError] = useState(null);
@@ -12,8 +14,14 @@ const SOWList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sowToDelete, setSowToDelete] = useState(null);
   const [reload, setReload] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
+  
+  // Debounced search functionality
+  const handleSearch = useCallback((debouncedSearchTerm) => {
+    setReload((prev) => !prev);
+  }, []);
+  
+  const { searchTerm, debouncedSearchTerm, handleSearchChange, clearSearch } = useDebouncedSearch('', handleSearch, 500);
 
   const handleDelete = async () => {
     if (!sowToDelete) return;
@@ -99,10 +107,10 @@ const SOWList = () => {
 
   const fetchSOWs = async (skip, limit, sortBy, search) => {
     const response = await api.sows.list(-1, skip, limit, sortBy, search);
-      // Apply frontend search filter on SOW number if searchTerm exists
-    if (searchTerm && response.data) {
+      // Apply frontend search filter on SOW number if debouncedSearchTerm exists
+    if (debouncedSearchTerm && response.data) {
       const filteredData = response.data.filter(
-        (sow) => sow.number && sow.number.toLowerCase().includes(searchTerm.toLowerCase()),
+        (sow) => sow.number && sow.number.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
       )
       return {
         ...response,
@@ -114,16 +122,6 @@ const SOWList = () => {
     return response;
   };
 
-    const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value)
-    setReload((prev) => !prev) 
-  }
-
-  const clearSearch = () => {
-    setSearchTerm("")
-    setReload((prev) => !prev) 
-  }
-
   return (
     <div className='px-5 py-3'>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-2">
@@ -131,29 +129,13 @@ const SOWList = () => {
         <Button className='primary' onClick={() => setShowCreateSOWModal(true)}><i className="fas fa-plus me-2" />New SOW </Button> 
       </div>
       {/* Search Bar */}
-        <div className="mb-4">
-        <Form.Group style={{ maxWidth: "650px" }}>
-          <InputGroup>
-            <InputGroup.Text>
-              <i className="fas fa-search"></i>
-            </InputGroup.Text>
-            <Form.Control
-              id="sow-search"
-              type="text"
-              placeholder="Search by SOW number..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              style={{ fontSize: "14px" }}
-            />
-            {searchTerm && (
-              <InputGroup.Text style={{ cursor: "pointer" }} onClick={clearSearch} title="Clear search">
-                <i className="fas fa-times text-muted"></i>
-              </InputGroup.Text>
-            )}
-          </InputGroup>
-          {searchTerm && <Form.Text className="text-muted">Searching for: "{searchTerm}"</Form.Text>}
-        </Form.Group>
-      </div>
+      <SearchInput
+        value={searchTerm}
+        onChange={handleSearchChange}
+        onClear={clearSearch}
+        placeholder="Search by SOW number..."
+        id="sow-search"
+      />
        {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)}>
          <i className="fa-solid fa-circle-exclamation" variant="danger"></i> {error}
@@ -165,7 +147,7 @@ const SOWList = () => {
         </Alert>
       )}
 
-      <PagedTable columns={columns} fetchData={fetchSOWs} reload={reload} key={searchTerm} noDataMesssage={'No SOWs have been added yet.'} noDataDescription={'Click on "New SOW" to begin adding SOWs.'} />
+      <PagedTable columns={columns} fetchData={fetchSOWs} reload={reload} key={debouncedSearchTerm} noDataMesssage={'No SOWs have been added yet.'} noDataDescription={'Click on "New SOW" to begin adding SOWs.'} />
 
       <ConfirmModal
         show={showDeleteModal}

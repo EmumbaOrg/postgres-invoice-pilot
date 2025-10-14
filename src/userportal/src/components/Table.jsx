@@ -10,7 +10,11 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false, no
     rows,
     prepareRow,
     state: { sortBy }
-  } = useTable({ columns, data }, enableSorting ? useSortBy : undefined);
+  } = useTable({ 
+    columns, 
+    data,
+    getRowId: (row, index) => row.id || `row-${index}`
+  }, enableSorting ? useSortBy : undefined);
 
   useEffect(() => {
     if (enableSorting) {
@@ -22,8 +26,8 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false, no
     <div>
       <table {...getTableProps()} className="table" style={{border:'1px solid #EBF2FF'}}>
         <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+          {headerGroups.map((headerGroup, index) => (
+            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id || `header-group-${index}`}>
               {headerGroup.headers.map(column => (
                 <th {...column.getHeaderProps(enableSorting ? column.getSortByToggleProps() : undefined)} key={column.id} className='py-2'>
                   {column.render('Header')}
@@ -43,7 +47,7 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false, no
         </thead>
         <tbody {...getTableBodyProps()}>
           {rows.length === 0 ? (
-            <tr>
+            <tr key="empty-state">
               <td colSpan={columns.length} className="text-center pt-5" style={{height:'300px'}}>
                <p><WindowPlusIcon /></p> 
                <p className='mb-0'>{noDataMesssage}</p> 
@@ -51,12 +55,12 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false, no
                 </td>
             </tr>
           ) : (
-          rows.map(row => {
+          rows.map((row, rowIndex) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()} key={row.index}>
-                {row.cells.map(cell => (
-                  <td {...cell.getCellProps()} key={cell.column.id} >
+              <tr {...row.getRowProps()} key={row.id || row.original?.id || `row-${rowIndex}`}>
+                {row.cells.map((cell, cellIndex) => (
+                  <td {...cell.getCellProps()} key={cell.column.id || `cell-${rowIndex}-${cellIndex}`} >
                     {cell.render('Cell')}
                   </td>
                 ))}

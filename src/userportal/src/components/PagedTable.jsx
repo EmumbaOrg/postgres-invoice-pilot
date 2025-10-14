@@ -108,10 +108,10 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
                 Page {pageIndex} of {pageCount}
               </div>
               <button className="btn border-0" onClick={handlePrevious} disabled={skip === 0}>
-              <i class="fa-solid fa-chevron-left"></i>
+              <i className="fa-solid fa-chevron-left"></i>
               </button>
               <button className="btn border-0" onClick={handleNext} disabled={skip + limit >= total}>
-              <i class="fa-solid fa-chevron-right"></i>
+              <i className="fa-solid fa-chevron-right"></i>
               </button>
             </div>
           ) : null}

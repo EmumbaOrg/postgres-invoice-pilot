@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import api from '../../api/Api';
-import { Form, InputGroup, Button, Dropdown} from 'react-bootstrap';
+import { Button, Dropdown} from 'react-bootstrap';
 import ConfirmModal from '../../components/ConfirmModal'; 
 import PagedTable from '../../components/PagedTable';
 import StatusChip from '../../components/status-chip/status-chip';
 import InvoiceCreate from './create';
+import SearchInput from '../../components/SearchInput';
+import { useDebouncedSearch } from '../../hooks/useDebounce';
 
 const InvoiceList = () => {
   const [error, setError] = useState(null);
@@ -12,8 +14,14 @@ const InvoiceList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sowToDelete, setSowToDelete] = useState(null);
   const [reload, setReload] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-   const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
+  const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
+  
+  // Debounced search functionality
+  const handleSearch = useCallback((debouncedSearchTerm) => {
+    setReload((prev) => !prev);
+  }, []);
+  
+  const { searchTerm, debouncedSearchTerm, handleSearchChange, clearSearch } = useDebouncedSearch('', handleSearch, 500);
 
   const handleDelete = async () => {
     if (!sowToDelete) return;
@@ -91,10 +99,10 @@ const InvoiceList = () => {
 
   const fetchInvoices = async (skip, limit, sortBy, search) => {
     const response = await api.invoices.list(-1, skip, limit, sortBy, search);
-     // Apply frontend search filter on Invoice number if searchTerm exists
-    if (searchTerm && response.data) {
+     // Apply frontend search filter on Invoice number if debouncedSearchTerm exists
+    if (debouncedSearchTerm && response.data) {
       const filteredData = response.data.filter(
-        (invoice) => invoice.number && invoice.number.toLowerCase().includes(searchTerm.toLowerCase()),
+        (invoice) => invoice.number && invoice.number.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
       )
       return {
         ...response,
@@ -105,16 +113,6 @@ const InvoiceList = () => {
     return response;
   };
 
-     const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value)
-    setReload((prev) => !prev) 
-  }
-
-  const clearSearch = () => {
-    setSearchTerm("")
-    setReload((prev) => !prev) 
-  }
-
   return (
     <div className='px-5 py-3'>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-2">
@@ -122,29 +120,13 @@ const InvoiceList = () => {
       <Button className='primary' onClick={() => setShowCreateInvoiceModal(true)}><i className="fas fa-plus me-2" />New Invoice </Button> 
       </div>
        {/* Search Bar */}
-              <div className="mb-4">
-              <Form.Group style={{ maxWidth: "650px" }}>
-                <InputGroup>
-                  <InputGroup.Text>
-                    <i className="fas fa-search"></i>
-                  </InputGroup.Text>
-                  <Form.Control
-                    id="invoice-search"
-                    type="text"
-                    placeholder="Search by Invoice number..."
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    style={{ fontSize: "14px" }}
-                  />
-                  {searchTerm && (
-                    <InputGroup.Text style={{ cursor: "pointer" }} onClick={clearSearch} title="Clear search">
-                      <i className="fas fa-times text-muted"></i>
-                    </InputGroup.Text>
-                  )}
-                </InputGroup>
-                {searchTerm && <Form.Text className="text-muted">Searching for: "{searchTerm}"</Form.Text>}
-              </Form.Group>
-            </div>
+       <SearchInput
+         value={searchTerm}
+         onChange={handleSearchChange}
+         onClear={clearSearch}
+         placeholder="Search by Invoice number..."
+         id="invoice-search"
+       />
 
       <PagedTable columns={columns} fetchData={fetchInvoices} reload={reload} noDataMesssage={"No Invoices have been added yet"} noDataDescription={<p className="text-muted">Click on “Add Invoice” to begin adding invoices.</p>} />
 
