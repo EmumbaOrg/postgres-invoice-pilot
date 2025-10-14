@@ -16,6 +16,7 @@ SELECT azure_ai.set_setting('azure_cognitive.subscription_key', '${LANGUAGE_KEY}
 
 /* End Azure AI Extension Settings */
 
+
 /* VENDORS */
 
 -- Vendors table
@@ -106,7 +107,66 @@ SELECT 'SOW-2024-073',
        '2025-12-31',
        43600.00,
        '1/sow/Statement_of_Work_Adatum_Corporation_Woodgrove_Bank_20241101.pdf',
-       '{}'
+       '{
+  "Project_Name": "Optimization of Azure Resources",
+  "Effective_Date": "2024-11-01",
+  "Project_Completion_Date": "2024-12-31",
+  "SOW_Number": "SOW-2024-073",
+  "Project_Scope": "Adatum Corporation will provide comprehensive Azure resource management services, including infrastructure monitoring, automated scaling, cost optimization, and application troubleshooting, to ensure high availability and efficiency for Woodgrove Bank.",
+  "Project_Objectives": [
+    "Ensure the continuous performance and scalability of Azure resources.",
+    "Implement cost-efficient resource management strategies.",
+    "Minimize downtime through proactive monitoring and rapid troubleshooting.",
+    "Provide detailed reporting and analysis of resource usage and performance metrics.",
+    "Collaborate with Woodgrove Bank."
+  ],
+  "Tasks": [
+    "Set up Azure resource monitoring tools.",
+    "Design and implement automated scaling strategies.",
+    "Conduct cost analysis and apply optimization measures.",
+    "Perform regular maintenance on Azure-hosted applications.",
+    "Troubleshoot and resolve any application or resource issues."
+  ],
+  "Schedules": [
+    {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-11-01"},
+    {"Milestone_Name": "Initial monitoring setup", "Milestone_Completion_Due_Date": "2024-11-08"},
+    {"Milestone_Name": "Scaling implementation", "Milestone_Completion_Due_Date": "2024-11-15"},
+    {"Milestone_Name": "Cost optimization review", "Milestone_Completion_Due_Date": "2024-11-22"},
+    {"Milestone_Name": "Maintenance practices established", "Milestone_Completion_Due_Date": "2024-12-13"},
+    {"Milestone_Name": "Final troubleshooting and wrap-up", "Milestone_Completion_Due_Date": "2024-12-31"}
+  ],
+  "Requirements": [
+    "Access to Woodgrove Bank''s Azure environment and necessary credentials.",
+    "Active collaboration from Woodgrove Bank''s IT team for resource planning and feedback.",
+    "Approval of milestone completion before moving to subsequent phases."
+  ],
+  "Payments": {
+    "terms": "Net 30",
+    "penalty": "10% for late deliveries or payments"
+  },
+  "Compliance": {
+    "Data Security": "All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256).",
+    "Access Control": "Access to the Azure resources and sensitive client information will be granted only to authorized personnel.",
+    "Multi-factor authentication (MFA)": "will be enforced for all administrative access.",
+    "Audit and Monitoring": "Adatum Corporation will maintain comprehensive logs of all access and changes to Azure resources. Regular audits will be conducted to ensure compliance with security protocols.",
+    "Incident Response": "In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps.",
+    "Regulatory Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of Azure resources."
+  },
+  "Project_Deliverables": [
+    {"Milestone_Name": "Monitoring", "Deliverables": "Monitoring of resources", "Amount": "8600", "Milestone_Payment_Due_Date": "2024-12-08"},
+    {"Milestone_Name": "Resource Scaling", "Deliverables": "Implementation of automated scaling", "Amount": "7000", "Milestone_Payment_Due_Date": "2024-12-08"},
+    {"Milestone_Name": "Cost Management", "Deliverables": "Cost Management Implementation", "Amount": "7000", "Milestone_Payment_Due_Date": "2024-12-22"},
+    {"Milestone_Name": "Maintenance Practices", "Deliverables": "Maintenance & troubleshooting practices", "Amount": "10500", "Milestone_Payment_Due_Date": "2024-12-27"},
+    {"Milestone_Name": "App Troubleshooting", "Deliverables": "Identify Azure application issues", "Amount": "2000", "Milestone_Payment_Due_Date": "2024-12-27"},
+    {"Milestone_Name": "App Troubleshooting", "Deliverables": "Resolution of Azure application issues", "Amount": "3500", "Milestone_Payment_Due_Date": "2025-01-31"},
+    {"Milestone_Name": "App Troubleshooting", "Deliverables": "Implementation of app monitoring", "Amount": "5000", "Milestone_Payment_Due_Date": "2025-01-31"}
+  ],
+  "Total_Amount": "43600",
+  "Signatures": {
+    "Adatum Corporation": "Elizabeth Moore",
+    "Woodgrove Bank": "Chris Green"
+  }
+}'
 WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-073');
 
 INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
@@ -116,7 +176,60 @@ SELECT 'SOW-2024-038',
        '2025-08-31',
        60000.00,
        '2/sow/Statement_of_Work_Trey_Research_Woodgrove_Bank_20240501.pdf',
-       '{}'
+       '{
+  "Project_Name": "DevOps Implementation",
+  "Effective_Date": "2024-05-01",
+  "Project_Completion_Date": "2025-08-31",
+  "SOW_Number": "SOW-2024-038",
+  "Project_Scope": "Trey Research will provide comprehensive DevOps implementation services, including strategy and planning, CI/CD pipeline implementation, infrastructure as code, and security, monitoring, and optimization.",
+  "Project_Objectives": [
+    "Develop a comprehensive DevOps strategy and roadmap.",
+    "Implement CI/CD pipelines for automated build and deployment.",
+    "Implement infrastructure as code (IaC) for consistent and repeatable infrastructure management.",
+    "Integrate security, monitoring, and optimization practices into the DevOps processes."
+  ],
+  "Tasks": [
+    "DevOps Strategy & Planning",
+    "CI/CD Pipeline Implementation",
+    "Infrastructure as Code (IaC)",
+    "Security, Monitoring & Optimization"
+  ],
+  "Schedules": [
+    {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-05-01"},
+    {"Milestone_Name": "DevOps Strategy & Planning", "Milestone_Completion_Due_Date": "2024-05-15"},
+    {"Milestone_Name": "CI/CD Pipeline Implementation", "Milestone_Completion_Due_Date": "2024-06-01"},
+    {"Milestone_Name": "Infrastructure as Code (IaC)", "Milestone_Completion_Due_Date": "2024-09-01"},
+    {"Milestone_Name": "Security, Monitoring & Optimization", "Milestone_Completion_Due_Date": "2024-12-01"}
+  ],
+  "Requirements": [
+    "Access to existing infrastructure and systems.",
+    "Collaboration with the IT team for planning and implementation.",
+    "Approval of milestone completion before moving to subsequent phases."
+  ],
+  "Payments": {
+    "terms": "Net 30",
+    "penalty": "10% for late deliveries or payments"
+  },
+  "Compliance": {
+    "Data_Security": "All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256).",
+    "Access_Control": "Access to the infrastructure and sensitive client information will be granted only to authorized personnel.",
+    "MFA": "Multi-factor authentication (MFA) will be enforced for all administrative access.",
+    "Audit_and_Monitoring": "Trey Research will maintain comprehensive logs of all access and changes to the infrastructure. Regular audits will be conducted to ensure compliance with security protocols.",
+    "Incident_Response": "In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps.",
+    "Regulatory_Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of infrastructure."
+  },
+  "Project_Deliverables": [
+    {"Milestone_Name": "DevOps Strategy & Planning", "Deliverables": "DevOps Roadmap & Report, CI/CD Pipeline Design", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-05-30"},
+    {"Milestone_Name": "CI/CD Pipeline Implementation", "Deliverables": "Deployment Pipeline, Version Control Implementation, Branching Strategy", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-06-28"},
+    {"Milestone_Name": "Infrastructure as Code (IaC)", "Deliverables": "Infrastructure as Code Implementation, Containerization, Orchestration Setup", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-09-15"},
+    {"Milestone_Name": "Security, Monitoring & Optimization", "Deliverables": "Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-12-01"}
+  ],
+  "Total_Amount": "60000",
+  "Signatures": {
+    "Trey Research": "Serena Davis",
+    "Woodgrove Bank": "Chris Green"
+  }
+}'
 WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-038');
 
 INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
@@ -126,7 +239,61 @@ SELECT 'SOW-2024-081',
        '2024-12-31',
        33000.00,
        '3/sow/Statement_of_Work_Lucerne_Publishing_Woodgrove_Bank_20241201.pdf',
-       '{}'
+       '{
+  "Project_Name": "Digital Platform Branding",
+  "Effective_Date": "2024-12-01",
+  "Project_Completion_Date": "2024-12-31",
+  "SOW_Number": "SOW-2024-081",
+  "Project_Scope": "Lucerne Publishing will provide comprehensive branding services for Woodgrove Bank''s digital platform, including brand identity design, marketing materials, and UI/UX design.",
+  "Project_Objectives": [
+    "Develop a cohesive brand identity for the digital platform.",
+    "Create marketing and print design materials.",
+    "Design UI/UX for the website and mobile applications.",
+    "Provide detailed guidelines and documentation."
+  ],
+  "Tasks": [
+    "Brand Identity & Design Strategy",
+    "Marketing & Print Design",
+    "Digital & UI/UX Design"
+  ],
+  "Schedules": [
+    {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-12-01"},
+    {"Milestone_Name": "Brand Identity & Design Strategy", "Milestone_Completion_Due_Date": "2024-12-05"},
+    {"Milestone_Name": "Marketing & Print Design", "Milestone_Completion_Due_Date": "2024-12-15"},
+    {"Milestone_Name": "Digital & UI/UX Design", "Milestone_Completion_Due_Date": "2024-12-25"}
+  ],
+  "Requirements": [
+    "Access to Woodgrove Bank''s branding assets and guidelines.",
+    "Collaboration with the marketing team for feedback and approvals.",
+    "Approval of design drafts before finalization."
+  ],
+  "Payments": {
+    "terms": "Net 30",
+    "penalty": "10% for late deliveries or payments"
+  },
+  "Compliance": {
+    "Data Security": "All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256).",
+    "Access Control": "Access to the branding assets and sensitive client information will be granted only to authorized personnel.",
+    "Multi-factor authentication (MFA)": "MFA will be enforced for all administrative access.",
+    "Audit and Monitoring": "Lucerne Publishing will maintain comprehensive logs of all access and changes to branding assets. Regular audits will be conducted to ensure compliance with security protocols.",
+    "Incident Response": "In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps.",
+    "Regulatory Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of branding assets."
+  },
+  "Project_Deliverables": [
+    {"Milestone_Name": "Brand Identity & Design", "Deliverables": "Brand Identity Guidelines & Design Framework", "Amount": "5000", "Milestone_Payment_Due_Date": "2025-01-05"},
+    {"Milestone_Name": "Brand Identity & Design", "Deliverables": "Typography & Color Palette Selection", "Amount": "3000", "Milestone_Payment_Due_Date": "2025-01-05"},
+    {"Milestone_Name": "Marketing & Print Design", "Deliverables": "Bank Brochure & Print Collateral", "Amount": "4000", "Milestone_Payment_Due_Date": "2025-01-15"},
+    {"Milestone_Name": "Marketing & Print Design", "Deliverables": "Advertisement & Promotional Materials", "Amount": "6000", "Milestone_Payment_Due_Date": "2025-01-15"},
+    {"Milestone_Name": "Digital & UI/UX Design", "Deliverables": "Website & Mobile UI/UX Mockups", "Amount": "8000", "Milestone_Payment_Due_Date": "2025-01-25"},
+    {"Milestone_Name": "Digital & UI/UX Design", "Deliverables": "Infographics & Data Visualization for Reports", "Amount": "4000", "Milestone_Payment_Due_Date": "2025-01-25"},
+    {"Milestone_Name": "Digital & UI/UX Design", "Deliverables": "Social Media Graphics Package", "Amount": "3000", "Milestone_Payment_Due_Date": "2025-01-25"}
+  ],
+  "Total_Amount": "33000",
+  "Signatures": {
+    "Lucerne Publishing": "Ana Bowman",
+    "Woodgrove Bank": "Chris Green"
+  }
+}'
 WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-081');
 
 INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
@@ -136,7 +303,57 @@ SELECT 'SOW-2024-070',
        '2025-09-30',
        55000.00,
        '4/sow/Statement_of_Work_VanArsdel_Ltd_Woodgrove_Bank_20241001.pdf',
-       '{}'
+       '{
+  "Project_Name": "Anti Money Laundering (AML) Design",
+  "Effective_Date": "2024-10-01",
+  "Project_Completion_Date": "2025-09-30",
+  "SOW_Number": "SOW-2024-070",
+  "Project_Scope": "VanArsdel, Ltd. will provide comprehensive AML strategy and system design services, including risk assessment, system integration planning, and performance optimization.",
+  "Project_Objectives": [
+    "Develop a comprehensive AML strategy and risk assessment framework.",
+    "Design and integrate a transaction monitoring and alert system.",
+    "Conduct pilot testing and optimize system performance."
+  ],
+  "Tasks": [
+    "AML Strategy & Risk Assessment",
+    "System Design & Integration Planning",
+    "Testing, Optimization & Implementation"
+  ],
+  "Schedules": [
+    {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-10-01"},
+    {"Milestone_Name": "AML Strategy & Risk Assessment", "Milestone_Completion_Due_Date": "2024-10-15"},
+    {"Milestone_Name": "System Design & Integration Planning", "Milestone_Completion_Due_Date": "2024-11-01"},
+    {"Milestone_Name": "Testing, Optimization & Implementation", "Milestone_Completion_Due_Date": "2024-12-01"}
+  ],
+  "Requirements": [
+    "Access to relevant financial data and systems.",
+    "Collaboration with the compliance team for risk assessment.",
+    "Approval of milestone completion before moving to subsequent phases."
+  ],
+  "Payments": {
+    "terms": "Net 30",
+    "penalty": "10% for late deliveries or payments"
+  },
+  "Compliance": {
+    "Data Security": "All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256).",
+    "Access Control": "Access to the financial data and systems will be granted only to authorized personnel.",
+    "Multi-factor authentication (MFA)": "will be enforced for all administrative access.",
+    "Audit and Monitoring": "VanArsdel Ltd. will maintain comprehensive logs of all access and changes to financial data and systems. Regular audits will be conducted to ensure compliance with security protocols.",
+    "Incident Response": "In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps.",
+    "Regulatory Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of financial data and systems."
+  },
+  "Project_Deliverables": [
+    {"Milestone_Name": "AML Risk Assessment & Compliance Framework", "Deliverables": "AML Risk Assessment & Compliance Framework", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-10-15"},
+    {"Milestone_Name": "Transaction Monitoring & Alert System Design", "Deliverables": "Transaction Monitoring & Alert System Design", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-11-01"},
+    {"Milestone_Name": "Integration Plan for Regulatory Reporting", "Deliverables": "Integration Plan for Regulatory Reporting", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-11-15"},
+    {"Milestone_Name": "Pilot Testing & Performance Optimization Report", "Deliverables": "Pilot Testing & Performance Optimization Report", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-12-01"}
+  ],
+  "Total_Amount": "55000",
+  "Signatures": {
+    "VanArsdel Ltd.": "Gabriel Diaz",
+    "Woodgrove Bank": "Chris Green"
+  }
+}'
 WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-070');
 
 INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata)
@@ -146,7 +363,67 @@ SELECT 'SOW-2024-052',
        '2025-11-30',
        115000.00,
        '5/sow/Statement_of_Work_Contoso_Ltd_Woodgrove_Bank_20240601.pdf',
-       '{}'
+       '{
+  "Project_Name": "Mobile Integration with Core Banking System",
+  "Effective_Date": "2024-06-01",
+  "Project_Completion_Date": "2024-11-30",
+  "SOW_Number": "SOW-2024-052",
+  "Project_Scope": "Contoso, Ltd. will provide comprehensive mobile integration services with the core banking system, including requirements gathering, backend API development, and frontend implementation.",
+  "Project_Objectives": [
+    "Ensure seamless integration of mobile applications with the core banking system.",
+    "Implement secure authentication and data encryption.",
+    "Optimize performance and conduct thorough testing.",
+    "Provide detailed documentation and knowledge transfer."
+  ],
+  "Tasks": [
+    "Requirements Gathering & Planning",
+    "Core Banking System Development",
+    "Web & Mobile Application Development",
+    "Security & Compliance Implementation",
+    "Performance Optimization & Testing",
+    "Deployment & Knowledge Transfer"
+  ],
+  "Schedules": [
+    {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-06-01"},
+    {"Milestone_Name": "Requirements Gathering & Planning", "Milestone_Completion_Due_Date": "2024-06-15"},
+    {"Milestone_Name": "Core Banking System Development", "Milestone_Completion_Due_Date": "2024-07-01"},
+    {"Milestone_Name": "Web & Mobile Application Development", "Milestone_Completion_Due_Date": "2024-08-01"},
+    {"Milestone_Name": "Security & Compliance Implementation", "Milestone_Completion_Due_Date": "2024-09-01"},
+    {"Milestone_Name": "Performance Optimization & Testing", "Milestone_Completion_Due_Date": "2024-10-01"},
+    {"Milestone_Name": "Deployment & Knowledge Transfer", "Milestone_Completion_Due_Date": "2024-11-01"}
+  ],
+  "Requirements": [
+    "Access to the core banking system and necessary credentials.",
+    "Active collaboration from the IT team for resource planning and feedback.",
+    "Approval of milestone completion before moving to subsequent phases."
+  ],
+  "Payments": {
+    "terms": "Net 30",
+    "penalty": "10% for late deliveries or payments"
+  },
+  "Compliance": {
+    "Data Security": "All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256).",
+    "Access Control": "Access to the core banking system and sensitive client information will be granted only to authorized personnel.",
+    "Multi-factor authentication (MFA)": "MFA will be enforced for all administrative access.",
+    "Audit and Monitoring": "Contoso Ltd. will maintain comprehensive logs of all access and changes to the core banking system. Regular audits will be conducted to ensure compliance with security protocols.",
+    "Incident Response": "In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps.",
+    "Regulatory Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of the core banking system."
+  },
+  "Project_Deliverables": [
+    {"Milestone_Name": "Requirements Gathering & Planning", "Deliverables": "Requirements & Functional Specifications", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-06-15"},
+    {"Milestone_Name": "Requirements Gathering & Planning", "Deliverables": "Architecture & System Design", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-06-30"},
+    {"Milestone_Name": "Core Banking System Development", "Deliverables": "API Development & Integration", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-07-31"},
+    {"Milestone_Name": "Web & Mobile Application Development", "Deliverables": "UI/UX & Frontend Implementation", "Amount": "25000", "Milestone_Payment_Due_Date": "2024-07-31"},
+    {"Milestone_Name": "Security & Compliance Implementation", "Deliverables": "Authentication & Data Encryption Setup", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-07-31"},
+    {"Milestone_Name": "Performance Optimization & Testing", "Deliverables": "Load & Performance Testing Report", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-08-31"},
+    {"Milestone_Name": "Deployment & Knowledge Transfer", "Deliverables": "Fusion Deployment & Maintenance Guide", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-12-30"}
+  ],
+  "Total_Amount": "115000",
+  "Signatures": {
+    "Contoso Ltd.": "Nicole Wagner",
+    "Woodgrove Bank": "Chris Green"
+  }
+}'
 WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-052');
 
 -- SOW Chunks table: Holds the content of the SOW in sections

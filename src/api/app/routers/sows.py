@@ -1,7 +1,7 @@
-from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service, get_activity_log_service
+from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service, get_activity_log_service, get_chat_client, get_prompt_service
 from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
-from datetime import datetime
+from datetime import datetime, timedelta
 from pydantic import parse_obj_as
 import json
 import traceback
@@ -65,6 +65,8 @@ async def analyze_sow(
     pool = Depends(get_db_connection_pool),
     storage_service = Depends(get_storage_service),
     doc_intelligence_service = Depends(get_azure_doc_intelligence_service),
+    llm = Depends(get_chat_client),
+    prompt_service = Depends(get_prompt_service),
     activity_service = Depends(get_activity_log_service)
 ):
     """Analyze a SOW document and create a new SOW in the database."""
@@ -92,21 +94,26 @@ async def analyze_sow(
         analysis_result = await doc_intelligence_service.extract_text_from_sow_document(document_data)
         full_text = analysis_result.full_text
 
-        metadata = doc_intelligence_service.extract_sow_metadata(full_text)
+        # format text into json object
+        metadata = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_sow_text_to_json"))
+
+        # extract required fields from metadata json
+        start_date = datetime.strptime(metadata['Effective_Date'], '%Y-%m-%d').date() if metadata.get('Effective_Date') else start_date
+        end_date = datetime.strptime(metadata['Project_Completion_Date'], '%Y-%m-%d').date() if metadata.get('Project_Completion_Date') else end_date
+        budget = round(float(metadata['Total_Amount']),2) if metadata.get('Total_Amount') else budget
 
         # Get SOW ID from metadata
-        sow_number = metadata['sow_number'] or None
+        sow_number = metadata['SOW_Number'] or None
         sow_id = None # metadata['sow_id']
         if sow_number is not None:
             async with pool.acquire() as conn:
                 sow_id = await conn.fetchval('SELECT id FROM sows WHERE vendor_id = $1 AND number = $2;', vendor_id, sow_number)
                
-
         # Create SOW in the database
         async with pool.acquire() as conn:
             if sow_id is None:
                 # Create new SOW
-                row = await conn.fetchrow('''
+                sow_row = await conn.fetchrow('''
                     INSERT INTO sows (number, start_date, end_date, budget, document, metadata, summary, vendor_id)
                     VALUES (
                     $1, $2, $3, $4, $5, $6, 
@@ -114,9 +121,10 @@ async def analyze_sow(
                     $8)
                     RETURNING *;
                 ''', sow_number, start_date, end_date, budget, documentName, json.dumps(metadata), full_text, vendor_id)
+                sow_id = sow_row['id']
             else:
                 # Update existing SOW with new document
-                row = await conn.fetchrow('''
+                sow_row = await conn.fetchrow('''
                     UPDATE sows
                     SET start_date = $1,
                         end_date = $2,
@@ -128,11 +136,69 @@ async def analyze_sow(
                     RETURNING *;
                 ''', start_date, end_date, budget, documentName, json.dumps(metadata), full_text, sow_id)
 
-            if row is None:
+            # Insert milestones and deliverables into the database
+            try:
+                milestone_ids = {}
+                for d in metadata.get('Project_Deliverables', []):
+                    milestone_name = d['Milestone_Name']
+                    # Check if milestone exists
+                    milestone_row = await conn.fetchrow(
+                        'SELECT id FROM milestones WHERE sow_id = $1 AND name = $2;',
+                        sow_id, milestone_name
+                    )
+                    if milestone_row:
+                        milestone_id = milestone_row['id']
+                        # Update milestone status if needed
+                        await conn.execute(
+                            'UPDATE milestones SET status = $1 WHERE id = $2;',
+                            'pending', milestone_id
+                        )
+                    else:
+                        # Insert new milestone
+                        milestone_row = await conn.fetchrow(
+                            '''
+                            INSERT INTO milestones (sow_id, name, status)
+                            VALUES ($1, $2, $3)
+                            RETURNING id;
+                            ''',
+                            sow_id, milestone_name, 'pending'
+                        )
+                        milestone_id = milestone_row['id']
+                    milestone_ids[milestone_name] = milestone_id
+
+                    # Check if deliverable exists
+                    description = d.get('Deliverables', '')
+                    deliverable_row = await conn.fetchrow(
+                        'SELECT id FROM deliverables WHERE milestone_id = $1 AND description = $2;',
+                        milestone_id, description
+                    )
+                    amount = float(d.get('Amount', 0))
+                    due_date = datetime.strptime(d.get('Milestone_Payment_Due_Date',None), '%Y-%m-%d').date() - timedelta(days=30)
+                    status = 'pending'
+                    if deliverable_row:
+                        # Update deliverable
+                        await conn.execute(
+                            'UPDATE deliverables SET amount = $1, status = $2, due_date = $3 WHERE id = $4;',
+                            amount, status, due_date, deliverable_row['id']
+                        )
+                    else:
+                        # Insert new deliverable
+                        await conn.execute(
+                            '''
+                            INSERT INTO deliverables (milestone_id, description, amount, status, due_date)
+                            VALUES ($1, $2, $3, $4, $5);
+                            ''',
+                            milestone_id, description, amount, status, due_date
+                        )
+
+            except Exception as e:
+                print(f"Error inserting milestones and deliverables In database: {e}")
+
+            if sow_row is None:
                 raise HTTPException(status_code=500, detail=f'An error occurred while creating the SOW.')
 
-            sow = parse_obj_as(Sow, dict(row))
 
+            sow = parse_obj_as(Sow, dict(sow_row))
 
             # Save the text chunks for the SOW
             await conn.execute('''DELETE FROM sow_chunks WHERE sow_id = $1''', sow.id)

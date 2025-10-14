@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/Api';
-import { Form, InputGroup, Dropdown, Button } from 'react-bootstrap';
+import { Dropdown } from 'react-bootstrap';
 import ConfirmModal from '../../components/ConfirmModal'; 
 import PagedTable from '../../components/PagedTable';
+import SearchInput from '../../components/SearchInput';
+import { useDebouncedSearch } from '../../hooks/useDebounce';
 
 const VendorList = () => {
   const [error, setError] = useState(null);
@@ -11,7 +13,13 @@ const VendorList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [vendorToDelete, setVendorToDelete] = useState(null);
   const [reload, setReload] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("")
+  
+  // Debounced search functionality
+  const handleSearch = useCallback((debouncedSearchTerm) => {
+    setReload((prev) => !prev);
+  }, []);
+  
+  const { searchTerm, debouncedSearchTerm, handleSearchChange, clearSearch } = useDebouncedSearch('', handleSearch, 500);
   
   const handleDelete = async () => {
     if (!vendorToDelete) return;
@@ -88,10 +96,10 @@ const VendorList = () => {
   const fetchVendors = async (skip, limit, sortBy, search) => {
     const response = await api.vendors.list(skip, limit, sortBy, search)
 
-    // Apply frontend search filter on vendor name if searchTerm exists
-    if (searchTerm && response.data) {
+    // Apply frontend search filter on vendor name if debouncedSearchTerm exists
+    if (debouncedSearchTerm && response.data) {
       const filteredData = response.data.filter(
-        (vendor) => vendor.name && vendor.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        (vendor) => vendor.name && vendor.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
       )
       return {
         ...response,
@@ -103,16 +111,6 @@ const VendorList = () => {
     return response
   }
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value)
-    setReload((prev) => !prev) 
-  }
-
-  const clearSearch = () => {
-    setSearchTerm("")
-    setReload((prev) => !prev) 
-  }
-
   return (
     <div className='px-5 py-3'>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
@@ -120,30 +118,14 @@ const VendorList = () => {
         <Link to="/vendors/create" className="btn btn-primary"><i className="fas fa-plus me-2" />New Vendor </Link>
       </div>
         {/* Search Bar */}
-        <div className="mb-4">
-        <Form.Group style={{ maxWidth: "650px" }}>
-          <InputGroup>
-            <InputGroup.Text>
-              <i className="fas fa-search"></i>
-            </InputGroup.Text>
-            <Form.Control
-              id="vendor-search"
-              type="text"
-              placeholder="Search by vendor name..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              style={{ fontSize: "14px" }}
-            />
-            {searchTerm && (
-              <InputGroup.Text style={{ cursor: "pointer" }} onClick={clearSearch} title="Clear search">
-                <i className="fas fa-times text-muted"></i>
-              </InputGroup.Text>
-            )}
-          </InputGroup>
-          {searchTerm && <Form.Text className="text-muted">Searching for: "{searchTerm}"</Form.Text>}
-        </Form.Group>
-      </div>
-      <PagedTable columns={columns} fetchData={fetchVendors} reload={reload} key={searchTerm} noDataMesssage={'No vendors have been added yet.'} noDataDescription={'Click on "New Vendor" to begin adding vendors.'} />
+        <SearchInput
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onClear={clearSearch}
+          placeholder="Search by vendor name..."
+          id="vendor-search"
+        />
+      <PagedTable columns={columns} fetchData={fetchVendors} reload={reload} key={debouncedSearchTerm} noDataMesssage={'No vendors have been added yet.'} noDataDescription={'Click on "New Vendor" to begin adding vendors.'} />
 
       <ConfirmModal
         show={showDeleteModal}

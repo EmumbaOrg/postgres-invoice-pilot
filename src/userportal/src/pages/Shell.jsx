@@ -78,10 +78,10 @@ const Shell = ({onLogout}) => {
        <header className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top shadow-sm" ref={navbarRef}>
       <div className="container-fluid px-3">
         {/* Logo and Brand */}
-        <a className="navbar-brand d-flex align-items-center me-4" href="#">
+        <NavLink className="navbar-brand d-flex align-items-center me-4 text-decoration-none" to="/">
           <img src="/logo.png" alt="Invoice Pilot" className="me-2" style={{ height: "32px", width: "auto" }} />
           <span className="fw-semibold text-dark fs-5">Invoice Pilot</span>
-        </a>
+        </NavLink>
 
         {/* Mobile Toggle Button */}
         <button

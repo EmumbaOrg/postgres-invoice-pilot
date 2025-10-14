@@ -4,7 +4,7 @@
         {
             "label": "Install API Dependencies",
             "type": "shell",
-            "command": "${config:python.pythonPath} -m pip install -r ${workspaceFolder}/src/api/requirements.txt",
+            "command": "pip install -r ${workspaceFolder}/src/api/requirements.txt",
             "problemMatcher": []
         },
         {

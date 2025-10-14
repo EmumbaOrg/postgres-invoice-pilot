@@ -54,11 +54,7 @@ param principalType string = 'User'
 param postgresqlDatabaseName string = 'contracts'
 
 @description('Version of the OpenAI model to deploy')
-@allowed([
-  '2024-05-13'
-  '2024-11-20'
-])
-param openAiModelVersion string
+param openAiModelVersion string = '2024-11-20'
 
 @description('Determines whether to deploy the OpenAI models')
 param deployOpenAIModels bool = true // default to true
@@ -253,8 +249,8 @@ module postgresql './shared/postgresql.bicep' = {
   params: {
     location: location
     serverName: '${abbrs.dBforPostgreSQLServers}data${resourceToken}'
-    skuName: 'Standard_B2ms'
-    skuTier: 'Burstable'
+    skuName: 'Standard_D2ds_v4'
+    skuTier: 'GeneralPurpose'
     highAvailabilityMode: 'Disabled'
     tags: tags
     appConfigName: appConfig.outputs.name

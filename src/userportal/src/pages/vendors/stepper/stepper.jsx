@@ -315,10 +315,6 @@ const NavigationStepper = () => {
     }
   };
 
-  const handleSave = () => {
-    console.log("Saving vendor data:", formData);
-    // Handle save logic here
-  };
 
   const getStepStatus = (stepIndex) => {
     if (stepIndex < currentStep) return "completed";
@@ -806,63 +802,56 @@ const NavigationStepper = () => {
                     <div key={index} className="position-relative mb-4">
                       {/* Connecting Line */}
                       {index < steps.length - 1 && (
-                        <div className="connecting-line" />
+                        <div 
+                          className={`connecting-line ${
+                            getStepStatus(index) === "completed" ? "connecting-line-completed" : ""
+                          }`}
+                        />
                       )}
 
                       {/* Step Circle and Content */}
                       <div className="d-flex align-items-start">
                         {/* Circle Indicator */}
                         <div
-                          className="rounded-circle d-flex align-items-center justify-content-center"
-                          style={{
-                            width: "24px",
-                            height: "24px",
-                            minWidth: "24px",
-                            zIndex: 2,
-                            position: "relative",
-                            backgroundColor:
-                              getStepStatus(index) === "active"
-                                ? "#2979ff"
-                                : "#ffffff",
-                            border:
-                              getStepStatus(index) === "active"
-                                ? "none"
-                                : "2px solid #e1e1e3",
-                          }}
+                          className={`step-circle ${
+                            getStepStatus(index) === "completed"
+                              ? "step-circle-completed"
+                              : getStepStatus(index) === "active"
+                              ? "step-circle-active"
+                              : "step-circle-inactive"
+                          }`}
                         >
-                          <span
-                            className={`fw-bold`}
-                            style={{
-                              fontSize: "12px",
-                              color:
+                          {getStepStatus(index) === "completed" ? (
+                            <span className="step-checkmark">
+                              ✓
+                            </span>
+                          ) : (
+                            <span
+                              className={`step-number ${
                                 getStepStatus(index) === "active"
-                                  ? "#ffffff"
-                                  : "#9696a0",
-                            }}
-                          >
-                            {index + 1}
-                          </span>
+                                  ? "step-number-active"
+                                  : "step-number-inactive"
+                              }`}
+                            >
+                              {index + 1}
+                            </span>
+                          )}
                         </div>
 
                         {/* Step Content */}
                         <div className="ms-3 flex-grow-1">
-                          <h6
-                            className="mb-1"
-                            style={{
-                              fontSize: "14px",
-                              fontWeight:
-                                getStepStatus(index) === "active"
-                                  ? "600"
-                                  : "500",
-                              color:
-                                getStepStatus(index) === "active"
-                                  ? "#292a31"
-                                  : "#787885",
-                            }}
+                          <div
+                            className={`step-title ${
+                              getStepStatus(index) === "completed"
+                                ? "step-title-completed"
+                                : getStepStatus(index) === "active"
+                                ? "step-title-active"
+                                : "step-title-inactive"
+                            }`}
                           >
                             {step.title}
-                          </h6>
-                          <small style={{ fontSize: "12px", color: "#9696a0" }}>
+                          </div>
+                          <small className="step-subtitle">
                             {step.subtitle}
                           </small>
                         </div>
@@ -892,13 +881,6 @@ const NavigationStepper = () => {
                 </div>
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <div className="d-flex gap-2">
-                    <Button
-                      variant="outline-secondary"
-                      className="btn btn-save"
-                      onClick={handleSave}
-                    >
-                      Save Vendor
-                    </Button>
                     <Button
                       className="btn btn-save-next"
                       onClick={handleSaveAndNext}

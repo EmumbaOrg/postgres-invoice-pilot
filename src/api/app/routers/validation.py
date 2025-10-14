@@ -7,6 +7,7 @@ from app.models import Deliverable, InvoiceLineItem, InvoiceValidationResult, Li
 from fastapi import APIRouter, Depends, HTTPException
 from app.models.validation import InvoiceModel, SowModel, MilestoneModel
 from pydantic import parse_obj_as
+import json
 
 # Initialize the router
 router = APIRouter(
@@ -83,33 +84,29 @@ async def validate_invoice(id: int):
 
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
-        row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', id)
-        if row is None:
+        invoice_row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', id)
+        if invoice_row is None:
             raise HTTPException(status_code=404, detail=f'An invoice with an id of {id} was not found.')
-        invoice = parse_obj_as(InvoiceModel, dict(row))
+        invoice = dict(invoice_row)
+        invoice_metadata = invoice.get("metadata")
 
         # Get the vendor name
-        vendor_row = await conn.fetchrow('SELECT * FROM vendors WHERE id = $1;', invoice.vendor_id)
-        invoice.vendor = parse_obj_as(Vendor, dict(vendor_row))
-
-        # Get the invoice line items
-        line_item_rows = await conn.fetch('SELECT * FROM invoice_line_items WHERE invoice_id = $1;', id)
-        invoice.line_items = [parse_obj_as(InvoiceLineItem, dict(row)) for row in line_item_rows]
+        vendor_row = await conn.fetchrow('SELECT * FROM vendors WHERE id = $1;', invoice.get("vendor_id"))
+        vendor = dict(vendor_row)
 
         # Get the SOW
-        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', invoice.sow_id)
-        sow = parse_obj_as(SowModel, dict(sow_row))
+        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', invoice.get("sow_id"))
+        sow = dict(sow_row)
+        sow_metadata = sow.get("metadata")
 
-        # Get the milestones
-        milestone_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', invoice.sow_id)
-        sow.milestones = [parse_obj_as(MilestoneModel, dict(row)) for row in milestone_rows]
+        # convert date to text format as it is easier for LLM to understand
+        invoice_metadata = await format_invoice_dates(invoice_metadata)
+        sow_metadata = await format_sow_dates(sow_metadata)
 
-        # Get the deliverables for each milestone
-        for milestone in sow.milestones:
-            deliverable_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.id)
-            milestone.deliverables = parse_obj_as(list[Deliverable], [dict(row) for row in deliverable_rows])
+        combined_information = f"""Vendor Information: {json.dumps(vendor)}\n\nSOW Information: {json.dumps(sow_metadata)}\n\nInvoice Information: {json.dumps(invoice_metadata)}\n\n"""
 
-    return invoice, sow
+    return combined_information
+
 
 @router.get("/sow/{id}", response_model=ListResponse[SowValidationResult])
 async def list_sow_validations(id: int, pool = Depends(get_db_connection_pool)):
@@ -177,15 +174,84 @@ async def validate_sow(id: int):
         row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
         if row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
-        sow = parse_obj_as(SowModel, dict(row))
 
-        # Get the milestones
-        milestone_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', id)
-        sow.milestones = [parse_obj_as(MilestoneModel, dict(row)) for row in milestone_rows]
+        sow_dict = dict(row)
 
-        # Get the deliverables for each milestone
-        for milestone in sow.milestones:
-            deliverable_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.id)
-            milestone.deliverables = parse_obj_as(list[Deliverable], [dict(row) for row in deliverable_rows])
+        metadata = sow_dict.get("metadata")
 
-    return sow
+        # convert date to text format as it is easier for LLM to understand
+        sow_dict = await format_sow_dates(metadata)            
+
+    return sow_dict
+
+async def format_sow_dates(metadata):
+    """Formats sow metadata dates to a textual format."""
+    
+    try:
+
+        metadata_dict = json.loads(metadata)
+
+        metadata_dict['Effective_Date'] = to_textual_date(metadata_dict.get('Effective_Date'))
+        metadata_dict['Project_Completion_Date'] = to_textual_date(metadata_dict.get('Project_Completion_Date'))
+
+        # Format Schedules dates
+        if "Schedules" in metadata_dict:
+            for schedule in metadata_dict["Schedules"]:
+                schedule["Milestone_Completion_Due_Date"] = to_textual_date(schedule.get("Milestone_Completion_Due_Date"))
+
+        # Format Project_Deliverables dates
+        if "Project_Deliverables" in metadata_dict:
+            for deliverable in metadata_dict["Project_Deliverables"]:
+                date_str = deliverable.get("Milestone_Payment_Due_Date")
+                deliverable["Milestone_Payment_Due_Date"] = to_textual_date(date_str)
+
+        return metadata_dict
+
+    except Exception as e:
+        print(f"Error formatting sow dates: {e}. Try again")
+
+        return metadata
+
+async def format_invoice_dates(metadata):
+    """Formats invoice metadata dates to a textual format."""
+    
+    try:
+
+        metadata_dict = json.loads(metadata)
+        metadata_dict['Invoice_Date'] = to_textual_date(metadata_dict.get('Invoice_Date'))
+
+        if "Project_Deliverables" in metadata_dict:
+            for deliverable in metadata_dict["Project_Deliverables"]:
+                date_str = deliverable.get("Milestone_Payment_Due_Date")
+                deliverable["Milestone_Payment_Due_Date"] = to_textual_date(date_str)
+
+        return metadata_dict
+
+    except Exception as e:
+        print(f"Error formatting invoice dates: {e}. Try again")
+
+        return metadata        
+
+def to_textual_date(date_str):
+    """Convert a date string (ISO or textual) to textual format 'D Month YYYY'."""
+    from datetime import datetime
+
+    if not date_str:
+        return None
+
+    # ISO format
+    try:
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
+        return dt.strftime("%d %B %Y")
+    except ValueError:
+        pass
+
+    # textual format
+    try:
+        dt = datetime.strptime(date_str, "%d %B %Y")
+        return dt.strftime("%d %B %Y")
+    except ValueError:
+        pass
+
+    # If parsing fails, return original string
+    return date_str
