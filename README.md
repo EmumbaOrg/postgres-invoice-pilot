@@ -1,29 +1,106 @@
-# PostgreSQL Solution Accelerator: Build your own advanced AI Copilot with Postgres
+# 🏦 PostgreSQL Solution Accelerator: Invoice Pilot
 
-This solution accelerator is designed as an end-to-end example of an AI-enabled application built on Azure Postgres. It demonstrates the implementation of generative AI capabilities to enhance an existing application with AI-driven data validation, vector search, DiskANN, semantic re-ranking, LangChain agent/tools framework, and GraphRAG on Azure Database for PostgreSQL, and illustrates how they can be combined to deliver high quality responses to financial questions via an intelligent copilot. The app uses a small sample dataset made up of statements of work (SOWs) and invoices.
+Inovice Pilot is an **AI-driven financial document validation platform** that showcases how **advanced PostgreSQL features**, powered by [LangChain](https://www.langchain.com/) and Azure AI services, can drive **intelligent document processing and validation** using unstructured financial data like invoices and statements of work (SOWs). This demo runs fully on Azure, and can be deployed quickly using the **Azure Developer CLI**.
+
+Explore how intelligent AI agents handle document extraction, validation, semantic search, and financial insights with PostgreSQL's advanced vector capabilities and Azure AI integration.
 
 [![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=dev&repo=1013163299&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2)
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/EmumbaOrg/postgres-sa-byoac)
 
-
 > The full documentation for deploying and completing the workshop can be found here:
 > <http://aka.ms/pg-byoac-docs/>
 
-# Solution Accelerator Architecture:
+## 🧭 Quick Navigation
+
+- [App Scenario](#app-scenario-ai-powered-financial-document-intelligence)
+- [Architecture Overview](#architecture-overview)
+- [Solution Accelerator Deployment](#-solution-accelerator-deployment)
+- [AI-Powered Document Processing Workflow](#-ai-powered-document-processing-workflow)
+- [Financial Document Validation Walkthrough](#-financial-document-validation-walkthrough)
+- [Intelligent Copilot Features](#-intelligent-copilot-features)
+- [Understanding Supported Document Types](#-understanding-supported-document-types-and-validation-rules)
+
+## App Scenario: AI-Powered Financial Document Intelligence
+
+**Invoice Pilot** is an AI-powered financial document validation platform that showcases how advanced PostgreSQL features and AI can deliver intelligent document processing and validation.
+
+Built on **LangChain** and **Azure AI services**, the app leverages:
+
+- **`pg_diskann`** for fast vector search over financial document data
+- **`azure_ai`** for in-database semantic re-ranking and AI operations
+- **Apache AGE** to model document relationships as knowledge graphs
+- **Azure Document Intelligence** for structured document extraction
+
+The platform also features an **AI Financial Copilot**, providing real-time insights into vendor performance, SOW compliance, and invoice validation—helping financial teams understand document accuracy and vendor relationships.
+
+### 🎯 Primary Use Cases
+
+1. **Automated Document Validation**
+   An AI-powered workflow built using `LangChain` agents validates invoices against statements of work, checking compliance, billing accuracy, and payment terms in real time.
+
+2. **Intelligent Financial Copilot**
+   A smart assistant that answers questions about vendors, SOWs, and invoices using vector search and semantic understanding to provide contextual financial insights.
+
+Using a curated financial dataset (SOWs, invoices, vendor profiles), the platform enables:
+
+- 📄 **Automated document extraction** from PDFs using Azure Document Intelligence
+- 🔍 **Semantic document search** with vector embeddings
+- ✅ **AI-driven validation** using LangChain agents
+- 🧠 **Financial insights** via intelligent copilot queries
+- 📊 **Compliance monitoring** through automated SOW-invoice matching
+
+The result is an intelligent and automated financial document processing system where AI agents dynamically interpret, validate, and analyze financial documents—whether it's checking invoice accuracy, analyzing vendor performance, or ensuring SOW compliance.
+
+## Architecture Overview
+
+The following image shows the high-level architecture of the solution, highlighting how various Azure services and PostgreSQL extensions work together to power the intelligent financial document processing experience.
 
 ![High-level architecture diagram for the solution](docs/workshop/docs/img/solution-architecture-diagram.png)
 
-# Key Highlights
+### 🧩 Key Components
 
-1. **LangChain Agent and Tool Framework:** Demonstrates how to build powerful LangChain-based Agents that interact with PostgreSQL and vector stores using Tools and Chains—bridging LLMs with data and application logic.
-2. **Vector Search with RAG Pattern Built into PostgreSQL:** The solution enables in-database Retrieval-Augmented Generation (RAG) using the `pgvector` extension for efficient vector search, making PostgreSQL a powerful foundation for intelligent applications that combine structured data with generative AI.
-3. **Semantic Re-ranking:** Enhances retrieval quality by applying semantic re-ranking with the `azure_ai.rank()` operator. After initial vector search, candidate results are re-ordered based on semantic relevance, ensuring that the most contextually appropriate information is surfaced for downstream AI tasks.
-4. **GraphRAG with Apache AGE for Knowledge-Rich Context:** Extends RAG with GraphRAG, integrating `Apache AGE` (A Graph Extension for PostgreSQL) to enrich retrieval and grounding via knowledge graphs—ideal for complex relationships and semantic context.
-5. **High-Performance DiskANN Index Integration:** Supports `DiskANN` (Disk-Accelerated Approximate Nearest Neighbor), offering scalable and fast vector similarity search, optimized for large datasets and low-latency retrieval directly within PostgreSQL.
-6. **Azure AI Extension for PostgreSQL:** Leverages the Azure AI Extension, enabling direct embedding generation and model inference from Azure OpenAI or custom endpoints, eliminating the need for external model integration pipelines.
-7. **Azure Storage Extension for Document-Linked Workflows:** Uses the Azure Storage Extension for PostgreSQL to access and retrieve unstructured content such as .csv and documents from Blob Storage directly inside PostgreSQL workflows.
-8. **Document Intelligence Integration:** Integrates Azure Document Intelligence (formerly Form Recognizer) to extract structured content from documents—powering advanced data ingestion and enrichment scenarios for AI pipelines.
-9. **Hands-On Learning Through Guided Labs:** The solution includes a comprehensive step-by-step hands-on guide with real-world examples—making it ideal for practitioners to learn by doing and gain practical experience with AI-native PostgreSQL patterns.
+- **Frontend**:
+  - React (SPA) with TypeScript hosted on **Azure Container Apps**
+  - Includes document upload, validation results, and financial copilot interface
+
+- **Backend**:
+  - **FastAPI** for API orchestration and document processing logic
+  - **Azure OpenAI (GPT-4o and text-embedding-ada-002)** for AI reasoning and embeddings
+  - **Azure App Configuration** for environment variables management
+  - **Apache AGE Extension** for graph-based document relationships
+  - **pg_diskann Extension** for high-performance vector search
+  - **azure_ai Extension** for in-database AI operations
+
+- **Document Processing**:
+  - **Azure Blob Storage** for document storage and workflow triggers
+  - **Azure Language Service** for additional NLP capabilities
+  - **Azure Document Intelligence** for PDF document extraction
+
+### 🏗️ Infrastructure Summary
+
+The solution is deployed entirely within a single **Azure Resource Group** and uses the following core infrastructure:
+
+- **Azure Container Apps Environment**
+- **Azure OpenAI Service**
+- **Azure Database for PostgreSQL Flexible Server**
+- **Azure Document Intelligence**
+- **Azure Blob Storage**
+- **Azure App Configuration**
+- **Azure Language Service**
+- **Bicep Templates**
+
+## 🚀 Solution Accelerator Deployment
+
+### 🧰 Prerequisites
+
+The following are prerequisites for deploying this solution:
+
+1. [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-linux)
+2. [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
+3. An Azure account with an active subscription.
+4. [Powershell Core](https://learn.microsoft.com/powershell/scripting/install/installing-powershell?view=powershell-7.5)
+5. Appropriate roles attached to user for solution deployment (`Contributor` role and `Role Based Admin Control Administrator` role for the subscription)
+6. [Git](https://git-scm.com/)
 
 ### 🛠️ Deployment Steps
 
@@ -32,7 +109,7 @@ This solution accelerator is designed as an end-to-end example of an AI-enabled 
 Clone the repository. Once done, navigate to the repository:
 
 ```sh
-git clone https://github.com/Azure-Samples/postgres-sa-byoac.git
+git clone https://github.com/EmumbaOrg/postgres-sa-byoac.git
 cd postgres-sa-byoac
 ```
 
@@ -67,7 +144,6 @@ If you are on **Windows**, run the following command in your current terminal se
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-
 ```
 
 #### Solution Deployment
@@ -97,12 +173,11 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
         ]
       }
     })
-
     ```
 
 3. Before the `azd` workflow proceeds, checks are performed in the selected infra region and recommendations are generated on failure for following cases to ensure that the deployment is successful.
     - Azure CLI login
-    - Azure Flexible Server for PostgreSQL SKU 
+    - Azure Flexible Server for PostgreSQL SKU [we recommend avoiding burstable instances as they might result in "Illegal Instruction" error in certain regions for vector queries]
     - Azure Container Apps quota
     - azd env name
 
@@ -119,3 +194,253 @@ azd down --purge
 ```
 
 The `--purge` flag deletes all the accounts permanently.
+
+### 🛟 Troubleshooting
+
+1. The [troubleshooting guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/troubleshoot?tabs=Browser) for `azd cli`.
+2. A validation error occurs when unsupported characters, such as `_`, `#` etc. are used while initializing or creating a new environment or resources. Refer to [rules and restrictions](https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules) for naming conventions.
+3. A scope error occurs when the user does not have appropriate permissions when deploying resources through `azd` workflow. Attach `Contributor` role and `Role Based Access Control Administrator` role to user permissions before deploying the solution accelerator.
+4. When `The resource entity provisioning state is not terminal. Please wait for the provisioning state to become terminal and then retry the request` error occurs, restart the deployment using the `azd up` command.
+
+### 📝 Additional Notes
+
+- Ensure all services are running and accessible at their respective ports.
+- If you encounter issues, check the logs for each service and verify your environment variables.
+- For troubleshooting Azure deployments, refer to the [Azure Developer CLI troubleshooting guide](https://learn.microsoft.com/azure/developer/azure-developer-cli/troubleshoot).
+- PostgreSQL extensions (pgvector, Apache AGE, DiskANN, azure_ai) are automatically configured during deployment.
+
+## 🤖 AI-Powered Document Processing Workflow
+
+PostgreSQL Solution Accelerator uses a comprehensive AI-driven workflow built on **LangChain** and **Azure AI services** to process and validate financial documents. The system handles document extraction, validation, and intelligent querying through specialized AI agents.
+
+### 🧠 Key AI Agents & Processing Components
+
+- **Document Extraction**: Uses Azure Document Intelligence to extract structured data from PDF invoices and SOWs
+- **SOW Validation Agent**: Ensures statements of work contain all required sections and proper milestone definitions
+- **Invoice Validation Agent**: Validates invoices against corresponding SOWs, checking compliance, amounts, and payment terms
+- **Financial Copilot Agent**: Provides intelligent responses to queries about vendors, documents, and financial insights
+
+These agents work together through structured workflows, providing transparency, error handling, and consistent processing of financial documents.
+
+### 🔄 Document Processing Pipeline
+
+The system processes documents through the following stages:
+
+1. **Document Upload & Storage**: Documents are uploaded to Azure Blob Storage, triggering automated processing
+2. **AI Document Extraction**: Azure Document Intelligence extracts text and structure from PDF documents
+3. **Content Structuring**: LangChain agents format extracted content into standardized JSON structures
+4. **Vector Embedding**: Document content is converted to vector embeddings using Azure OpenAI
+5. **Database Storage**: Structured data and embeddings are stored in PostgreSQL with specialized extensions
+6. **Validation Processing**: AI agents validate documents against business rules and cross-reference with related documents
+7. **Graph Relationship Building**: Apache AGE creates knowledge graphs linking documents, vendors, and milestones
+
+### 🧬 Vector Search & Semantic Capabilities
+
+The system uses **pgvector** and **pg_diskann** to enable advanced search capabilities:
+
+- Document embeddings are generated automatically using triggers on data insertion
+- Vector similarity search finds related documents and content
+- Semantic re-ranking improves search result quality using **azure_ai** extension
+- Graph queries through **Apache AGE** reveal complex document relationships
+
+> Agent prompts can be modified in [`src/api/app/prompts/`](src/api/app/prompts/) to customize validation rules, output formats, or processing logic.
+
+## 🏦 Financial Document Validation Walkthrough
+
+Experience how PostgreSQL Solution Accelerator delivers automated financial document processing and validation:
+
+- **Start the Application**: Access the frontend (the URL was output during `azd up` deployment) and explore the financial document management interface.
+
+- **Upload Financial Documents**: Upload SOWs and invoices through the document upload interface. The system automatically:
+  - Extracts content using Azure Document Intelligence
+  - Converts to structured JSON format
+  - Generates vector embeddings
+  - Stores in PostgreSQL with all extensions enabled
+
+- **Automated Validation**: Watch as AI agents automatically validate uploaded documents:
+  - **SOW Validation**: Checks for required sections, proper milestone definitions, and payment terms
+  - **Invoice Validation**: Cross-references with corresponding SOWs, validates amounts, and checks compliance
+  - **Relationship Mapping**: Creates knowledge graph connections between documents, vendors, and milestones
+
+- **View Validation Results**: Review detailed validation reports showing:
+  - Document compliance status (`[PASSED]` or `[FAILED]`)
+  - Specific discrepancies or anomalies found
+  - Line-by-line validation details
+  - Penalty calculations for late deliverables
+
+- **Financial Copilot Interaction**: Use the AI copilot to ask questions like:
+  - "What is the performance of Vendor X?"
+  - "Show me all overdue invoices"
+  - "Summarize the SOW for Project Y"
+  - "Which vendors have billing discrepancies?"
+
+- **Vector Search Capabilities**: Perform semantic searches across all financial documents to find:
+  - Similar contract terms
+  - Related vendor agreements
+  - Comparable milestone structures
+  - Historical payment patterns
+
+This walkthrough showcases how the solution delivers comprehensive, AI-powered financial document intelligence with full transparency into validation processes and document relationships.
+
+## 🧠 Intelligent Copilot Features
+
+PostgreSQL Solution Accelerator includes a powerful **Financial AI Copilot** that interprets queries about vendors, SOWs, and invoices, providing intelligent insights into financial document relationships and compliance.
+
+The copilot is equipped with comprehensive knowledge about:
+
+| Capability | Purpose |
+|------------|---------|
+| `Vendor Analysis` | Provides detailed vendor information, service types, and performance assessments |
+| `SOW Intelligence` | Analyzes statement of work details, milestones, and deliverables |
+| `Invoice Validation` | Reviews invoice accuracy, compliance, and billing discrepancies |
+| `Performance Insights` | Evaluates vendor performance based on validation results and delivery timeliness |
+
+### 🔍 Try These Copilot Queries
+
+- **Vendor Information**
+  Query: `"Tell me about Adatum Corporation"`
+  → The copilot provides vendor details, contact information, service types, and associated documents.
+
+- **SOW Analysis**
+  Query: `"What are the milestones for the Lucerne Publishing project?"`
+  → The copilot analyzes SOW structure, deliverables, and payment schedules.
+
+- **Compliance Monitoring**
+  Query: `"Which invoices have validation issues?"`
+  → The copilot reviews validation results and highlights discrepancies or compliance problems.
+
+- **Performance Assessment**
+  Query: `"How is VanArsdel Ltd performing on their current projects?"`
+  → The copilot provides performance summaries based on validation results and delivery history.
+
+### 🛰️ Advanced Search Capabilities
+
+- **Vector Similarity Search**: Find documents with similar content, terms, or structure
+- **Graph Relationship Queries**: Discover connections between vendors, projects, and financial terms
+- **Semantic Document Analysis**: Understand document intent beyond keyword matching
+- **Cross-Document Validation**: Compare and validate related financial documents automatically
+
+> ⚠️ The copilot is designed specifically for Woodgrove Bank's vendor and document management, focusing on SOWs, invoices, and vendor relationships. It provides accurate insights based on the validation results and document analysis performed by the AI agents.
+
+## 🔍 Understanding Supported Document Types and Validation Rules
+
+PostgreSQL Solution Accelerator supports intelligent processing of **financial documents** with comprehensive validation rules. To get meaningful results, it's important to understand what document types are supported and how the AI validation system works.
+
+### ✅ Supported Document Categories
+
+The system currently supports **two primary document types**:
+
+- 📄 **Statements of Work (SOWs)** - Contract documents defining project scope, milestones, and payment terms
+- 🧾 **Invoices** - Billing documents that reference SOW milestones and deliverables
+
+> ❌ Other document types (purchase orders, contracts, receipts) are not currently supported for automated processing.
+
+You can view sample documents in the [`data/sample_docs/`](data/sample_docs/) directory to understand the expected format and structure.
+
+---
+
+### 🧠 Document Processing Types and Validation
+
+PostgreSQL Solution Accelerator supports comprehensive document analysis via distinct AI agents:
+
+#### 1. 📄 SOW (Statement of Work) Validation
+
+Used for **contract document analysis**, including:
+
+- Project scope and objectives validation
+- Milestone and deliverable verification
+- Payment terms and schedule validation
+- Required section completeness check
+
+**Validation Criteria:**
+- All required sections must be present (scope, objectives, tasks, schedules, payments)
+- Project end date must be after start date
+- Milestone submission dates must be before project completion
+- Payment amounts must match deliverable values
+- Proper signatures and compliance sections required
+
+---
+
+#### 2. 🧾 Invoice Validation
+
+Used for **billing document verification**, including:
+
+- Invoice-to-SOW milestone matching
+- Amount and billing accuracy verification
+- Payment terms compliance checking
+- Late fee and penalty calculations
+
+**Validation Rules:**
+- Invoice amounts must match SOW milestone values
+- Milestone delivery dates must be on or before due dates
+- Late penalties applied according to SOW terms
+- Line items must correspond to valid SOW deliverables
+- Payment terms consistency between invoice and SOW
+
+---
+
+### ❌ Why Some Documents May Fail Validation
+
+**Invoice Example**: `"Invoice missing SOW reference number"`
+
+This might fail because:
+- **SOW Number** is missing or incorrect in the invoice
+- Referenced **milestone** doesn't exist in the corresponding SOW
+- **Amount discrepancies** between invoice and SOW
+- **Late delivery** triggering penalty calculations
+- **Payment terms** differ from the original SOW
+
+---
+
+### 🔁 Flexible Document Understanding
+
+The system supports **various document formats and layouts**:
+
+All of these are processed effectively:
+- Traditional invoice formats with line items
+- SOWs with different milestone structures  
+- Various payment term definitions (Net 30, Net 45, etc.)
+- Different penalty and compliance structures
+
+---
+
+### 📌 Document Relationship Importance
+
+The system relies on **document relationships** for comprehensive validation:
+
+If an invoice references a SOW that hasn't been processed or doesn't exist, validation may be incomplete—even if the invoice format is correct.
+
+---
+
+## 🧪 Sample Financial Scenarios
+
+Use the examples below to test how different validation processes behave:
+
+### 📄 SOW Validation Examples
+
+(*Sample statements of work for testing*)
+
+- "Adatum Corporation SOW for database modernization project"
+- "Lucerne Publishing content management system SOW"
+- "VanArsdel Ltd financial system integration SOW"
+
+### 🧾 Invoice Validation Examples
+
+(*Sample invoices that reference SOW milestones*)
+
+- "Invoice INV-AC2024-001 for Adatum Corporation milestone delivery"
+- "Invoice INV-LP2024-002 for Lucerne Publishing system deployment"
+- "Invoice INV-VL2024-003 for VanArsdel integration testing phase"
+
+### 🧠 Copilot Query Examples
+
+(*Financial intelligence queries*)
+
+- "What is the billing accuracy for Adatum Corporation?"
+- "Show me all SOWs with milestone delivery issues"
+- "Which vendors have consistent payment compliance?"
+- "Analyze the performance of the Lucerne Publishing project"
+
+---
+
+> 💡 If a document is missing required sections or has validation errors, the system provides detailed feedback about specific issues found, including dollar amounts, dates, and compliance requirements.
