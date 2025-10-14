@@ -1,5 +1,5 @@
 // src/Shell.js
-import  { useEffect,useState } from 'react';
+import  { useEffect,useState, useRef } from 'react';
 import {  Route, Routes, NavLink, useLocation } from 'react-router-dom';
 
 import { Dashboard } from './dashboard';
@@ -16,6 +16,8 @@ import SideDrawer from '../components/side-drawer/side-drawer';
 
 const Shell = ({onLogout}) => {
   const [showDrawer, setShowDrawer] = useState(false);
+  const [isNavbarCollapsed, setIsNavbarCollapsed] = useState(true);
+  const navbarRef = useRef(null);
   const location = useLocation();
 
   //const userName = "John Doe"; // Replace with actual user name
@@ -38,21 +40,31 @@ const Shell = ({onLogout}) => {
   //   };
   // }, []);
 
+  // Handle click outside navbar to close it
   useEffect(() => {
-    const navLinks = document.querySelectorAll('#sidebarMenu .nav-link');
-    const hideSidebar = () => {
-      const sidebarMenu = document.getElementById('sidebarMenu');
-      sidebarMenu.classList.remove('show');
+    const handleClickOutside = (event) => {
+      if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+        setIsNavbarCollapsed(true);
+      }
     };
-    navLinks.forEach(link => {
-      link.addEventListener('click', hideSidebar);
-    });
+
+    if (!isNavbarCollapsed) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
     return () => {
-      navLinks.forEach(link => {
-        link.removeEventListener('click', hideSidebar);
-      });
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isNavbarCollapsed]);
+
+  // Close navbar when route changes (navigation link clicked)
+  useEffect(() => {
+    setIsNavbarCollapsed(true);
+  }, [location]);
+
+  const toggleNavbar = () => {
+    setIsNavbarCollapsed(prev => !prev);
+  };
 
   const onAskAI = () =>{
     setShowDrawer(true);
@@ -63,7 +75,7 @@ const Shell = ({onLogout}) => {
  
   return (
     <>
-       <header className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top shadow-sm">
+       <header className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top shadow-sm" ref={navbarRef}>
       <div className="container-fluid px-3">
         {/* Logo and Brand */}
         <NavLink className="navbar-brand d-flex align-items-center me-4 text-decoration-none" to="/">
@@ -75,17 +87,22 @@ const Shell = ({onLogout}) => {
         <button
           className="navbar-toggler border-0"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
+          onClick={toggleNavbar}
           aria-controls="navbarNav"
-          aria-expanded="false"
+          aria-expanded={!isNavbarCollapsed}
           aria-label="Toggle navigation"
         >
-          <span className="navbar-toggler-icon"></span>
+          {isNavbarCollapsed ? (
+            <span className="navbar-toggler-icon"></span>
+          ) : (
+            <span className="navbar-toggler-cross">
+              <i className="fas fa-times"></i>
+            </span>
+          )}
         </button>
 
         {/* Navigation */}
-        <div className="collapse navbar-collapse" id="navbarNav">
+  <div className={`collapse navbar-collapse ${!isNavbarCollapsed ? 'show' : ''}`} id="navbarNav">
           <ul className="navbar-nav mx-auto">
             <li className="nav-item me-4">
             <NavLink
@@ -144,19 +161,19 @@ const Shell = ({onLogout}) => {
         
           </ul>
 
-          {/* Right side - Sign out */}
+          {/* Right side - Ask AI and Sign out */}
           <div className="navbar-nav">
-          <a
-                className="nav-link d-flex align-items-center gap-2 p-2 text-primary fw-bold bordered-button"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  onAskAI()
-                }}
-              >
-                <i className="fa-solid fa-wand-magic-sparkles"></i>
-                <span>Ask AI</span>
-              </a>
+            <a
+              className="nav-link d-flex align-items-center gap-2 p-2 text-primary fw-bold bordered-button d-none d-lg-flex me-2"
+              href="#"
+              onClick={(e) => {
+                e.preventDefault()
+                onAskAI()
+              }}
+            >
+              <i className="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Ask AI</span>
+            </a>
             <a
               className="nav-link text-primary fw-bold px-3 py-2 transition-all"
               href="#"
@@ -165,6 +182,7 @@ const Shell = ({onLogout}) => {
                 onLogout()
               }}
             >
+              <i className="fas fa-sign-out-alt me-2"></i>
               Sign out
             </a>
           </div>
@@ -249,6 +267,20 @@ const Shell = ({onLogout}) => {
           </main>
         </div>
       </div>
+      
+      {/* Floating Ask AI Button - Only for small screens */}
+      <button
+        className="floating-ai-button d-lg-none"
+        onClick={(e) => {
+          e.preventDefault()
+          onAskAI()
+        }}
+        title="Ask AI"
+      >
+        <i className="fa-solid fa-wand-magic-sparkles"></i>
+        <span className="ai-button-text">Ask AI</span>
+      </button>
+      
       {showDrawer &&
       <SideDrawer handleCloseAIdrawer={handleCloseAIdrawer} showDrawer={showDrawer}/>
       }
