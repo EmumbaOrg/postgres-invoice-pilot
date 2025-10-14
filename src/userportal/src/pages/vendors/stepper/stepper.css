@@ -33,10 +33,97 @@
     height: 100px;
     background-color: rgb(225, 225, 227);
     z-index: 1;
+}
 
+.connecting-line-completed {
+    background-color: rgba(55, 131, 59, 1);
+}
+
+.step-circle {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    z-index: 2;
+    position: relative;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-circle-inactive {
+    background-color: #ffffff;
+    border: 2px solid #e1e1e3;
+}
+
+.step-circle-active {
+    background-color: #2979ff;
+    border: none;
+}
+
+.step-circle-completed {
+    background-color: rgba(55, 131, 59, 1);
+    border: none;
+}
+
+.step-title {
+    margin-bottom: 4px;
+    display: block;
+    line-height: 1.2;
+}
+
+.step-title-inactive {
+    font-size: 16px;
+    font-weight: 700;
+    color: #787885;
+}
+
+.step-title-active {
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(41, 42, 49, 1);
+}
+
+.step-title-completed {
+    font-size: 16px;
+    font-weight: 700;
+    color: #787885;
+}
+
+.step-subtitle {
+    font-weight: 400;
+    font-size: 14px;
+    color: rgba(120, 120, 133, 1);
+    display: block;
+    line-height: 1.2;
+}
+
+.step-number {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.step-number-active {
+    color: #ffffff;
+}
+
+.step-number-inactive {
+    color: #9696a0;
+}
+
+.step-checkmark {
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: bold;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 .styled-button{
     color: #292A31 !important;
     font-weight: bold !important;
     font-size: 20px !important;
-  }
+}
