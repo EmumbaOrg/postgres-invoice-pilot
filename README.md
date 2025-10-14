@@ -11,13 +11,12 @@ Explore how intelligent AI agents handle document extraction, validation, semant
 > <http://aka.ms/pg-byoac-docs/>
 
 ## 🧭 Quick Navigation
-
 - [App Scenario](#app-scenario-ai-powered-financial-document-intelligence)
 - [Architecture Overview](#architecture-overview)
 - [Solution Accelerator Deployment](#-solution-accelerator-deployment)
 - [AI-Powered Document Processing Workflow](#-ai-powered-document-processing-workflow)
-- [Financial Document Validation Walkthrough](#-financial-document-validation-walkthrough)
-- [Intelligent Copilot Features](#-intelligent-copilot-features)
+- [Invoice Pilot Walkthrough](#-invoice-pilot-walkthrough)
+- [Chatbot Features](#-chatbot-features)
 - [Understanding Supported Document Types](#-understanding-supported-document-types-and-validation-rules)
 
 ## App Scenario: AI-Powered Financial Document Intelligence
@@ -31,14 +30,17 @@ Built on **LangChain** and **Azure AI services**, the app leverages:
 - **Apache AGE** to model document relationships as knowledge graphs
 - **Azure Document Intelligence** for structured document extraction
 
-The platform also features an **AI Financial Copilot**, providing real-time insights into vendor performance, SOW compliance, and invoice validation—helping financial teams understand document accuracy and vendor relationships.
+The platform also features an **AI Financial Chatbot**, providing real-time insights into vendor performance, SOW compliance, and invoice validation—helping financial teams understand document accuracy and vendor relationships.
 
 ### 🎯 Primary Use Cases
 
-1. **Automated Document Validation**
+1. **Automated Document Text Extraction** 
+   Leverages Azure Document Intelligence to automatically extract and structure text from uploaded PDF documents into machine-readable formats for AI analysis.
+
+2. **Automated Document Validation**
    An AI-powered workflow built using `LangChain` agents validates invoices against statements of work, checking compliance, billing accuracy, and payment terms in real time.
 
-2. **Intelligent Financial Copilot**
+3. **Financial Chatbot**
    A smart assistant that answers questions about vendors, SOWs, and invoices using vector search and semantic understanding to provide contextual financial insights.
 
 Using a curated financial dataset (SOWs, invoices, vendor profiles), the platform enables:
@@ -46,7 +48,7 @@ Using a curated financial dataset (SOWs, invoices, vendor profiles), the platfor
 - 📄 **Automated document extraction** from PDFs using Azure Document Intelligence
 - 🔍 **Semantic document search** with vector embeddings
 - ✅ **AI-driven validation** using LangChain agents
-- 🧠 **Financial insights** via intelligent copilot queries
+- 🧠 **Financial insights** via chatbot queries
 - 📊 **Compliance monitoring** through automated SOW-invoice matching
 
 The result is an intelligent and automated financial document processing system where AI agents dynamically interpret, validate, and analyze financial documents—whether it's checking invoice accuracy, analyzing vendor performance, or ensuring SOW compliance.
@@ -61,7 +63,7 @@ The following image shows the high-level architecture of the solution, highlight
 
 - **Frontend**:
   - React (SPA) with TypeScript hosted on **Azure Container Apps**
-  - Includes document upload, validation results, and financial copilot interface
+  - Includes document upload, validation results, and financial chatbot interface
 
 - **Backend**:
   - **FastAPI** for API orchestration and document processing logic
@@ -70,8 +72,6 @@ The following image shows the high-level architecture of the solution, highlight
   - **Apache AGE Extension** for graph-based document relationships
   - **pg_diskann Extension** for high-performance vector search
   - **azure_ai Extension** for in-database AI operations
-
-- **Document Processing**:
   - **Azure Blob Storage** for document storage and workflow triggers
   - **Azure Language Service** for additional NLP capabilities
   - **Azure Document Intelligence** for PDF document extraction
@@ -218,7 +218,7 @@ PostgreSQL Solution Accelerator uses a comprehensive AI-driven workflow built on
 - **Document Extraction**: Uses Azure Document Intelligence to extract structured data from PDF invoices and SOWs
 - **SOW Validation Agent**: Ensures statements of work contain all required sections and proper milestone definitions
 - **Invoice Validation Agent**: Validates invoices against corresponding SOWs, checking compliance, amounts, and payment terms
-- **Financial Copilot Agent**: Provides intelligent responses to queries about vendors, documents, and financial insights
+- **Chatbot**: Provides intelligent responses to queries about vendors, documents, and financial insights
 
 These agents work together through structured workflows, providing transparency, error handling, and consistent processing of financial documents.
 
@@ -236,7 +236,7 @@ The system processes documents through the following stages:
 
 ### 🧬 Vector Search & Semantic Capabilities
 
-The system uses **pgvector** and **pg_diskann** to enable advanced search capabilities:
+The system uses **pg_diskann** to enable advanced search capabilities:
 
 - Document embeddings are generated automatically using triggers on data insertion
 - Vector similarity search finds related documents and content
@@ -245,82 +245,122 @@ The system uses **pgvector** and **pg_diskann** to enable advanced search capabi
 
 > Agent prompts can be modified in [`src/api/app/prompts/`](src/api/app/prompts/) to customize validation rules, output formats, or processing logic.
 
-## 🏦 Financial Document Validation Walkthrough
+## 🏦 Invoice Pilot Walkthrough
 
-Experience how PostgreSQL Solution Accelerator delivers automated financial document processing and validation:
+Experience how Invoice Pilot (PostgreSQL Solution Accelerator) delivers automated financial document processing and validation:
 
-- **Start the Application**: Access the frontend (the URL was output during `azd up` deployment) and explore the financial document management interface.
+### 1. Access the Application Interface
 
-- **Upload Financial Documents**: Upload SOWs and invoices through the document upload interface. The system automatically:
-  - Extracts content using Azure Document Intelligence
-  - Converts to structured JSON format
-  - Generates vector embeddings
-  - Stores in PostgreSQL with all extensions enabled
+Start by accessing the frontend application using the URL that was output during the `azd up` deployment. This will open the financial document management interface where you can explore all the platform's capabilities.
 
-- **Automated Validation**: Watch as AI agents automatically validate uploaded documents:
-  - **SOW Validation**: Checks for required sections, proper milestone definitions, and payment terms
-  - **Invoice Validation**: Cross-references with corresponding SOWs, validates amounts, and checks compliance
-  - **Relationship Mapping**: Creates knowledge graph connections between documents, vendors, and milestones
+### 2. Navigate to the Main Dashboard
 
-- **View Validation Results**: Review detailed validation reports showing:
-  - Document compliance status (`[PASSED]` or `[FAILED]`)
-  - Specific discrepancies or anomalies found
-  - Line-by-line validation details
-  - Penalty calculations for late deliverables
+Once the application loads, you'll see the main dashboard which provides an overview of your financial documents, validation statistics, and quick access to key features.
 
-- **Financial Copilot Interaction**: Use the AI copilot to ask questions like:
-  - "What is the performance of Vendor X?"
-  - "Show me all overdue invoices"
-  - "Summarize the SOW for Project Y"
-  - "Which vendors have billing discrepancies?"
+    ![Main dashboard overview](data/assets/images/dashboard-interface.png)
 
-- **Vector Search Capabilities**: Perform semantic searches across all financial documents to find:
-  - Similar contract terms
-  - Related vendor agreements
-  - Comparable milestone structures
-  - Historical payment patterns
+### 3. Access the SOW Management Tab
+
+Click on the "SOW" tab in the navigation menu to access the Statement of Work management section where you can view existing SOWs and add new ones.
+
+![SOW tab navigation](data/assets/images/sow-list-page.png)
+
+### 4. Initiate New SOW Creation
+
+Click on the "Add new SOW" button to start the process of uploading and processing a new Statement of Work document.
+
+![Add new SOW button](data/assets/images/sow-list-page.png)
+
+### 5. Upload SOW Document
+
+Select the appropriate vendor from the dropdown menu and select your SOW document. The system supports PDF files. Click on "Analyze Document" button, to start analysis and validation pipeline.
+
+![SOW document upload interface](data/assets/images/sow-upload-interface.png)
+
+### 6. Monitor Analysis and Validation Process
+
+Wait for the AI-powered analysis and validation process to complete. You'll see progress indicators as the system extracts content, generates embeddings, and runs validation rules against the document.
+
+![Analysis progress indicator](data/assets/images/analysis-progress.png)
+
+### 7. Review Validation Results
+
+Once processing is complete, a pop-up will display the SOW validation results showing validation status, any issues found, and detailed feedback. After reviewing the results, click the "View SOW" button to access the detailed document view.
+
+![Validation results popup](data/assets/images/validation-results-popup.png)
+
+### 8. Explore Extracted SOW Information
+
+The SOW detail page displays comprehensive information extracted from the document including project name, summary, milestones, payment terms, and deliverables. You can also view the complete validation history for this document.
+
+![SOW detail page](data/assets/images/sow-detail-page.png)
+
+### 9. Trigger Manual Re-validation
+
+If needed, you can click the "Run Manual Validation" button to trigger the validation process again. This is useful when you want to recheck compliance or when validation rules have been updated.
+
+![Manual validation trigger](data/assets/images/sow-detail-page.png)
 
 This walkthrough showcases how the solution delivers comprehensive, AI-powered financial document intelligence with full transparency into validation processes and document relationships.
 
-## 🧠 Intelligent Copilot Features
+> 💡 You can follow similar steps in the invoices management tab to configure the invoice validation pipeline and view its validation results. The process and interface patterns are consistent across both payment and invoice validation workflows.
 
-PostgreSQL Solution Accelerator includes a powerful **Financial AI Copilot** that interprets queries about vendors, SOWs, and invoices, providing intelligent insights into financial document relationships and compliance.
 
-The copilot is equipped with comprehensive knowledge about:
+## 🧠 Chatbot Features
+
+PostgreSQL Solution Accelerator includes a powerful **Financial AI Chatbot** that interprets queries about vendors, SOWs, and invoices, providing intelligent insights into financial document relationships and compliance.
+
+The chatbot is equipped with comprehensive knowledge about:
 
 | Capability | Purpose |
 |------------|---------|
-| `Vendor Analysis` | Provides detailed vendor information, service types, and performance assessments |
-| `SOW Intelligence` | Analyzes statement of work details, milestones, and deliverables |
+| `SOW Validation` | Analyzes statement of work details, milestones, and deliverables |
 | `Invoice Validation` | Reviews invoice accuracy, compliance, and billing discrepancies |
 | `Performance Insights` | Evaluates vendor performance based on validation results and delivery timeliness |
 
-### 🔍 Try These Copilot Queries
+
+### 🤖 Accessing the Financial AI Chatbot
+
+1. **Dashboard Chat Interface**
+   
+   From the main dashboard, you can quickly start a conversation with the AI Financial Assistant in two ways:
+   - Type your question in the "Search using AI" field and click the send button to navigate to the full chat interface
+   - Click the "Ask AI" button in the top-right corner to open a convenient side drawer for quick queries without leaving the current page
+
+   ![Dashboard search interface](data/assets/images/dashboard-interface.png)
+
+   ![Dashboard AI search interface](data/assets/images/dashboard-ai-search.png)
+
+2. **Full Chat Experience**
+   
+   The dedicated chat page provides a comprehensive conversational experience with:
+   - **Chat History Panel**: View and resume previous conversations from the left sidebar
+   - **Interactive Chat Interface**: Full-featured messaging with the AI assistant in the main area
+   - **Context-Aware Responses**: The AI maintains conversation context and can reference previous queries
+
+   ![Full chat interface with history panel](data/assets/images/chat-interface-full.png)
+
+
+### 🔍 Try These Chatbot Queries
 
 - **Vendor Information**
   Query: `"Tell me about Adatum Corporation"`
-  → The copilot provides vendor details, contact information, service types, and associated documents.
+  → The chatbot provides vendor details, contact information, service types, and associated documents.
 
 - **SOW Analysis**
   Query: `"What are the milestones for the Lucerne Publishing project?"`
-  → The copilot analyzes SOW structure, deliverables, and payment schedules.
+  → The chatbot analyzes SOW structure, deliverables, and payment schedules.
 
 - **Compliance Monitoring**
   Query: `"Which invoices have validation issues?"`
-  → The copilot reviews validation results and highlights discrepancies or compliance problems.
+  → The chatbot reviews validation results and highlights discrepancies or compliance problems.
 
 - **Performance Assessment**
-  Query: `"How is VanArsdel Ltd performing on their current projects?"`
-  → The copilot provides performance summaries based on validation results and delivery history.
+  Query: `"Tell me about the accuracy of unpaid invoices from Adatum."`
+  → The chatbot provides summary on the accuracy of unpaid invoices from Adatum.
 
-### 🛰️ Advanced Search Capabilities
 
-- **Vector Similarity Search**: Find documents with similar content, terms, or structure
-- **Graph Relationship Queries**: Discover connections between vendors, projects, and financial terms
-- **Semantic Document Analysis**: Understand document intent beyond keyword matching
-- **Cross-Document Validation**: Compare and validate related financial documents automatically
-
-> ⚠️ The copilot is designed specifically for Woodgrove Bank's vendor and document management, focusing on SOWs, invoices, and vendor relationships. It provides accurate insights based on the validation results and document analysis performed by the AI agents.
+> ⚠️ The chatbot is designed specifically for Woodgrove Bank's vendor and document management, focusing on SOWs, invoices, and vendor relationships. It provides accurate insights based on the validation results and document analysis performed by the AI agents.
 
 ## 🔍 Understanding Supported Document Types and Validation Rules
 
@@ -392,18 +432,6 @@ This might fail because:
 
 ---
 
-### 🔁 Flexible Document Understanding
-
-The system supports **various document formats and layouts**:
-
-All of these are processed effectively:
-- Traditional invoice formats with line items
-- SOWs with different milestone structures  
-- Various payment term definitions (Net 30, Net 45, etc.)
-- Different penalty and compliance structures
-
----
-
 ### 📌 Document Relationship Importance
 
 The system relies on **document relationships** for comprehensive validation:
@@ -428,18 +456,18 @@ Use the examples below to test how different validation processes behave:
 
 (*Sample invoices that reference SOW milestones*)
 
-- "Invoice INV-AC2024-001 for Adatum Corporation milestone delivery"
-- "Invoice INV-LP2024-002 for Lucerne Publishing system deployment"
-- "Invoice INV-VL2024-003 for VanArsdel integration testing phase"
+- "Invoice INV-AC2024-001"
+- "Invoice INV-LP2024-002"
+- "Invoice INV-VL2024-003"
 
-### 🧠 Copilot Query Examples
+### 🧠 Chatbot Query Examples
 
 (*Financial intelligence queries*)
 
-- "What is the billing accuracy for Adatum Corporation?"
+- "What IT vendors are we working with?"
 - "Show me all SOWs with milestone delivery issues"
-- "Which vendors have consistent payment compliance?"
-- "Analyze the performance of the Lucerne Publishing project"
+- "What vendor has had the most invoicing issues?"
+- "Tell me about the accuracy of unpaid invoices from Adatum."
 
 ---
 
