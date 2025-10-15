@@ -82,20 +82,24 @@ async def analyze_invoice(
         # Analyze the document
         document_data = await storage_service.download_blob(documentName)
         analysis_result = await doc_intelligence_service.extract_text_from_invoice_document(document_data)
-        
+
         full_text = analysis_result.full_text
 
         text_chunks = doc_intelligence_service.semantic_chunking(full_text)
 
-        # format text into json object
+        # format information into json object
         metadata = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_invoice_text_to_json"))
-
-        # Incorporate extracted field values, or use default if not found
-        invoice_number = metadata['Invoice_Number'] or f"INV-{datetime.now().strftime('%Y-%m%d')}"
-        amount = metadata['Total_Amount'] or 0
-        invoice_date = datetime.strptime(metadata['Invoice_Date'], '%Y-%m-%d').date() or datetime.now().date()
+        
+        # extract required fields from metadata and then remove them from metadata
+        invoice_number = str(metadata['Invoice_Number']) or f"INV-{datetime.now().strftime('%Y-%m%d')}"
+        amount = metadata['Total_Amount'] if metadata['Total_Amount']!="" else 0
+        invoice_date = datetime.strptime(metadata['Invoice_Date'], '%Y-%m-%d').date() if metadata['Invoice_Date']!="" else datetime.now().date()
         payment_status = "Pending"
-        sow_number = metadata['SOW_Number'] or None
+        sow_number = metadata['SOW_Number'] if metadata['SOW_Number']!="" else None
+        project_deliverables = metadata.get('Project_Deliverables', None)
+        # remove these fields from metadata
+        for key in ['Invoice_Number', 'Total_Amount', 'Invoice_Date', 'SOW_Number', 'Project_Deliverables']:
+            metadata.pop(key, None)
 
 
         # Get Invoice ID if Invoice Number already exists for this Vendor
@@ -111,14 +115,16 @@ async def analyze_invoice(
             async with pool.acquire() as conn:
                 sow_id = await conn.fetchval('SELECT id FROM sows WHERE vendor_id = $1 AND number = $2;', vendor_id, sow_number)
                 if sow_id is None:
-                    # Sow not found, so grab the ID of the most recent SOW
-                    sow_id = await conn.fetchval('SELECT id FROM sows WHERE vendor_id = $1 ORDER BY id DESC', vendor_id)
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f'SOW with number "{sow_number}" for vendor {vendor_id} not found.'
+                    )
 
 
         # Create invoice in the database
         async with pool.acquire() as conn:
             if (invoice_id is None):
-                # Create new SOW
+                # Create new invoice
                 row = await conn.fetchrow('''
                 INSERT INTO invoices (vendor_id, sow_id, "number", amount, invoice_date, payment_status, document, metadata, content)
                 VALUES (
@@ -149,9 +155,17 @@ async def analyze_invoice(
             # Save Invoice Line Items
             await conn.execute('''DELETE FROM invoice_line_items WHERE invoice_id = $1''', invoice.id)
             for line_item in analysis_result.line_items:
+                
+                # get milestone name of this line item 
+                milestone_of_line_item = ""
+                for deliverable in project_deliverables:
+                    if deliverable.get("Deliverable")==line_item.description:
+                        milestone_of_line_item = deliverable.get("Milestone_Name")
+                        break
+
                 await conn.execute('''
-                    INSERT INTO invoice_line_items (invoice_id, description, amount, status, due_date) VALUES ($1, $2, $3, $4, $5);
-                ''', invoice.id, line_item.description, line_item.amount, line_item.status, line_item.due_date)
+                    INSERT INTO invoice_line_items (invoice_id, milestone_of_line_item, description, amount, status, due_date) VALUES ($1, $2, $3, $4, $5, $6);
+                ''', invoice.id, milestone_of_line_item, line_item.description, line_item.amount, line_item.status, line_item.due_date)
 
         # Log the activity
         await activity_log_service.log_activity(
@@ -162,6 +176,9 @@ async def analyze_invoice(
         )
         
         return InvoiceAnalyzeResult(hasError=False, error=None, message="Invoice analyzed successfully.", invoice=invoice)
+
+    except HTTPException:
+        raise
 
     except Exception as e:
         print(e) # output error to console

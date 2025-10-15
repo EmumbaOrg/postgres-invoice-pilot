@@ -21,6 +21,7 @@ const VendorEdit = () => {
     const [showDeleteSowModal, setShowDeleteSowModal] = useState(false);
     const [sowToDelete, setSowToDelete] = useState(null);
     const [reloadSows, setReloadSows] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     
     useEffect(() => {
         // Fetch SOW data when component mounts
@@ -115,15 +116,21 @@ const VendorEdit = () => {
   );
 
   const handleDeleteSow = async () => {
+      setIsDeleting(true);
       try {
         await api.sows.delete(sowToDelete);
         setSuccess('SOW deleted successfully!');
         setError(null);
         setShowDeleteSowModal(false);
+        setSowToDelete(null);
         setReloadSows(true);
       } catch (err) {
         setSuccess(null);
-        setError(err.message);
+        setError(`Error deleting SOW: ${err.message}`);
+        setShowDeleteSowModal(false);
+        setSowToDelete(null);
+      } finally {
+        setIsDeleting(false);
       }
     }
       
@@ -245,6 +252,7 @@ const VendorEdit = () => {
         handleConfirm={handleDeleteSow}
         title="Delete SOW"
         message="Are you sure you want to delete this SOW?"
+        isLoading={isDeleting}
       />
     </div>
   );

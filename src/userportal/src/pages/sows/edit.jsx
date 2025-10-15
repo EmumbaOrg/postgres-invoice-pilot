@@ -39,6 +39,7 @@ const SOWEdit = () => {
   const [milestoneToDelete, setMilestoneToDelete] = useState(null);
   const [reloadMilestones, setReloadMilestones] = useState(false);
 const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
+  const [isDeletingMilestone, setIsDeletingMilestone] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -141,15 +142,21 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
   };
 
   const handleDeleteMilestone = async () => {
+    setIsDeletingMilestone(true);
     try {
       await api.milestones.delete(milestoneToDelete);
       setSuccess('Milestone deleted successfully!');
       setError(null);
       setShowDeleteMilestoneModal(false);
+      setMilestoneToDelete(null);
       setReloadMilestones(true);
     } catch (err) {
       setSuccess(null);
-      setError(err.message);
+      setError(`Error deleting milestone: ${err.message}`);
+      setShowDeleteMilestoneModal(false);
+      setMilestoneToDelete(null);
+    } finally {
+      setIsDeletingMilestone(false);
     }
   };
 
@@ -449,6 +456,7 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
         handleConfirm={handleDeleteMilestone}
         title="Delete Milestone"
         message="Are you sure you want to delete this milestone?"
+        isLoading={isDeletingMilestone}
       />
     <hr />
     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">

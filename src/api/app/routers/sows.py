@@ -54,7 +54,14 @@ async def get_by_id(sow_id: int, pool = Depends(get_db_connection_pool)):
         row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', sow_id)
         if row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {sow_id} was not found.')
-        sow = parse_obj_as(Sow, dict(row))
+        
+        sow_dict = dict(row)
+        # remove unnecessary trailing and leading characters if present
+        if sow_dict.get('summary').startswith('{"') and sow_dict.get('summary').endswith('"}'):
+            sow_dict['summary'] = sow_dict.get('summary', '')[2:-2]
+        
+        sow = parse_obj_as(Sow, sow_dict)
+ 
     return sow
 
 
@@ -97,13 +104,18 @@ async def analyze_sow(
         # format text into json object
         metadata = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_sow_text_to_json"))
 
-        # extract required fields from metadata json
-        start_date = datetime.strptime(metadata['Effective_Date'], '%Y-%m-%d').date() if metadata.get('Effective_Date') else start_date
-        end_date = datetime.strptime(metadata['Project_Completion_Date'], '%Y-%m-%d').date() if metadata.get('Project_Completion_Date') else end_date
-        budget = round(float(metadata['Total_Amount']),2) if metadata.get('Total_Amount') else budget
+        # extract required fields from metadata json and then remove them from metadata
+        sow_number = str(metadata['SOW_Number'] or sow_number)
+        start_date = datetime.strptime(metadata['Effective_Date'], '%Y-%m-%d').date() if metadata.get('Effective_Date')!="" else start_date
+        end_date = datetime.strptime(metadata['Project_Completion_Date'], '%Y-%m-%d').date() if metadata.get('Project_Completion_Date')!="" else end_date
+        budget = round(float(metadata['Total_Amount']),2) if metadata.get('Total_Amount')!="" else budget
+        project_deliverables = metadata.get('Project_Deliverables', [])
+
+        # Remove extracted fields from metadata
+        for field in ['SOW_Number', 'Effective_Date', 'Project_Completion_Date', 'Total_Amount', 'Project_Deliverables']:
+            metadata.pop(field, None)
 
         # Get SOW ID from metadata
-        sow_number = metadata['SOW_Number'] or None
         sow_id = None # metadata['sow_id']
         if sow_number is not None:
             async with pool.acquire() as conn:
@@ -139,7 +151,7 @@ async def analyze_sow(
             # Insert milestones and deliverables into the database
             try:
                 milestone_ids = {}
-                for d in metadata.get('Project_Deliverables', []):
+                for d in project_deliverables:
                     milestone_name = d['Milestone_Name']
                     # Check if milestone exists
                     milestone_row = await conn.fetchrow(
@@ -167,7 +179,7 @@ async def analyze_sow(
                     milestone_ids[milestone_name] = milestone_id
 
                     # Check if deliverable exists
-                    description = d.get('Deliverables', '')
+                    description = d.get('Deliverable', '')
                     deliverable_row = await conn.fetchrow(
                         'SELECT id FROM deliverables WHERE milestone_id = $1 AND description = $2;',
                         milestone_id, description

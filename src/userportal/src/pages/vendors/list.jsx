@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/Api';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, Alert } from 'react-bootstrap';
 import ConfirmModal from '../../components/ConfirmModal'; 
 import PagedTable from '../../components/PagedTable';
 import SearchInput from '../../components/SearchInput';
@@ -13,6 +13,7 @@ const VendorList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [vendorToDelete, setVendorToDelete] = useState(null);
   const [reload, setReload] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Debounced search functionality
   const handleSearch = useCallback((debouncedSearchTerm) => {
@@ -24,15 +25,21 @@ const VendorList = () => {
   const handleDelete = async () => {
     if (!vendorToDelete) return;
 
+    setIsDeleting(true);
     try {
       await api.vendors.delete(vendorToDelete);
       setSuccess('Vendor deleted successfully!');
       setError(null);
       setShowDeleteModal(false);
+      setVendorToDelete(null);
       setReload(true); // Refresh the data
     } catch (err) {
       setSuccess(null);
-      setError(err.message);
+      setError(`Error deleting vendor: ${err.message}`);
+      setShowDeleteModal(false);
+      setVendorToDelete(null);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -125,6 +132,18 @@ const VendorList = () => {
           placeholder="Search by vendor name..."
           id="vendor-search"
         />
+
+       {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+         <i className="fa-solid fa-circle-exclamation" variant="danger"></i> {error}
+        </Alert>
+      )}
+       {success && (
+        <Alert variant="success" dismissible onClose={() => setSuccess(null)}>
+         <i className="fa-solid fa-circle-check" variant="success"></i> {success}
+        </Alert>
+      )}
+
       <PagedTable columns={columns} fetchData={fetchVendors} reload={reload} key={debouncedSearchTerm} noDataMesssage={'No vendors have been added yet.'} noDataDescription={'Click on "New Vendor" to begin adding vendors.'} />
 
       <ConfirmModal
@@ -132,6 +151,7 @@ const VendorList = () => {
         handleClose={() => setShowDeleteModal(false)}
         handleConfirm={handleDelete}
         message="Are you sure you want to delete this Vendor?"
+        isLoading={isDeleting}
       />
     </div>
   );

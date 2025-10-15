@@ -3,9 +3,9 @@ from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import StructuredTool
 from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_prompt_service
-from app.models import Deliverable, InvoiceLineItem, InvoiceValidationResult, ListResponse, SowValidationResult, Vendor
+from app.models import InvoiceValidationResult, ListResponse, SowValidationResult
 from fastapi import APIRouter, Depends, HTTPException
-from app.models.validation import InvoiceModel, SowModel, MilestoneModel
+from datetime import timedelta
 from pydantic import parse_obj_as
 import json
 
@@ -88,7 +88,8 @@ async def validate_invoice(id: int):
         if invoice_row is None:
             raise HTTPException(status_code=404, detail=f'An invoice with an id of {id} was not found.')
         invoice = dict(invoice_row)
-        invoice_metadata = invoice.get("metadata")
+        invoice_metadata_dict = json.loads(invoice.get("metadata"))
+        invoice_metadata_dict_updated = await update_metadata_invoice(invoice, invoice_metadata_dict, conn)
 
         # Get the vendor name
         vendor_row = await conn.fetchrow('SELECT * FROM vendors WHERE id = $1;', invoice.get("vendor_id"))
@@ -97,11 +98,12 @@ async def validate_invoice(id: int):
         # Get the SOW
         sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', invoice.get("sow_id"))
         sow = dict(sow_row)
-        sow_metadata = sow.get("metadata")
+        sow_metadata_dict = json.loads(sow.get("metadata"))
+        sow_metadata_dict_updated = await(update_metadata_sow(sow, sow_metadata_dict, conn))
 
         # convert date to text format as it is easier for LLM to understand
-        invoice_metadata = await format_invoice_dates(invoice_metadata)
-        sow_metadata = await format_sow_dates(sow_metadata)
+        invoice_metadata = await format_invoice_dates(invoice_metadata_dict_updated)
+        sow_metadata = await format_sow_dates(sow_metadata_dict_updated)
 
         combined_information = f"""Vendor Information: {json.dumps(vendor)}\n\nSOW Information: {json.dumps(sow_metadata)}\n\nInvoice Information: {json.dumps(invoice_metadata)}\n\n"""
 
@@ -171,41 +173,49 @@ async def validate_sow(id: int):
 
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
-        row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
-        if row is None:
+        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
+        if sow_row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
 
-        sow_dict = dict(row)
+        sow_dict = dict(sow_row)
 
-        metadata = sow_dict.get("metadata")
+        sow_metadata_dict = json.loads(sow_dict.get("metadata"))
 
-        # convert date to text format as it is easier for LLM to understand
-        sow_dict = await format_sow_dates(metadata)            
+        # Add more information regarding the SOW, its Milestones and Deliverables to the metadata
+        sow_metadata_dict_updated = await(update_metadata_sow(sow_dict, sow_metadata_dict, conn))
 
-    return sow_dict
+        # convert dates to text format as it becomes easier for LLM to understand
+        sow_dict = await format_sow_dates(sow_metadata_dict_updated)            
+
+        # get vendor information
+        vendor_row = await conn.fetchrow('SELECT name,contact_name,contact_email FROM vendors WHERE id = $1;', sow_row.get("vendor_id"))
+        vendor = dict(vendor_row)
+        
+    return f"sow information: {json.dumps(sow_dict)}\n\nvendor information: {json.dumps(vendor)}"
 
 async def format_sow_dates(metadata):
     """Formats sow metadata dates to a textual format."""
     
     try:
 
-        metadata_dict = json.loads(metadata)
+        if isinstance(metadata, str):
+            metadata = json.loads(metadata)
 
-        metadata_dict['Effective_Date'] = to_textual_date(metadata_dict.get('Effective_Date'))
-        metadata_dict['Project_Completion_Date'] = to_textual_date(metadata_dict.get('Project_Completion_Date'))
+        metadata['Effective_Date'] = to_textual_date(metadata.get('Effective_Date'))
+        metadata['Project_Completion_Date'] = to_textual_date(metadata.get('Project_Completion_Date'))
 
         # Format Schedules dates
-        if "Schedules" in metadata_dict:
-            for schedule in metadata_dict["Schedules"]:
+        if "Schedules" in metadata:
+            for schedule in metadata["Schedules"]:
                 schedule["Milestone_Completion_Due_Date"] = to_textual_date(schedule.get("Milestone_Completion_Due_Date"))
 
         # Format Project_Deliverables dates
-        if "Project_Deliverables" in metadata_dict:
-            for deliverable in metadata_dict["Project_Deliverables"]:
+        if "Project_Deliverables" in metadata:
+            for deliverable in metadata["Project_Deliverables"]:
                 date_str = deliverable.get("Milestone_Payment_Due_Date")
                 deliverable["Milestone_Payment_Due_Date"] = to_textual_date(date_str)
 
-        return metadata_dict
+        return metadata
 
     except Exception as e:
         print(f"Error formatting sow dates: {e}. Try again")
@@ -217,15 +227,17 @@ async def format_invoice_dates(metadata):
     
     try:
 
-        metadata_dict = json.loads(metadata)
-        metadata_dict['Invoice_Date'] = to_textual_date(metadata_dict.get('Invoice_Date'))
+        if isinstance(metadata, str):
+            metadata = json.loads(metadata)
+        
+        metadata['Invoice_Date'] = to_textual_date(metadata.get('Invoice_Date'))
 
-        if "Project_Deliverables" in metadata_dict:
-            for deliverable in metadata_dict["Project_Deliverables"]:
+        if "Project_Deliverables" in metadata:
+            for deliverable in metadata["Project_Deliverables"]:
                 date_str = deliverable.get("Milestone_Payment_Due_Date")
                 deliverable["Milestone_Payment_Due_Date"] = to_textual_date(date_str)
 
-        return metadata_dict
+        return metadata
 
     except Exception as e:
         print(f"Error formatting invoice dates: {e}. Try again")
@@ -255,3 +267,64 @@ def to_textual_date(date_str):
 
     # If parsing fails, return original string
     return date_str
+
+async def update_metadata_sow(sow_dict, metadata_dict, conn):
+    
+    """Add information from the SOW, Milestones and Deliverables to the metadata."""
+
+    # add information from SOW table
+    metadata_dict['SOW_Number'] = str(sow_dict.get('number'))
+    metadata_dict['Total_Amount'] = str(sow_dict.get('budget'))
+    metadata_dict['Effective_Date'] = sow_dict.get('start_date').isoformat()
+    metadata_dict['Project_Completion_Date'] = sow_dict.get('end_date').isoformat()
+
+    # add information from milestones and deliverables table
+    milestones_rows = await conn.fetch('SELECT * FROM milestones WHERE sow_id = $1;', sow_dict.get("id"))
+    milestones = [dict(row) for row in milestones_rows]
+    
+    Project_Deliverables = []
+
+    for milestone in milestones:
+        deliverables_rows = await conn.fetch('SELECT * FROM deliverables WHERE milestone_id = $1;', milestone.get("id"))
+        deliverables = [dict(row) for row in deliverables_rows]
+        
+        for deliverable in deliverables:
+            Project_Deliverables.append({
+                "Milestone_Name": milestone.get("name"),
+                "Deliverable": deliverable.get("description"),
+                "Amount": str(deliverable.get("amount")),
+                "Milestone_Payment_Due_Date": (deliverable.get("due_date") + timedelta(days=30)).isoformat()
+            })
+
+    metadata_dict['Project_Deliverables'] = Project_Deliverables
+
+    return metadata_dict  
+
+
+async def update_metadata_invoice(invoice_dict, metadata_dict, conn):
+    
+    """Add information from Invoice and its Line Items to the metadata."""
+    
+    metadata_dict['Invoice_Number'] = str(invoice_dict.get('number'))
+    metadata_dict['SOW_Number'] = str(await conn.fetchval('SELECT number FROM sows WHERE id = $1;', invoice_dict.get("sow_id")))
+    metadata_dict['Total_Amount'] = str(invoice_dict.get('amount'))
+    metadata_dict['Invoice_Date'] = invoice_dict.get('invoice_date').isoformat()
+
+    line_items_rows = await conn.fetch('SELECT * FROM invoice_line_items WHERE invoice_id = $1;', invoice_dict.get("id"))
+    line_items = [dict(row) for row in line_items_rows]
+    
+    Project_Deliverables = []
+
+    for line_item in line_items:
+
+        # append to Project_Deliverables
+        Project_Deliverables.append({
+            "Milestone_Name": await conn.fetchval('SELECT milestone_of_line_item FROM invoice_line_items WHERE id = $1;', line_item.get("id")),
+            "Deliverable": line_item.get("description"),
+            "Amount": str(line_item.get("amount")),
+            "Milestone_Payment_Due_Date": line_item.get("due_date").isoformat()
+        })
+
+    metadata_dict['Project_Deliverables'] = Project_Deliverables
+
+    return metadata_dict

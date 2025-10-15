@@ -5,6 +5,7 @@ import "./recent-activity.css";
 import api from "../../api/Api";
 import ActivityTile from "../activity-tile/activity-tile";
 import PdfPreviewModal from "../pdf-preview-modal/pdf-preview-modal";
+import ConfirmModal from "../ConfirmModal";
 
 export default function RecentActivity() {
   const [recentDocuments, setRecentDocuments] = useState([]);
@@ -14,6 +15,9 @@ export default function RecentActivity() {
   const [error, setError] = useState(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [selectedDocumentUrl, setSelectedDocumentUrl] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchRecentDocuments = async () => {
     try {
@@ -73,21 +77,9 @@ export default function RecentActivity() {
           break;
 
         case 'delete':
-          // Confirm deletion
-          if (window.confirm(`Are you sure you want to delete "${documentItem.blob_name}"?`)) {
-            // Delete the document from blob storage
-            await api.documents.delete(documentItem.blob_name);
-            
-            // If it's an invoice or SOW, also delete from the respective API
-            if (isInvoice && documentItem.invoice_id) {
-              await api.invoices.delete(documentItem.invoice_id);
-            } else if (isSOW && documentItem.sow_id) {
-              await api.sows.delete(documentItem.sow_id);
-            }
-            
-            // Refresh the documents list
-            await fetchRecentDocuments();
-          }
+          // Store document to delete and show confirmation modal
+          setDocumentToDelete(documentItem);
+          setShowDeleteModal(true);
           break;
 
         default:
@@ -103,6 +95,45 @@ export default function RecentActivity() {
   const handleClosePdfModal = () => {
     setShowPdfModal(false);
     setSelectedDocumentUrl(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!documentToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const documentItem = documentToDelete;
+      
+      // Determine document type based on blob_name or other properties
+      const isInvoice = documentItem.blob_name?.toLowerCase().includes('inv-') || 
+                       documentItem.blob_name?.toLowerCase().includes('invoice');
+      const isSOW = documentItem.blob_name?.toLowerCase().includes('sow') || 
+                   documentItem.blob_name?.toLowerCase().includes('statement_of_work');
+
+      // Delete the document from blob storage
+      await api.documents.delete(documentItem.blob_name);
+      
+      // If it's an invoice or SOW, also delete from the respective API
+      if (isInvoice && documentItem.invoice_id) {
+        await api.invoices.delete(documentItem.invoice_id);
+      } else if (isSOW && documentItem.sow_id) {
+        await api.sows.delete(documentItem.sow_id);
+      }
+      
+      // Refresh the documents list
+      await fetchRecentDocuments();
+      
+      // Close modal and reset state
+      setShowDeleteModal(false);
+      setDocumentToDelete(null);
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      setError(`Error deleting document: ${error.message}`);
+      setShowDeleteModal(false);
+      setDocumentToDelete(null);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -173,6 +204,16 @@ export default function RecentActivity() {
         show={showPdfModal}
         handleClose={handleClosePdfModal}
         fileUrl={selectedDocumentUrl}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        show={showDeleteModal}
+        handleClose={() => setShowDeleteModal(false)}
+        handleConfirm={handleConfirmDelete}
+        title="Delete Document"
+        message={`Are you sure you want to delete this document?\n\n"${documentToDelete?.blob_name || ''}"`}
+        isLoading={isDeleting}
       />
     </Container>
   );

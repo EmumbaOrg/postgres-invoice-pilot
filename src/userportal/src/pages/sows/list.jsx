@@ -15,6 +15,7 @@ const SOWList = () => {
   const [sowToDelete, setSowToDelete] = useState(null);
   const [reload, setReload] = useState(false);
   const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Debounced search functionality
   const handleSearch = useCallback((debouncedSearchTerm) => {
@@ -26,15 +27,21 @@ const SOWList = () => {
   const handleDelete = async () => {
     if (!sowToDelete) return;
 
+    setIsDeleting(true);
     try {
       await api.sows.delete(sowToDelete);
       setReload(true); // Refresh the data
       setError(null);
       setShowDeleteModal(false);
+      setSowToDelete(null);
       setSuccess('SOW successfully deleted!');
     } catch (err) {
       setSuccess(null);
-      setError(err.message);
+      setError(`Error deleting SOW: ${err.message}`);
+      setShowDeleteModal(false);
+      setSowToDelete(null);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -154,6 +161,7 @@ const SOWList = () => {
         handleClose={() => setShowDeleteModal(false)}
         handleConfirm={handleDelete}
         message="Are you sure you want to delete this SOW?"
+        isLoading={isDeleting}
       />
          <SOWCreateModal 
         show={showCreateSOWModal} 
