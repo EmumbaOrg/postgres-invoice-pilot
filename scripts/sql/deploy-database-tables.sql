@@ -16,6 +16,21 @@ SELECT azure_ai.set_setting('azure_cognitive.subscription_key', '${LANGUAGE_KEY}
 
 /* End Azure AI Extension Settings */
 
+-- Drop tables in reverse dependency order (child tables first, then parent tables)
+DROP TABLE IF EXISTS activity_logs CASCADE;
+DROP TABLE IF EXISTS copilot_chat_session_history CASCADE;
+DROP TABLE IF EXISTS copilot_chat_sessions CASCADE;
+DROP TABLE IF EXISTS invoice_validation_results CASCADE;
+DROP TABLE IF EXISTS invoice_line_items CASCADE;
+DROP TABLE IF EXISTS invoices CASCADE;
+DROP TABLE IF EXISTS sow_validation_results CASCADE;
+DROP TABLE IF EXISTS deliverables CASCADE;
+DROP TABLE IF EXISTS milestones CASCADE;
+DROP TABLE IF EXISTS sow_chunks CASCADE;
+DROP TABLE IF EXISTS sows CASCADE;
+DROP TABLE IF EXISTS vendors CASCADE;
+DROP TABLE IF EXISTS status CASCADE;
+
 
 /* VENDORS */
 
