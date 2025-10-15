@@ -257,49 +257,49 @@ Start by accessing the frontend application using the URL that was output during
 
 Once the application loads, you'll see the main dashboard which provides an overview of your financial documents, validation statistics, and quick access to key features.
 
-![Main dashboard overview](data/assets/images/dashboard-interface.png)
+![Main dashboard overview](docs/workshop/docs/img/dashboard-interface.png)
 
 ### 3. Access the SOW Management Tab
 
 Click on the "SOW" tab in the navigation menu to access the Statement of Work management section where you can view existing SOWs and add new ones.
 
-![SOW tab navigation](data/assets/images/sow-list-page.png)
+![SOW tab navigation](docs/workshop/docs/img/sow-list-page.png)
 
 ### 4. Initiate New SOW Creation
 
 Click on the "Add new SOW" button to start the process of uploading and processing a new Statement of Work document.
 
-![Add new SOW button](data/assets/images/sow-list-page.png)
+![Add new SOW button](docs/workshop/docs/img/sow-list-page.png)
 
 ### 5. Upload SOW Document
 
 Select the appropriate vendor from the dropdown menu and select your SOW document. The system supports PDF files. Click on "Analyze Document" button, to start analysis and validation pipeline.
 
-![SOW document upload interface](data/assets/images/sow-upload-interface.png)
+![SOW document upload interface](docs/workshop/docs/img/sow-upload-interface.png)
 
 ### 6. Monitor Analysis and Validation Process
 
 Wait for the AI-powered analysis and validation process to complete. You'll see progress indicators as the system extracts content, generates embeddings, and runs validation rules against the document.
 
-![Analysis progress indicator](data/assets/images/analysis-progress.png)
+![Analysis progress indicator](docs/workshop/docs/img/analysis-progress.png)
 
 ### 7. Review Validation Results
 
 Once processing is complete, a pop-up will display the SOW validation results showing validation status, any issues found, and detailed feedback. After reviewing the results, click the "View SOW" button to access the detailed document view.
 
-![Validation results popup](data/assets/images/validation-results-popup.png)
+![Validation results popup](docs/workshop/docs/img/validation-results-popup.png)
 
 ### 8. Explore Extracted SOW Information
 
 The SOW detail page displays comprehensive information extracted from the document including project name, summary, milestones, payment terms, and deliverables. You can also view the complete validation history for this document.
 
-![SOW detail page](data/assets/images/sow-detail-page.png)
+![SOW detail page](docs/workshop/docs/img/sow-detail-page.png)
 
 ### 9. Trigger Manual Re-validation
 
 If needed, you can click the "Run Manual Validation" button to trigger the validation process again. This is useful when you want to recheck compliance or when validation rules have been updated.
 
-![Manual validation trigger](data/assets/images/sow-detail-page.png)
+![Manual validation trigger](docs/workshop/docs/img/sow-detail-page.png)
 
 This walkthrough showcases how the solution delivers comprehensive, AI-powered financial document intelligence with full transparency into validation processes and document relationships.
 
@@ -327,9 +327,9 @@ The chatbot is equipped with comprehensive knowledge about:
    - Type your question in the "Search using AI" field and click the send button to navigate to the full chat interface
    - Click the "Ask AI" button in the top-right corner to open a convenient side drawer for quick queries without leaving the current page
 
-   ![Dashboard search interface](data/assets/images/dashboard-interface.png)
+   ![Dashboard search interface](docs/workshop/docs/img/dashboard-interface.png)
 
-   ![Dashboard AI search interface](data/assets/images/dashboard-ai-search.png)
+   ![Dashboard AI search interface](docs/workshop/docs/img/dashboard-ai-search.png)
 
 2. **Full Chat Experience**
    
@@ -338,7 +338,7 @@ The chatbot is equipped with comprehensive knowledge about:
    - **Interactive Chat Interface**: Full-featured messaging with the AI assistant in the main area
    - **Context-Aware Responses**: The AI maintains conversation context and can reference previous queries
 
-   ![Full chat interface with history panel](data/assets/images/chat-interface-full.png)
+   ![Full chat interface with history panel](docs/workshop/docs/img/chat-interface-full.png)
 
 
 ### 🔍 Try These Chatbot Queries
