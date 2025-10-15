@@ -23,7 +23,7 @@ Identify all distinct fields, sections, and tabular data present in the text.
    "Client": str,
    "Client_Contact_Name": str,
    "Client_Contact_Email": str,
-   "Project_Deliverables": a list of json, each json hasn the following keys: {
+   "Project_Deliverables": a list of json, each json has the following keys: {
       "Milestone_Name": str,
       "Deliverable": str,
       "Amount": as a string with only numeric values. No currency signs or commas,
@@ -34,6 +34,7 @@ Identify all distinct fields, sections, and tabular data present in the text.
    "Payment_Account_Number": str,
    "Payment_Terms": list of str
 }
+8. For any missing information, use an empty string "" as the default value.
 
 ### Input:
 {RAW_TEXT_HERE}

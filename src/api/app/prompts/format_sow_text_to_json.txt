@@ -33,13 +33,14 @@ Identify all distinct fields, sections, and tabular data present in the text.
    },
    "Project_Deliverables": a list of json. each json has the following keys: {
       "Milestone_Name": ,
-      "Deliverables": ,
+      "Deliverable": ,
       "Amount": as a string with only numeric values. No currency signs or commas,
       "Milestone_Payment_Due_Date": This date will *ALWAYS BE IN YYYY-MM-DD FORMAT*.
    }
    "Total_Amount": as a string with only numeric values. No currency signs or commas,
    "Signatures": a json with vendor company name as key and person name as value
 }
+8. For any missing information, use an empty string "" as the default value.
 
 
 ### Input:

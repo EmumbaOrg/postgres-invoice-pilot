@@ -3,6 +3,7 @@ from typing import List, Optional
 from datetime import date
 
 class InvoiceLineItemEdit(BaseModel):
+    milestone_of_line_item: str
     invoice_id: int
     description: str
     amount: float
