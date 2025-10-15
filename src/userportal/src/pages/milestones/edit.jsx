@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Dropdown } from 'react-bootstrap';
+import { Form, Button, Dropdown, Alert } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import api from '../../api/Api';
 import ConfirmModal from '../../components/ConfirmModal';
@@ -16,6 +16,7 @@ const MilestoneEdit = () => {
     const [showDeleteDeliverableModal, setShowDeleteDeliverableModal] = useState(false);
     const [deliverableToDelete, setDeliverableToDelete] = useState(null);
     const [reloadDeliverables, setReloadDeliverables] = useState(false);
+    const [isDeletingDeliverable, setIsDeletingDeliverable] = useState(false);
 
     const [statuses, setStatuses] = useState([]);
 
@@ -69,15 +70,21 @@ const MilestoneEdit = () => {
     };
 
     const handleDeleteDeliverable = async () => {
+        setIsDeletingDeliverable(true);
         try {
             await api.deliverables.delete(deliverableToDelete);
             setSuccess('Deliverable deleted successfully!');
             setError(null);
             setShowDeleteDeliverableModal(false);
+            setDeliverableToDelete(null);
             setReloadDeliverables(true);
         } catch (err) {
             setSuccess(null);
-            setError(err.message);
+            setError(`Error deleting deliverable: ${err.message}`);
+            setShowDeleteDeliverableModal(false);
+            setDeliverableToDelete(null);
+        } finally {
+            setIsDeletingDeliverable(false);
         }
     }
 
@@ -155,8 +162,16 @@ const MilestoneEdit = () => {
     <div className='p-4'>
         <h3>Edit Milestone</h3>
         <hr/>
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+         <i className="fa-solid fa-circle-exclamation" variant="danger"></i> {error}
+        </Alert>
+      )}
+       {success && (
+        <Alert variant="success" dismissible onClose={() => setSuccess(null)}>
+         <i className="fa-solid fa-circle-check" variant="success"></i> {success}
+        </Alert>
+      )}
         <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
                 <Form.Label>Name</Form.Label>
@@ -214,6 +229,7 @@ const MilestoneEdit = () => {
         handleConfirm={handleDeleteDeliverable}
         title="Delete Deliverable"
         message="Are you sure you want to delete this deliverable?"
+        isLoading={isDeletingDeliverable}
         />
     </div>
     );

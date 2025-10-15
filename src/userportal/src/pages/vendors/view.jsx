@@ -33,6 +33,8 @@ const VendorView = () => {
   const [sowToDelete, setSowToDelete] = useState(null);
   const [reload, setReload] = useState(false);
   const [deleteItemType, setDeleteItemType] = useState("");
+  const [isDeletingSOW, setIsDeletingSOW] = useState(false);
+  const [isDeletingVendor, setIsDeletingVendor] = useState(false);
 
   useEffect(() => {
     // Fetch vendor data when component mounts
@@ -104,6 +106,7 @@ const VendorView = () => {
     const handleDeleteSOW = async () => {
     if (!sowToDelete) return;
 
+    setIsDeletingSOW(true);
     try {
       if (deleteItemType === 'sow') {
         await api.sows.delete(sowToDelete);
@@ -117,27 +120,36 @@ const VendorView = () => {
       }
       setError(null);
       setShowDeleteSOWModal(false);
+      setSowToDelete(null);
     } catch (err) {
       setSuccess(null);
-      setError(err.message);
+      setError(`Error deleting ${deleteItemType}: ${err.message}`);
       setShowDeleteSOWModal(false);
+      setSowToDelete(null);
+    } finally {
+      setIsDeletingSOW(false);
     }
   }
 
   const handleDeleteVendor = async () => {
     if (!vendorToDelete) return;
 
+    setIsDeletingVendor(true);
     try {
       await api.vendors.delete(vendorToDelete);
       setSuccess('Vendor deleted successfully!');
       setError(null);
       setShowDeleteVendorModal(false);
+      setVendorToDelete(null);
       // Redirect to vendors list after successful deletion
       window.location.href = '/vendors';
     } catch (err) {
       setSuccess(null);
-      setError(err.message);
+      setError(`Error deleting vendor: ${err.message}`);
       setShowDeleteVendorModal(false);
+      setVendorToDelete(null);
+    } finally {
+      setIsDeletingVendor(false);
     }
   }
 
@@ -351,6 +363,7 @@ const VendorView = () => {
         handleClose={() => setShowDeleteSOWModal(false)}
         handleConfirm={handleDeleteSOW}
         message={`Are you sure you want to delete this ${deleteItemType === 'sow' ? 'SOW' : 'Invoice'}?`}
+        isLoading={isDeletingSOW}
       />
 
       <ConfirmModal
@@ -358,6 +371,7 @@ const VendorView = () => {
         handleClose={() => setShowDeleteVendorModal(false)}
         handleConfirm={handleDeleteVendor}
         message="Are you sure you want to delete this Vendor? This action cannot be undone."
+        isLoading={isDeletingVendor}
       />
 
           <SOWCreateModal 

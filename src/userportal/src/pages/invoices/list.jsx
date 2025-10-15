@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import api from '../../api/Api';
-import { Button, Dropdown} from 'react-bootstrap';
+import { Button, Dropdown, Alert} from 'react-bootstrap';
 import ConfirmModal from '../../components/ConfirmModal'; 
 import PagedTable from '../../components/PagedTable';
 import StatusChip from '../../components/status-chip/status-chip';
@@ -15,6 +15,7 @@ const InvoiceList = () => {
   const [sowToDelete, setSowToDelete] = useState(null);
   const [reload, setReload] = useState(false);
   const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Debounced search functionality
   const handleSearch = useCallback((debouncedSearchTerm) => {
@@ -26,15 +27,21 @@ const InvoiceList = () => {
   const handleDelete = async () => {
     if (!sowToDelete) return;
 
+    setIsDeleting(true);
     try {
       await api.invoices.delete(sowToDelete);
       setSuccess('Invoice deleted successfully!');
       setError(null);
       setShowDeleteModal(false);
+      setSowToDelete(null);
       setReload(true); // Refresh the data
     } catch (err) {
       setSuccess(null);
-      setError(err.message);
+      setError(`Error deleting invoice: ${err.message}`);
+      setShowDeleteModal(false);
+      setSowToDelete(null);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -128,13 +135,25 @@ const InvoiceList = () => {
          id="invoice-search"
        />
 
-      <PagedTable columns={columns} fetchData={fetchInvoices} reload={reload} noDataMesssage={"No Invoices have been added yet"} noDataDescription={<p className="text-muted">Click on “Add Invoice” to begin adding invoices.</p>} />
+       {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+         <i className="fa-solid fa-circle-exclamation" variant="danger"></i> {error}
+        </Alert>
+      )}
+       {success && (
+        <Alert variant="success" dismissible onClose={() => setSuccess(null)}>
+         <i className="fa-solid fa-circle-check" variant="success"></i> {success}
+        </Alert>
+      )}
+
+      <PagedTable columns={columns} fetchData={fetchInvoices} reload={reload} noDataMesssage={"No Invoices have been added yet"} noDataDescription={<p className="text-muted">Click on "Add Invoice" to begin adding invoices.</p>} />
 
       <ConfirmModal
         show={showDeleteModal}
         handleClose={() => setShowDeleteModal(false)}
         handleConfirm={handleDelete}
         message="Are you sure you want to delete this Invoice?"
+        isLoading={isDeleting}
       />
         <InvoiceCreate
           show={showCreateInvoiceModal}
