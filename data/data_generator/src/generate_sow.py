@@ -9,6 +9,65 @@ import textwrap
 def load_config(config_path):
     with open(config_path, 'r') as file:
         return json.load(file)
+
+# Helper function to render table rows with proper text wrapping
+def render_table_row(pdf, cell_data, cell_widths, min_height=10, border=1, align='L'):
+    """
+    Render a table row with proper text wrapping using multi_cell
+    
+    Args:
+        pdf: FPDF object
+        cell_data: List of strings for each cell
+        cell_widths: List of widths for each cell
+        min_height: Minimum height for the row
+        border: Border style (0=none, 1=border)
+        align: Text alignment ('L'=left, 'C'=center, 'R'=right) - can be string or list
+    """
+    # Handle alignment parameter
+    if isinstance(align, str):
+        alignments = [align] * len(cell_data)
+    else:
+        alignments = align
+    
+    # Calculate the required height for this row
+    max_height = min_height
+    start_x = pdf.get_x()
+    start_y = pdf.get_y()
+    
+    # First pass: calculate the maximum height needed
+    for i, (text, width) in enumerate(zip(cell_data, cell_widths)):
+        # Save current position
+        current_x = pdf.get_x()
+        current_y = pdf.get_y()
+        
+        # Calculate how many lines this text will need
+        pdf.set_xy(start_x + sum(cell_widths[:i]), start_y)
+        
+        # Use a temporary multi_cell to calculate height
+        lines = len(pdf.multi_cell(width, min_height, txt=str(text), split_only=True))
+        required_height = lines * min_height
+        max_height = max(max_height, required_height)
+        
+        # Restore position
+        pdf.set_xy(current_x, current_y)
+    
+    # Second pass: render all cells with the calculated height
+    for i, (text, width, alignment) in enumerate(zip(cell_data, cell_widths, alignments)):
+        x = start_x + sum(cell_widths[:i])
+        y = start_y
+        
+        # Set position for this cell
+        pdf.set_xy(x, y)
+        
+        # Draw border manually if needed
+        if border:
+            pdf.rect(x, y, width, max_height)
+        
+        # Render the text content with specified alignment
+        pdf.multi_cell(width, min_height, txt=str(text), border=0, align=alignment)
+    
+    # Move to the next row
+    pdf.set_xy(start_x, start_y + max_height)
     
 # Function to generate the SOW PDF
 def generate_sow_pdf(output_path, vendor_name, vendor_config):
@@ -72,31 +131,37 @@ def generate_sow_pdf(output_path, vendor_name, vendor_config):
     pdf.cell(0, 10, txt="Project Deliverables", ln=True)
     pdf.set_font("Arial", size=10)
 
+    # Define column widths
+    column_widths = [20, 40, 80, 30, 30]
+    
     # Table Header
-    pdf.cell(20, 10, txt="Item", border=1)
-    pdf.cell(40, 10, txt="Milestone Name", border=1)
-    pdf.cell(80, 10, txt="Deliverables", border=1)
-    pdf.cell(30, 10, txt="Amount", border=1)
-    pdf.cell(30, 10, txt="Due Date", border=1)
-    pdf.ln()
+    header_data = ["Item", "Milestone Name", "Deliverables", "Amount", "Due Date"]
+    pdf.set_font("Arial", style="B", size=10)
+    render_table_row(pdf, header_data, column_widths)
+    pdf.set_font("Arial", size=10)
 
     # Table Content
     total_amount = 0
     for deliverable in vendor_config['deliverables']:
-        pdf.cell(20, 10, txt=str(deliverable['number']), border=1)
-        pdf.cell(40, 10, txt=deliverable['name'], border=1)
-        pdf.cell(80, 10, txt=deliverable['deliverables'], border=1)
-        pdf.cell(30, 10, txt=deliverable['amount'], border=1)
-        pdf.cell(30, 10, txt=deliverable['due_date'], border=1)
-        pdf.ln()
+        row_data = [
+            str(deliverable['number']),
+            deliverable['name'],
+            deliverable['deliverables'],
+            deliverable['amount'],
+            deliverable['due_date']
+        ]
+        render_table_row(pdf, row_data, column_widths)
+        
         # Sum the amounts
         amount = float(deliverable['amount'].replace('$', '').replace(',', ''))
         total_amount += amount
 
     # Total Amount
     pdf.set_font("Arial", style="B", size=10)
-    pdf.cell(140, 10, txt="Total", border=1, align='R')
-    pdf.cell(60, 10, txt=f"${total_amount:,.2f}", border=1)
+    # Create merged columns: first 3 columns combined for "Total", last 2 columns combined for amount
+    total_column_widths = [140, 60]  # 20+40+80=140, 30+30=60
+    total_row_data = ["Total", f"${total_amount:,.2f}"]
+    render_table_row(pdf, total_row_data, total_column_widths, align=['R', 'L'])
     pdf.ln()
 
     # Signatures
