@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.tools import StructuredTool
+from agent_framework import ChatAgent, ChatMessage
 from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_prompt_service
 from app.models import InvoiceValidationResult, ListResponse, SowValidationResult
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,7 +7,6 @@ from datetime import timedelta
 from pydantic import parse_obj_as
 import json
 
-# Initialize the router
 router = APIRouter(
     prefix = "/validation",
     tags = ["Validation"],
@@ -30,44 +27,22 @@ async def list_invoice_validations(id: int, pool = Depends(get_db_connection_poo
 async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt_service = Depends(get_prompt_service)):
     """Generate a chat completion to Validate the Invoice using the Azure OpenAI API."""
     
-    # Define the system prompt for the validator.
+    messages = []
     system_prompt = prompt_service.get_prompt("invoice_validation")
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
-    # Provide the validation copilot with a persona using the system prompt.
-    messages = [{ "role": "system", "content": system_prompt }]
-
     # Add the current user message to the messages list
     userMessage = f"""validate Invoice with ID of {id}"""
-    messages.append({"role": "user", "content": userMessage})
+    messages.append(ChatMessage(role="user", content=userMessage))
 
-    # Create a chat prompt template
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            ("user", "{input}"),
-            MessagesPlaceholder("agent_scratchpad")
-        ]
-    )
-    
-    # Define tools for the agent
-    tools = [
-         StructuredTool.from_function(coroutine=validate_invoice)
-    ]
-    
-    # Create an AI agent
-    agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
+    agent = ChatAgent(chat_client=llm, instructions=system_prompt, tools=validate_invoice)
+    completion = str(await agent.run(messages))
 
-    # Invoke the agent to perform a chat completion that provides the validation results.
-    completion = await agent_executor.ainvoke({"input": userMessage})
-    validationResult = completion['output']
-
-    # Check if validationResult contains [PASSED] or [FAILED]
+    # Check if completion contains [PASSED] or [FAILED]
     # This is based on the prompt telling the AI to return either [PASSED] or [FAILED]
     # at the end of the response to indicate if the invoice passed or failed validation.
-    validation_passed = validationResult.find('[PASSED]') != -1
+    validation_passed = completion.find('[PASSED]') != -1
 
     # Write validation result to database
     pool = await get_db_connection_pool()
@@ -75,9 +50,9 @@ async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt
         await conn.execute('''
         INSERT INTO invoice_validation_results (invoice_id, datestamp, result, validation_passed)
         VALUES ($1, $2, $3, $4);
-        ''', id, datetime.utcnow(), validationResult, validation_passed)
+        ''', id, datetime.utcnow(), completion, validation_passed)
 
-    return validationResult
+    return completion
 
 async def validate_invoice(id: int):
     """Retrieves an Invoice and it's associated Line Items, SOW, and Milestones."""
@@ -122,41 +97,19 @@ async def list_sow_validations(id: int, pool = Depends(get_db_connection_pool)):
 async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_service = Depends(get_prompt_service)):
     """Generate a chat completion to Validate the SOW using the Azure OpenAI API."""
 
-    # Define the system prompt for the validator.
+    messages = []
     system_prompt = prompt_service.get_prompt("sow_validation")
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
-    # Provide the validation copilot with a persona using the system prompt.
-    messages = [{ "role": "system", "content": system_prompt }]
-
-    # Add the current user message to the messages list
     userMessage = f"""validate SOW with ID {id}"""
-    messages.append({"role": "user", "content": userMessage})
+    messages.append(ChatMessage(role="user", content=userMessage))
 
-    # Create a chat prompt template
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            ("user", "{input}"),
-            MessagesPlaceholder("agent_scratchpad")
-        ]
-    )
+    agent = ChatAgent(chat_client=llm, instructions=system_prompt, tools=validate_sow)
+    completion = str(await agent.run(messages))
 
-    tools = [
-         StructuredTool.from_function(coroutine=validate_sow)
-    ]
-    
-    # Create an agent
-    agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
-    #completion = await agent_executor.ainvoke({"input": request.message})
-    completion = await agent_executor.ainvoke({"input": userMessage})
-
-    validationResult = completion['output']
-
-    # Check if validationResult contains [PASSED] or [FAILED]
-    validation_passed = validationResult.find('[PASSED]') != -1
+    # Check if completion contains [PASSED] or [FAILED]
+    validation_passed = completion.find('[PASSED]') != -1
 
     # Write validation result to database
     pool = await get_db_connection_pool()
@@ -164,9 +117,9 @@ async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_ser
         await conn.execute('''
         INSERT INTO sow_validation_results (sow_id, datestamp, result, validation_passed)
         VALUES ($1, $2, $3, $4);
-        ''', id, datetime.utcnow(), validationResult, validation_passed)
+        ''', id, datetime.utcnow(), completion, validation_passed)
 
-    return validationResult
+    return completion
 
 async def validate_sow(id: int):
     """Retrieves a SOW and it's associated Milestones and Deliverables."""

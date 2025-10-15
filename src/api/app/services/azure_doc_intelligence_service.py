@@ -15,7 +15,6 @@ class DocumentAnalysisResult:
     extracted_text: str
     text_chunks: List[TextChunk]
 
-
 class InvoiceLineItem:
     description: str
     amount: str
