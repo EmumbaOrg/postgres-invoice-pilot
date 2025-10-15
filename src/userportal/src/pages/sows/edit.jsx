@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Button, Row, Col, Spinner, Alert, Modal, Breadcrumb, Dropdown } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
@@ -19,6 +19,7 @@ const useQuery = () => {
 const SOWEdit = () => {
   const query = useQuery();
   const { id } = useParams(); // Extract SOW ID from URL
+  const navigate = useNavigate();
   const [sowNumber, setSowNumber] = useState('');
   const [sowVendorId, setSowVendorId] = useState('');
   const [sowDocument, setSowDocument] = useState('');
@@ -38,6 +39,7 @@ const SOWEdit = () => {
   const [milestoneToDelete, setMilestoneToDelete] = useState(null);
   const [reloadMilestones, setReloadMilestones] = useState(false);
 const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const message = query.get('success');
@@ -109,7 +111,10 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    setIsSaving(true);
     try {
       var data = {
         number: sowNumber,
@@ -123,10 +128,15 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
       updateDisplay(updatedItem);
       setSuccess('SOW updated successfully!');
       setError(null);
+      setTimeout(() => {
+        navigate('/sows');
+      }, 500); 
     } catch (err) {
       console.error(err);
       setError('Failed to update SOW');
       setSuccess(null);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -289,8 +299,15 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
         <Button type="button" variant="outline-primary" className="ms-2" onClick={() => window.location.href = '/sows' }>
            Cancel
         </Button>
-             <Button type="submit" variant="primary">
-           Save
+             <Button type="button" variant="primary" onClick={handleSubmit} disabled={isSaving}>
+           {isSaving ? (
+            <>
+              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+              Saving...
+            </>
+          ) : (
+            'Save'
+          )}
         </Button>
 
             </div>
