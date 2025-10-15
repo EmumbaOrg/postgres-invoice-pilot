@@ -89,7 +89,7 @@ const SOWList = () => {
             >
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
-            <Dropdown.Menu align={"end"}>
+            <Dropdown.Menu align="end">
               <Dropdown.Item className="d-flex align-items-center gap-1" href={`${api.documents.getUrl(row.original.document)}`} target="_blank" rel="noopener noreferrer">
                 <i className="fas fa-download me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 Download

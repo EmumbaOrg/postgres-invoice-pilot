@@ -56,3 +56,24 @@
     color: #292a31;
   }
   
+  /* Mobile responsive table styles */
+  @media (max-width: 768px) {
+    .table td, .table th {
+      white-space: nowrap;
+      min-width: 120px;
+      padding: 0.5rem 0.25rem;
+      font-size: 0.75rem;
+    }
+    
+    /* Make action column smaller on mobile */
+    .table td:last-child, .table th:last-child {
+      min-width: 60px;
+      width: 60px;
+    }
+    
+    /* Better spacing for dropdowns on mobile */
+    .dropdown-toggle {
+      padding: 4px 8px !important;
+    }
+  }
+  

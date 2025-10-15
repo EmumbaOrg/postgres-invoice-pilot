@@ -188,7 +188,7 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
             >
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
+            <Dropdown.Menu align="end">
               <Dropdown.Item className="d-flex align-items-center gap-1" href={`/milestones/${row.original.id}`}>
                 Edit
               </Dropdown.Item>

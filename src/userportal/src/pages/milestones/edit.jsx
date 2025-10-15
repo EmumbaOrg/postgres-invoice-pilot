@@ -127,7 +127,7 @@ const MilestoneEdit = () => {
             >
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
+            <Dropdown.Menu align="end">
                <Dropdown.Item href={`/deliverables/${row.original.id}`} className="d-flex align-items-center gap-1">
                 <i className="fas fa-edit me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 Edit
