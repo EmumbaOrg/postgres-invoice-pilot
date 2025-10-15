@@ -16,8 +16,8 @@ export default function ActivityTile({
           <Col xs="auto" className="icon-bg">
             <div className="text-primary fs-4">{icon}</div>
           </Col>
-          <Col>
-            <div className="fw-bold text-dark mb-1 text-truncate" style={{maxWidth:'500px'}}>{title}</div>
+          <Col className="flex-grow-1 min-width-0">
+            <div className="fw-bold text-dark mb-1 text-truncate">{title}</div>
             <div className="text-muted small">
               {timestamp}
               {fileSize && (
@@ -29,7 +29,7 @@ export default function ActivityTile({
             </div>
           </Col>
           {showMenu && (
-            <Col xs="auto">
+            <Col xs="auto" className="flex-shrink-0">
               <Dropdown>
                 <Dropdown.Toggle
                   variant="outline-primary"
