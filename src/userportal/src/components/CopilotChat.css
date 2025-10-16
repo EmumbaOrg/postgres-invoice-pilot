@@ -46,19 +46,39 @@ ul.session-list {
 .user-message{
     background-color: #EBF2FF !important;
     border: 1px solid #C4DAFF !important;
-    border-radius: 8px !important;
+    border-radius: 4px !important;
     color: #292A31 !important;
-    padding: 10px !important;
+    padding: 8px 16px !important;
 }
 .user-message p{
     margin: 0 !important;
+    font-size: 14px !important;
 }
 .chat-response{
     color: #292A31 !important;
     background-color: transparent !important;
+    
+    >p{
+        margin: 0 !important;
+    }
 }
 .styled-button{
     color: #292A31 !important;
     font-weight: bold !important;
     font-size: 20px !important;
+}
+
+.alert.chat-response{
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 991px) {
+    .sidebar-responsive {
+        height: auto !important;
+    }
+}
+.assistant {
+    background-color: red;
+
 }
