@@ -4,6 +4,15 @@
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
 }
+
+/* Mobile padding for recent activity and docs containers */
+@media (max-width: 991px) {
+    .section-wrapper {
+        padding-left: 40px !important;
+        padding-right: 40px !important;
+    }
+}
+
 .tile-outer{
     border-color: #9DC2FF !important;
 }
@@ -15,4 +24,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Ensure proper text truncation and flex behavior */
+.min-width-0 {
+    min-width: 0;
+}
+
+.flex-shrink-0 {
+    flex-shrink: 0;
 }

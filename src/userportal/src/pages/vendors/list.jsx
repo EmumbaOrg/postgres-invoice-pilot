@@ -82,7 +82,7 @@ const VendorList = () => {
             >
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
+            <Dropdown.Menu align="end">
               <Dropdown.Item className="d-flex align-items-center gap-1" href={`/vendors/view/${row.original.id}`}>
                 <i className="fas fa-eye me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 View

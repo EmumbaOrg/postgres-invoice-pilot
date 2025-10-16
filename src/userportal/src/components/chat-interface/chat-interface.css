@@ -46,7 +46,7 @@
   /* Suggestion pills styling */
   .suggestion-pill {
     border-radius: 25px !important;
-    padding: 4px 8px !important;
+    padding: 4px 10px !important;
     border: 2px solid #9DC2FF !important;
     color: #2979ff !important;
     background-color: white !important;
@@ -60,5 +60,20 @@
   /* Gap utility for flexbox */
   .gap-3 {
     gap: 1rem;
+  }
+  
+  /* Mobile responsive adjustments for suggestion pills */
+  @media (max-width: 991px) {
+    .suggestion-pill {
+      font-size: 0.875rem !important;
+    }
+  }
+  
+  /* Smaller dimensions for mobile screens 768px and below */
+  @media (max-width: 768px) {
+    .suggestion-pill {
+      font-size: 0.75rem !important;
+      padding: 2px 6px !important;
+    }
   }
   

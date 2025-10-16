@@ -173,7 +173,7 @@ const InvoiceEdit = () => {
             >
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
+            <Dropdown.Menu align="end">
               <Dropdown.Item href={`/invoice-line-items/${row.original.id}`} className="d-flex align-items-center gap-1">
               <i className="fas fa-edit" style={{ color: 'var(--bs-primary)' }} />
                 Edit

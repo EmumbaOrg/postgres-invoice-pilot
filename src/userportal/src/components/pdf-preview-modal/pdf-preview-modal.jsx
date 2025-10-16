@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Modal, Button, Row, Col } from 'react-bootstrap';
+import './pdf-preview-modal.css';
 
 import PdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker';
 
@@ -9,6 +10,7 @@ pdfjs.GlobalWorkerOptions.workerPort = new PdfWorker();
 const PdfPreviewModal = ({ show, handleClose, fileUrl }) => {
   const [numPages, setNumPages] = useState(0);
   const [selectedPage, setSelectedPage] = useState(1);
+  const pageWidth = 600;
 
   const onLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -16,14 +18,14 @@ const PdfPreviewModal = ({ show, handleClose, fileUrl }) => {
   };
   
   return (
-    <Modal show={show} onHide={handleClose} size="xl" centered>
+    <Modal show={show} onHide={handleClose} size="xl" centered dialogClassName="modal-fixed-height">
       <Modal.Header closeButton>
         <Modal.Title>Document Preview</Modal.Title>
       </Modal.Header>
-      <Modal.Body style={{ height: '80vh', overflow: 'hidden' }}>
-        <Row className="h-100">
+      <Modal.Body className="p-0">
+        <Row className="preview-layout g-0 h-100">
           {/* Thumbnails */}
-          <Col md={3} className="overflow-auto border-end" style={{ background: '#f8f9fa' }}>
+          <Col xs={4} md={3} className="thumbs-col border-end">
             <Document file={fileUrl} onLoadSuccess={onLoadSuccess}>
               {Array.from(new Array(numPages), (_, i) => (
                 <div
@@ -39,9 +41,14 @@ const PdfPreviewModal = ({ show, handleClose, fileUrl }) => {
           </Col>
 
           {/* Main Page View */}
-          <Col md={9} className="d-flex justify-content-center align-items-center overflow-auto bg-white">
+          <Col xs={8} md={9} className="page-col">
             <Document file={fileUrl}>
-              <Page pageNumber={selectedPage} width={600} />
+              <Page
+                pageNumber={selectedPage}
+                width={pageWidth}
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+              />
             </Document>
           </Col>
         </Row>

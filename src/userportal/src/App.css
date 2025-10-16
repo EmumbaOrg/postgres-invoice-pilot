@@ -6,6 +6,91 @@ body {
   padding:0% !important;
 }
 
+/* Override Bootstrap's default table-responsive overflow */
+.table-responsive {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+/* Desktop - ensure dropdowns work properly without breaking scroll */
+@media (min-width: 769px) {
+  .table-responsive {
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
+  
+  .table-responsive .dropdown {
+    position: static;
+  }
+  
+  .table-responsive .table td:last-child {
+    position: relative;
+  }
+}
+
+/* Mobile-specific table and dropdown styling */
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Add padding to prevent dropdown clipping */
+    padding-bottom: 120px;
+  }
+  
+  .table {
+    font-size: 0.75rem;
+  }
+  
+  .table td,
+  .table th {
+    padding: 0.25rem 0.5rem;
+    white-space: nowrap;
+  }
+  
+  /* Keep actions column narrow */
+  .table td:last-child,
+  .table th:last-child {
+    width: 60px;
+  }
+  
+  /* Mobile-optimized dropdown styling */
+  .table .dropdown-toggle {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.75rem;
+  }
+  
+  .table .dropdown-menu {
+    min-width: 140px !important;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  
+  .table .dropdown-item {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .table .dropdown-item i {
+    width: 12px;
+    height: 12px;
+    font-size: 0.7rem;
+  }
+  
+  /* Pagination styling to match table scale */
+  .pagination-info {
+    font-size: 0.75rem !important;
+    color: #6c757d;
+  }
+  
+  .d-flex.justify-content-end.align-items-center .btn {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .d-flex.justify-content-end.align-items-center .btn i {
+    font-size: 0.7rem;
+  }
+}
 
 h2 {
   margin-top: 1em;
@@ -354,5 +439,51 @@ h2 {
   
   .floating-ai-button .fa-wand-magic-sparkles {
     font-size: 18px;
+  }
+}
+
+/* PDF Preview Modal Responsive Styling */
+.pdf-preview-modal .modal-dialog {
+  max-height: 95vh;
+  margin: 2.5vh auto;
+}
+
+.pdf-preview-modal .modal-content {
+  height: 95vh;
+  max-height: 95vh;
+}
+
+.pdf-modal-body {
+  height: calc(95vh - 120px); /* Subtract header and footer height */
+  overflow: hidden;
+  padding: 0;
+}
+
+.pdf-thumbnails {
+  background: #f8f9fa;
+  height: 100%;
+  max-height: 100%;
+}
+
+.pdf-main-view {
+  height: 100%;
+  padding: 20px;
+}
+
+/* Mobile responsive PDF modal */
+@media (max-width: 768px) {
+  .pdf-preview-modal .modal-dialog {
+    max-height: 100vh;
+    margin: 0;
+    height: 100vh;
+  }
+  
+  .pdf-preview-modal .modal-content {
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .pdf-modal-body {
+    height: calc(100vh - 120px);
   }
 }

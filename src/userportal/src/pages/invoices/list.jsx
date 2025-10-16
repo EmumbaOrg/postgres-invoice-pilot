@@ -83,7 +83,7 @@ const InvoiceList = () => {
             >
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
+            <Dropdown.Menu align="end">
               <Dropdown.Item href={`${api.documents.getUrl(row.original.document)}`} target="_blank" rel="noopener noreferrer" className="d-flex align-items-center gap-1">
                 <i className="fas fa-download me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 Download
