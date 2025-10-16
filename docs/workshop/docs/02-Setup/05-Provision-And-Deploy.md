@@ -10,7 +10,7 @@ Docker Desktop is used to create and deploy the containers used for runnig the _
 
 2. Look for the Docker icon in your system tray or menu bar to confirm it is running.
 
-## Build and Open Dev Container (Only if you chosen the Dev Container Setup Option Previously)
+## Build and Open Dev Container
 
 In this step you will open and build your dev container in VS Code.  After you complete this, you can complete the remaining steps in this page by running all commands inside
 your dev container command line not your local operating system command line.
