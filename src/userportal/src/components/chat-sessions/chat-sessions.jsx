@@ -9,6 +9,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
   const [sessions, setSessions] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sessionHistoryLoading, setSessionHistoryLoading] = useState(false);
+  const [isDeletingSession, setIsDeletingSession] = useState(false);
 
 
     const refreshSessionList = async () => {
@@ -43,6 +44,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         if (!sessionToDelete) return;
     
         setError(null);
+        setIsDeletingSession(true);
         try {
           await api.completions.deleteSession(sessionToDelete);
     
@@ -52,9 +54,11 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         } catch (err) {
           console.error('Error deleting session:', err);
           setError('Error deleting session. Please try again.');
+        } finally {
+          setIsDeletingSession(false);
+          setShowDeleteModal(false);
+          refreshSessionList();
         }
-        setShowDeleteModal(false);
-        refreshSessionList();
       };
 
       useEffect(() => {
@@ -116,6 +120,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         handleConfirm={handleDelete}
         message="This action cannot be reverted. Are you sure you want to delete this chat?"
         title={'Delete Chat?'}
+        isLoading={isDeletingSession}
       />  
         </>
     );
