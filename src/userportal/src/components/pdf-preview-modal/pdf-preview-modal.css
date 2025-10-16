@@ -1,0 +1,61 @@
+.modal-fixed-height .modal-dialog {
+  margin: 1.25rem auto;
+}
+
+.modal-fixed-height .modal-content {
+  display: flex;
+  max-height: 90vh; 
+  height: 90vh; 
+}
+
+.modal-fixed-height .modal-header,
+.modal-fixed-height .modal-footer {
+  flex: 0 0 auto;
+}
+
+.modal-fixed-height .modal-body {
+  flex: 1 1 auto;
+  overflow: hidden; /* prevent body scroll */
+  min-height: 0;
+}
+
+/* Layout inside body */
+.preview-layout {
+  height: 100%;
+  min-height: 0; /* prevent layout jump on mount */
+}
+
+.thumbs-col {
+  background: #f8f9fa;
+  overflow: auto;
+  height: 100%;
+  min-height: 0;
+}
+
+.page-col {
+  display: flex;
+  align-items: flex-start; /* start at top so users can scroll naturally */
+  justify-content: center;
+  background: #fff;
+  overflow: auto; /* scroll main page when tall */
+  padding: 12px;
+  height: 100%;
+  min-height: 0; /* allow inner content to define scroll */
+}
+
+/* Ensure the react-pdf canvas doesn't exceed column */
+.thumbs-col canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Small screens tweaks */
+@media (max-width: 576px) {
+  .modal-fixed-height .modal-content {
+    max-height: 92vh;
+    height: 92vh;
+  }
+  .page-col {
+    padding: 8px;
+  }
+}
