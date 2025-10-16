@@ -102,7 +102,18 @@ async def analyze_sow(
         full_text = analysis_result.full_text
 
         # format text into json object
-        metadata = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_sow_text_to_json"))
+        response = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_sow_text_to_json"))
+
+        if response.get("sow_check")=="failed":
+            
+            await storage_service.delete_document(documentName)
+            return SowAnalyzeResult(
+                hasError=True,
+                sow=None,
+                message="The document does not appear to be a SOW. Please upload a SOW and try again."
+            )
+        else:
+            metadata = response.get("metadata", {})
 
         # extract required fields from metadata json and then remove them from metadata
         sow_number = str(metadata['SOW_Number'] or sow_number)
