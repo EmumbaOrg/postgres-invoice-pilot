@@ -214,7 +214,8 @@ async def update_invoice(invoice_id: int, invoice_update: InvoiceEdit, pool = De
     await activity_log_service.log_activity(
         action="updated",
         resource_type="Invoice",
-        resource_name=str(updated_invoice.number)
+        resource_name=str(updated_invoice.number),
+        pool=pool
     )
     
     return updated_invoice
