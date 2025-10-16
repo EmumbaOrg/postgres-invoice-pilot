@@ -180,6 +180,21 @@ const NavigationStepper = () => {
     
   };
 
+  // Helper function to check if required vendor details are filled
+  const isVendorDetailsValid = () => {
+    return formData.name && formData.contact_name && formData.contact_email && formData.contact_phone && formData.type && formData.address;
+  };
+
+  // Helper function to check if Save & Next button should be disabled
+  const isSaveNextDisabled = () => {
+    if (currentStep === 0) {
+      // For vendor details step, check if all required fields are filled
+      return !isVendorDetailsValid() || isLoading;
+    }
+    // For optional steps (SOW and Invoice upload), only disable during loading
+    return isLoading;
+  };
+
   const uploadSOW = async () => {
     // Check if SOW file was selected
     if (sowFile && vendorId) {
@@ -337,7 +352,7 @@ const NavigationStepper = () => {
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 required
                 className="form-control p-3"
-                placeholder="Vendor Name"
+                placeholder="Vendor Name *"
                 type="text"
 
               ></input>
@@ -347,9 +362,10 @@ const NavigationStepper = () => {
                   <input
                     type="text"
                     className="form-control p-3"
-                    placeholder="Type"
+                    placeholder="Type *"
                     value={formData.type}
                     onChange={(e) => handleInputChange("type", e.target.value)}
+                    required
                   />
                 </div>
               </div>
@@ -362,33 +378,36 @@ const NavigationStepper = () => {
                   <input
                     type="text"
                     className="form-control p-3"
-                    placeholder="Contact Person"
+                    placeholder="Contact Person *"
                     value={formData.contact_name}
                     onChange={(e) =>
                       handleInputChange("contact_name", e.target.value)
                     }
+                    required
                   />
                 </div>
                 <div className="col-12">
                   <input
                     type="tel"
                     className="form-control p-3"
-                    placeholder="Phone Number"
+                    placeholder="Phone Number *"
                     value={formData.contact_phone}
                     onChange={(e) =>
                       handleInputChange("contact_phone", e.target.value)
                     }
+                    required
                   />
                 </div>
                 <div className="col-12">
                   <input
                     type="email"
                     className="form-control p-3"
-                    placeholder="Email Address"
+                    placeholder="Email Address *"
                     value={formData.contact_email}
                     onChange={(e) =>
                       handleInputChange("contact_email", e.target.value)
                     }
+                    required
                   />
                 </div>
                 <div className="col-12">
@@ -406,11 +425,12 @@ const NavigationStepper = () => {
                   <input
                     type="text"
                     className="form-control p-3"
-                    placeholder="Location"
+                    placeholder="Location *"
                     value={formData.address}
                     onChange={(e) =>
                       handleInputChange("address", e.target.value)
                     }
+                    required
                   />
                 </div>
               </div>
@@ -884,7 +904,7 @@ const NavigationStepper = () => {
                     <Button
                       className="btn btn-save-next"
                       onClick={handleSaveAndNext}
-                      disabled={isLoading}
+                      disabled={isSaveNextDisabled()}
                     >
                       {isLoading ? (
                         <>

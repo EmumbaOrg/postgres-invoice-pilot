@@ -141,6 +141,7 @@ const handleSessionSelect = (selectedSessionId) => {
                     backgroundColor: "#2979ff",
                     borderColor: "#2979ff",
                   }}
+                  disabled={!input.trim() || isThinking}
                 >
                  <i className="fa-solid fa-paper-plane"></i>
                 </Button>

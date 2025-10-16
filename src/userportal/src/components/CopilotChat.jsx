@@ -210,7 +210,7 @@ const CopilotChat = () => {
               placeholder="Type a message..."
               aria-label="Chat input"
             ></textarea>
-            <Button onClick={handleSendMessage} aria-label="Send message">
+            <Button onClick={handleSendMessage} aria-label="Send message" disabled={!input.trim() || isThinking}>
               {" "}
               <i className="fa-solid fa-paper-plane"></i>
             </Button>
