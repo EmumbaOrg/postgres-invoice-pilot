@@ -8,7 +8,7 @@ const defaultStyles = {
     borderColor: state.isFocused ? '#2979ff' : '#e0e0e0',
     boxShadow: state.isFocused ? '0 0 0 1px #2979ff' : 'none',
     '&:hover': { borderColor: '#bdbdbd' },
-    minHeight: '44px',
+    minHeight: '22px',
     fontSize: '15px',
     backgroundColor: '#fff',
   }),

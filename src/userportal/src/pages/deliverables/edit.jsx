@@ -3,6 +3,7 @@ import { Form, Button, Alert } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
 import { useParams } from 'react-router-dom';
 import api from '../../api/Api';
+import SelectFormField from '../../components/SelectFormField';
 
 const DeliverableEdit = () => {
     const { id } = useParams(); // Extract ID from URL
@@ -96,19 +97,13 @@ const DeliverableEdit = () => {
             </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Status</Form.Label>
-                <Form.Control
-                as="select"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                required
-                >
-                    <option value="">Select Status</option>
-                    {statuses.map((status) => (
-                    <option key={status.name} value={status.name}>
-                        {status.name}
-                    </option>
-                    ))}
-                </Form.Control>
+                <SelectFormField
+                  options={statuses.map(s => ({ value: s.name, label: s.name }))}
+                  value={statuses.find(s => s.name == status) ? { value: status, label: status } : null}
+                  onChange={(opt) => setStatus(opt?.value || '')}
+                  placeholder="Select Status"
+                  isSearchable
+                />
             </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Amount</Form.Label>

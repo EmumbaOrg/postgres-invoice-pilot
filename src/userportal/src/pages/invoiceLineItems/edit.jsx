@@ -3,6 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { NumericFormat } from 'react-number-format';
 import api from '../../api/Api';
+import SelectFormField from '../../components/SelectFormField';
 
 const InvoiceLineItemEdit = () => {
     const { id } = useParams(); // Extract from URL
@@ -88,18 +89,13 @@ const InvoiceLineItemEdit = () => {
         <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
                 <Form.Label>Invoice</Form.Label>
-                <Form.Control
-                as="select"
-                value={invoiceId}
-                onChange={(e) => setInvoiceId(e.target.value)}
-                >
-                <option value="">Select Invoice</option>
-                {invoices.map((invoice) => (
-                    <option key={invoice.id} value={invoice.id}>
-                    {invoice.number}
-                    </option>
-                ))}
-                </Form.Control>
+                <SelectFormField
+                  options={invoices.map(i => ({ value: i.id, label: i.number }))}
+                  value={invoices.find(i => i.id == invoiceId) ? { value: invoiceId, label: (invoices.find(i => i.id == invoiceId) || {}).number } : null}
+                  onChange={(opt) => setInvoiceId(opt?.value || '')}
+                  placeholder="Select Invoice"
+                  isSearchable
+                />
             </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
@@ -123,18 +119,13 @@ const InvoiceLineItemEdit = () => {
             </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Status</Form.Label>
-                <Form.Control
-                as="select"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                >
-                <option value="">Select Status</option>
-                {statuses.map((status) => (
-                    <option key={status.id} value={status.id}>
-                    {status.name}
-                    </option>
-                ))}
-                </Form.Control>
+                <SelectFormField
+                  options={statuses.map(s => ({ value: s.id, label: s.name }))}
+                  value={statuses.find(s => s.id == status) ? { value: status, label: (statuses.find(s => s.id == status) || {}).name } : null}
+                  onChange={(opt) => setStatus(opt?.value || '')}
+                  placeholder="Select Status"
+                  isSearchable
+                />
             </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Due Date</Form.Label>
