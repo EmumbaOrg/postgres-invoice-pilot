@@ -118,6 +118,7 @@ const NavigationStepper = () => {
 
   const handleSaveAndNext = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       // Make API calls based on current step
       switch (currentStep) {
@@ -156,12 +157,10 @@ const NavigationStepper = () => {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Something went wrong";
-      
-      // Don't show alert for SOW and Invoice errors since they're already displayed in the UI
-      if (currentStep !== 1 && currentStep !== 2) {
-        alert(`Error: ${errorMessage}`);
+      // Show error in alert for vendor details step
+      if (currentStep === 0) {
+        setError(`Error: ${errorMessage}`);
       }
-      
       // Don't advance to next step if there was an error
       return;
     } finally {
@@ -174,10 +173,12 @@ const NavigationStepper = () => {
     if (!formData.name || !formData.contact_name || !formData.contact_email || !formData.contact_phone || !formData.type || !formData.address) {
       throw new Error("Please fill in all required vendor details");
     }
-
-    const response = await api.vendors.create(formData);
-    return response;
-    
+    try {
+      const response = await api.vendors.create(formData);
+      return response;
+    } catch (err) {
+      throw err;
+    }
   };
 
   // Helper function to check if required vendor details are filled
@@ -341,101 +342,109 @@ const NavigationStepper = () => {
     switch (currentStep) {
       case 0:
         return (
-          <Form onSubmit={handleSaveAndNext} >
-            <div className="mb-4">
-              <h5 className="section-heading">Vendor Details</h5>
-              <div className="row g-3">
-                <div className="col-12">
-                    <Form.Group className="mb-4">
-              <input
-                value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                required
-                className="form-control p-3"
-                placeholder="Vendor Name *"
-                type="text"
-
-              ></input>
-            </Form.Group>
-                </div>
-                <div className="col-12">
-                  <input
-                    type="text"
-                    className="form-control p-3"
-                    placeholder="Type *"
-                    value={formData.type}
-                    onChange={(e) => handleInputChange("type", e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h5 className="section-heading">Contact Info</h5>
-              <div className="row g-3">
-                <div className="col-12">
-                  <input
-                    type="text"
-                    className="form-control p-3"
-                    placeholder="Contact Person *"
-                    value={formData.contact_name}
-                    onChange={(e) =>
-                      handleInputChange("contact_name", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-                <div className="col-12">
-                  <input
-                    type="tel"
-                    className="form-control p-3"
-                    placeholder="Phone Number *"
-                    value={formData.contact_phone}
-                    onChange={(e) =>
-                      handleInputChange("contact_phone", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-                <div className="col-12">
-                  <input
-                    type="email"
-                    className="form-control p-3"
-                    placeholder="Email Address *"
-                    value={formData.contact_email}
-                    onChange={(e) =>
-                      handleInputChange("contact_email", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-                <div className="col-12">
-                  <input
-                    type="url"
-                    className="form-control p-3"
-                    placeholder="Website"
-                    value={formData.website}
-                    onChange={(e) =>
-                      handleInputChange("website", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="col-12">
-                  <input
-                    type="text"
-                    className="form-control p-3"
-                    placeholder="Location *"
-                    value={formData.address}
-                    onChange={(e) =>
-                      handleInputChange("address", e.target.value)
-                    }
-                    required
-                  />
+          <>
+            {error && (
+              <Alert variant="danger" className="mb-3">
+                <i className="fa-solid fa-circle-exclamation me-2" style={{ color: 'var(--bs-danger)' }}></i>
+                {error}
+              </Alert>
+            )}
+            <Form onSubmit={handleSaveAndNext} >
+              <div className="mb-4">
+                <h5 className="section-heading">Vendor Details</h5>
+                <div className="row g-3">
+                  <div className="col-12">
+                      <Form.Group className="mb-4">
+                <input
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  required
+                  className="form-control p-3"
+                  placeholder="Vendor Name *"
+                  type="text"
+                ></input>
+              </Form.Group>
+                  </div>
+                  <div className="col-12">
+                    <input
+                    style={{"margin":0}}
+                      type="text"
+                      className="form-control p-3"
+                      placeholder="Type *"
+                      value={formData.type}
+                      onChange={(e) => handleInputChange("type", e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </Form>
+
+              <div className="mb-4">
+                <h5 className="section-heading">Contact Info</h5>
+                <div className="row g-3">
+                  <div className="col-12">
+                    <input
+                      type="text"
+                      className="form-control p-3"
+                      placeholder="Contact Person *"
+                      value={formData.contact_name}
+                      onChange={(e) =>
+                        handleInputChange("contact_name", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="col-12">
+                    <input
+                      type="tel"
+                      className="form-control p-3"
+                      placeholder="Phone Number *"
+                      value={formData.contact_phone}
+                      onChange={(e) =>
+                        handleInputChange("contact_phone", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="col-12">
+                    <input
+                      type="email"
+                      className="form-control p-3"
+                      placeholder="Email Address *"
+                      value={formData.contact_email}
+                      onChange={(e) =>
+                        handleInputChange("contact_email", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="col-12">
+                    <input
+                      type="url"
+                      className="form-control p-3"
+                      placeholder="Website"
+                      value={formData.website}
+                      onChange={(e) =>
+                        handleInputChange("website", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="col-12">
+                    <input
+                      type="text"
+                      className="form-control p-3"
+                      placeholder="Location *"
+                      value={formData.address}
+                      onChange={(e) =>
+                        handleInputChange("address", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </Form>
+          </>
         );
       case 1:
         return (

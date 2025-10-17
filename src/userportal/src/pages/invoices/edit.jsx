@@ -11,6 +11,7 @@ import PagedTable from '../../components/PagedTable';
 import ConfirmModal from '../../components/ConfirmModal';
 import StatusChip from '../../components/status-chip/status-chip';
 import ActivityTile from '../../components/activity-tile/activity-tile';
+import SelectFormField from '../../components/SelectFormField';
 
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
@@ -336,29 +337,19 @@ const InvoiceEdit = () => {
           />
         </Form.Group>
           </Col>
-             <Col>
-            <Form.Group>
-              <Form.Label>SOW</Form.Label>
-              <Form.Control
-                as="select"
-                value={sowId}
-                onChange={(e) => setSowId(e.target.value)}
-                required
-                disabled={sows.length === 0}
-              >
-                {sows.length === 0 ? (
-                  <option value="">Loading SOWs...</option>
-                ) : (
-                  <option value="">Select SOW</option>
-                )}
-                {sows.map((sow) => (
-                  <option key={sow.id} value={sow.id}>
-                    {sow.number}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-          </Col>
+            <Col>
+              <Form.Group>
+                <Form.Label>SOW</Form.Label>
+                <SelectFormField
+                  options={sows.map(s => ({ value: s.id, label: s.number }))}
+                  value={sows.find(s => s.id == sowId) ? { value: sowId, label: (sows.find(s => s.id == sowId) || {}).number } : null}
+                  onChange={(opt) => setSowId(opt?.value || '')}
+                  placeholder={sows.length === 0 ? 'Loading SOWs...' : 'Select SOW'}
+                  isSearchable
+                  isDisabled={sows.length === 0}
+                />
+              </Form.Group>
+            </Col>
             <Col>
             <Form.Group className="mb-3">
               <Form.Label>Amount</Form.Label>
@@ -378,24 +369,14 @@ const InvoiceEdit = () => {
           <Col>
             <Form.Group>
               <Form.Label>Vendor</Form.Label>
-              <Form.Control
-                as="select"
-                value={vendorId}
-                onChange={(e) => setVendorId(e.target.value)}
-                required
-                disabled={vendors.length === 0}
-              >
-                {vendors.length === 0 ? (
-                  <option value="">Loading Vendors...</option>
-                ) : (
-                  <option value="">Select Vendor</option>
-                )}
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.name}
-                  </option>
-                ))}
-              </Form.Control>
+              <SelectFormField
+                options={vendors.map(v => ({ value: v.id, label: v.name }))}
+                value={vendors.find(v => v.id == vendorId) ? { value: vendorId, label: (vendors.find(v => v.id == vendorId) || {}).name } : null}
+                onChange={(opt) => setVendorId(opt?.value || '')}
+                placeholder={vendors.length === 0 ? 'Loading Vendors...' : 'Select Vendor'}
+                isSearchable
+                isDisabled={vendors.length === 0}
+              />
             </Form.Group>
         </Col>
           <Col>

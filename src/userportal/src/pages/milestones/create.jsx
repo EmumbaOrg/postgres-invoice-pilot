@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import api from '../../api/Api';
+import SelectFormField from '../../components/SelectFormField';
 
 const MilestoneCreate = () => {
   const { sowId } = useParams(); // Extract from URL
@@ -63,20 +64,14 @@ const MilestoneCreate = () => {
         </Form.Group>
         <Form.Group className="mb-3">
             <Form.Label>Status</Form.Label>
-            <Form.Control
-              as="select"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-              >
-                <option value="">Select Status</option>
-                {statuses.map((status) => (
-                  <option key={status.name} value={status.name}>
-                    {status.name}
-                  </option>
-                ))}
-              </Form.Control>
-        </Form.Group>    
+            <SelectFormField
+              options={statuses.map(s => ({ value: s.name, label: s.name }))}
+              value={statuses.find(s => s.name == status) ? { value: status, label: status } : null}
+              onChange={(opt) => setStatus(opt?.value || '')}
+              placeholder="Select Status"
+              isSearchable
+            />
+        </Form.Group>
         <Button type="submit" variant="primary">
           <i className="fas fa-plus"></i> Create
         </Button>

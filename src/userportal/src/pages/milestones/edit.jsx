@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Dropdown, Alert } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import api from '../../api/Api';
+import SelectFormField from '../../components/SelectFormField';
 import ConfirmModal from '../../components/ConfirmModal';
 import PagedTable from '../../components/PagedTable';
 
@@ -184,19 +185,13 @@ const MilestoneEdit = () => {
             </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Status</Form.Label>
-                <Form.Control
-                    as="select"
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    required
-                    >
-                        <option value="">Select Status</option>
-                        {statuses.map((status) => (
-                        <option key={status.name} value={status.name}>
-                            {status.name}
-                        </option>
-                        ))}
-                    </Form.Control>
+                <SelectFormField
+                    options={statuses.map(s => ({ value: s.name, label: s.name }))}
+                    value={statuses.find(s => s.name == status) ? { value: status, label: status } : null}
+                    onChange={(opt) => setStatus(opt?.value || '')}
+                    placeholder="Select Status"
+                    isSearchable
+                />
             </Form.Group>
             <Button type="submit" variant="primary">
                 <i className="fas fa-save"></i> Save

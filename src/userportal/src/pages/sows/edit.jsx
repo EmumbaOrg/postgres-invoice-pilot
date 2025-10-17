@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
 import api from '../../api/Api';
+import SelectFormField from '../../components/SelectFormField';
 import ConfirmModal from '../../components/ConfirmModal';
 import PagedTable from '../../components/PagedTable';
 import SOWCreateModal from './create';
@@ -332,19 +333,14 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
           <Col>
             <Form.Group>
               <Form.Label>Vendor</Form.Label>
-              <Form.Control
-                as="select"
-                value={sowVendorId}
-                onChange={(e) => setSowVendorId(e.target.value)}
-                required
-              >
-                <option value="">Select Vendor</option>
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.name}
-                  </option>
-                ))}
-              </Form.Control>
+              <SelectFormField
+                options={vendors.map(v => ({ value: v.id, label: v.name }))}
+                value={vendors.find(v => v.id == sowVendorId) ? { value: sowVendorId, label: (vendors.find(v => v.id == sowVendorId) || {}).name } : null}
+                onChange={(opt) => setSowVendorId(opt?.value || '')}
+                placeholder="Select Vendor"
+                isSearchable
+                styles={{minHeight: "20px"}}
+              />
             </Form.Group>
           </Col>
           <Col>
