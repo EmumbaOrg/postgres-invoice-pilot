@@ -83,28 +83,46 @@ const handleSessionSelect = (selectedSessionId) => {
           </div>
           )}
             {messages.map((msg, index) => (
-                       <div key={index} className={`message position-relative ${msg.role} mb-2 d-flex ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
-                {msg.role === "assistant" && (
+              <div
+                key={index}
+                className={`message position-relative ${msg.role} d-flex ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}
+                style={
+                  msg.role === 'assistant'
+                    ? {
+                        background: '#FAFAFA',
+                        borderRadius: '4px',
+                        padding: '24px',
+                        marginBottom: '30px'
+                      }
+                    : { marginBottom: '16px' }
+                }
+              >
+                {msg.role === 'assistant' && (
                   <Button
-                    variant="outlined-primary"
+                    variant="text-primary"
                     size="sm"
                     onClick={() => handleCopy(msg.content, index)}
-                    className="position-absolute  m-2"
+                    className="position-absolute"
                     style={{
-                      color: "#2979FF",
-                      top: '-16px',
-                      right: '0',
+                      color: '#2979FF',
+                      top: '24px',
+                      right: '24px',
+                      zIndex: 10
                     }}
                   >
-                    {copiedMessageIndex === index ? "Copied!" : <i className="fa-regular fa-clone"></i>}
+                    {copiedMessageIndex === index ? 'Copied!' : <i className="fa-regular fa-clone"></i>}
                   </Button>
                 )}
-                         {!error && index === messages.length - 1 && <div ref={messagesEndRef} />}
-                         <div className={`alert ${msg.role === 'user' ? 'user-message' : 'chat-response'}`} style={{ maxWidth: '90%', wordBreak:'break-word' }} role="alert">
-                           <ReactMarkdown>{msg.content}</ReactMarkdown>
-                         </div>
-                       </div>
-                     ))}
+                {!error && index === messages.length - 1 && <div ref={messagesEndRef} />}
+                <div
+                  className={`alert ${msg.role === 'user' ? 'user-message' : 'chat-response'}`}
+                  style={{ maxWidth: '90%', wordBreak: 'break-word' }}
+                  role="alert"
+                >
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              </div>
+            ))}
                      {error && <div className="alert alert-danger" role="alert">{error}<div ref={messagesEndRef} /></div>}
                      {isThinking && <div className="d-flex justify-content-center">
                       <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
