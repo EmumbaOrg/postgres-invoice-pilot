@@ -1,5 +1,5 @@
 import ReactMarkdown from 'react-markdown';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { NumericFormat } from 'react-number-format';
@@ -18,6 +18,7 @@ const useQuery = () => {
 
 const InvoiceEdit = () => {
   const query = useQuery();
+  const navigate = useNavigate();
   const { id } = useParams(); // Extract Vendor ID from URL
   const [vendorId, setVendorId] = useState(0);
   const [sowId, setSowId] = useState('');
@@ -29,6 +30,7 @@ const InvoiceEdit = () => {
   const [metadata, setMetadata] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [validating, setValidating] = useState(false);
   const [showDeleteInvoiceLineItemModal, setShowDeleteInvoiceLineItemModal] = useState(false);
@@ -198,7 +200,10 @@ const InvoiceEdit = () => {
   );
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    setIsSaving(true);
     try {
       var data = {
         vendor_id: vendorId,
@@ -213,10 +218,15 @@ const InvoiceEdit = () => {
       updateDisplay(updatedItem);
       setSuccess('Invoice updated successfully!');
       setError(null);
+      setTimeout(() => {
+        navigate('/invoices');
+      }, 500);
     } catch (err) {
       console.error(err);
       setError('Failed to update Invoice');
       setSuccess(null);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -294,8 +304,15 @@ const InvoiceEdit = () => {
         <Button type="button" variant="danger" className="ms-2" onClick={() => { setSowToDelete(id); setShowDeleteModal(true); }}>
           Delete
         </Button>
-             <Button type="submit" variant="primary">
-          Save
+             <Button type="button" variant="primary" onClick={handleSubmit} disabled={isSaving}>
+           {isSaving ? (
+            <>
+              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+              Saving...
+            </>
+          ) : (
+            'Save'
+          )}
         </Button>
 
             </div>
