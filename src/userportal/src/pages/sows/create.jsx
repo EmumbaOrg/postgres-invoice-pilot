@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Button, Spinner, Alert } from 'react-bootstrap';
-import api from '../../api/Api';
-import { formatFileSize } from '../../utils/common-functions';
-
+import React, { useState, useEffect } from "react";
+import { Modal, Form, Button, Spinner, Alert } from "react-bootstrap";
+import api from "../../api/Api";
+import SelectFormField from "../../components/SelectFormField";
+import { formatFileSize } from "../../utils/common-functions";
 
 const SOWCreateModal = ({ show, onHide, vendorId }) => {
   const [sowId, setSowId] = useState(0);
-  const [sowVendorId, setSowVendorId] = useState(vendorId || '');
+  const [sowVendorId, setSowVendorId] = useState(vendorId || "");
   const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
   const [errorDetail, setErrorDetail] = useState(null);
@@ -23,7 +23,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
         setVendors(data.data);
       } catch (err) {
         console.error(err);
-        setError('Error fetching Vendors');
+        setError("Error fetching Vendors");
         setErrorDetail(null);
         setSuccess(null);
       }
@@ -62,24 +62,23 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
   const handleClearFile = () => {
     setFile(null);
     // Reset the file input value to allow selecting the same file again
-    const fileInput = document.getElementById('fileInput') ;
+    const fileInput = document.getElementById("fileInput");
     if (fileInput) {
-      fileInput.value = '';
+      fileInput.value = "";
     }
   };
-
 
   const handleAnalyzeDocument = async (e) => {
     e.preventDefault();
     if (!file || !sowVendorId) return;
-    
+
     setShowUpload(false);
     let newSowId = 0;
 
     try {
       setError(null);
       setErrorDetail(null);
-      setLoading('Analyzing document with AI...');
+      setLoading("Analyzing document with AI...");
 
       const result = await api.sows.analyze(file, { vendor_id: sowVendorId });
       if (result.hasError) {
@@ -96,7 +95,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
     } catch (err) {
       console.error(err);
       setShowUpload(true);
-      setError('Error analyzing document');
+      setError("Error analyzing document");
       setErrorDetail(null);
       setSuccess(null);
       setLoading(null);
@@ -104,7 +103,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
     }
 
     try {
-      setLoading('Validating document with AI...');
+      setLoading("Validating document with AI...");
       await api.sows.validate(newSowId);
     } catch (err) {
       console.error(err);
@@ -113,9 +112,10 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
 
     setError(null);
     setLoading(null);
-    const successMessage = "SOW created successfully with fields populated by AI!";
+    const successMessage =
+      "SOW created successfully with fields populated by AI!";
     setSuccess(successMessage);
-    
+
     // Simulate redirect after success
     setTimeout(() => {
       window.location.href = `/sows/${newSowId}?success=${successMessage}&showValidation=true`;
@@ -125,7 +125,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
 
   const resetForm = () => {
     setSowId(0);
-    setSowVendorId(vendorId || '');
+    setSowVendorId(vendorId || "");
     setFile(null);
     setError(null);
     setErrorDetail(null);
@@ -134,9 +134,9 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
     setShowUpload(true);
     setDragActive(false);
     // Reset file input
-    const fileInput = document.getElementById('fileInput');
+    const fileInput = document.getElementById("fileInput");
     if (fileInput) {
-      fileInput.value = '';
+      fileInput.value = "";
     }
   };
 
@@ -146,10 +146,10 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
   };
 
   return (
-    <Modal 
-      show={show} 
-      onHide={handleClose} 
-      size="lg" 
+    <Modal
+      show={show}
+      onHide={handleClose}
+      size="lg"
       centered
       backdrop="static"
     >
@@ -164,18 +164,18 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
           <Alert variant="danger" className="mb-3">
             <p className="mb-1">{error}</p>
             {errorDetail && (
-              <div 
-                style={{ 
-                  maxHeight: '10em', 
-                  overflowY: 'scroll', 
-                  backgroundColor: '#fff', 
-                  padding: '0.5rem', 
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                  border: '1px solid #dee2e6'
-                }} 
-                dangerouslySetInnerHTML={{ 
-                  __html: (errorDetail || '').replace(/\n/g, '<br/>') 
+              <div
+                style={{
+                  maxHeight: "10em",
+                  overflowY: "scroll",
+                  backgroundColor: "#fff",
+                  padding: "0.5rem",
+                  borderRadius: "0.375rem",
+                  fontSize: "0.875rem",
+                  border: "1px solid #dee2e6",
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: (errorDetail || "").replace(/\n/g, "<br/>"),
                 }}
               />
             )}
@@ -191,46 +191,59 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
         {showUpload && (
           <Form onSubmit={handleAnalyzeDocument}>
             <Form.Group className="mb-4">
-              <Form.Label className="fw-medium text-dark mb-2">
-                Vendor Name
-              </Form.Label>
-              <Form.Select
-                value={sowVendorId}
-                onChange={(e) => setSowVendorId(e.target.value)}
-                required
-                className="py-3"
-                style={{ 
-                  borderColor: '#d2d2d6',
-                  color: sowVendorId ? '#292a31' : '#9696a0'
+              <Form.Label
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 400,
+                  color: "#787885",
+                  display: "block",
+                  marginBottom: "2px",
                 }}
               >
-                <option value="">Select vendor name</option>
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id.toString()}>
-                    {vendor.name}
-                  </option>
-                ))}
-              </Form.Select>
+                Vendor Name
+              </Form.Label>
+
+              <SelectFormField
+                options={vendors.map((v) => ({ value: v.id, label: v.name }))}
+                value={
+                  vendors.length > 0
+                    ? vendors
+                        .map((v) => ({ value: v.id, label: v.name }))
+                        .find((opt) => opt.value == sowVendorId) || null
+                    : null
+                }
+                onChange={(option) => setSowVendorId(option?.value || "")}
+                placeholder="Select vendor name"
+                isSearchable
+              />
             </Form.Group>
 
             <Form.Group className="mb-4">
-              <Form.Label className="fw-medium text-dark mb-3">
+              <Form.Label
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  color: "#292A31",
+                  marginBottom: "16px",
+                  display: "block",
+                }}
+              >
                 File Upload
               </Form.Label>
-              
+
               {!file ? (
                 <div
                   className={`p-5 text-center position-relative ${
-                    dragActive ? 'border-primary bg-light' : ''
+                    dragActive ? "border-primary bg-light" : ""
                   }`}
-                  style={{ 
-                   border: "1px dashed rgb(108, 117, 125)",
-                   minHeight: "300px",
-                   display: "flex",
-                   flexDirection: "column",
-                   justifyContent: "center",
-                   alignItems: "center",
-                   backgroundColor: "rgb(255, 255, 255)"
+                  style={{
+                    border: "1px dashed rgb(108, 117, 125)",
+                    minHeight: "300px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "rgb(255, 255, 255)",
                   }}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -241,7 +254,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
                     <h5 className="fw-bold text-dark mb-2">Drag and drop</h5>
                     <p className="text-muted mb-3">Or Browse for documents</p>
                   </div>
-                  
+
                   <input
                     type="file"
                     onChange={handleFileChange}
@@ -250,15 +263,17 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
                     id="fileInput"
                     accept=".pdf,.doc,.docx"
                   />
-                  
+
                   <Button
                     variant="outline-primary"
-                    onClick={() => document.getElementById('fileInput')?.click()}
+                    onClick={() =>
+                      document.getElementById("fileInput")?.click()
+                    }
                     className="px-4 py-2"
                     style={{
-                      borderColor: '#2979ff',
-                      color: '#2979ff',
-                      backgroundColor: 'transparent'
+                      borderColor: "#2979ff",
+                      color: "#2979ff",
+                      backgroundColor: "transparent",
                     }}
                   >
                     Browse
@@ -267,28 +282,30 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
               ) : (
                 <div
                   className="border rounded p-4"
-                  style={{ 
-                    borderColor: '#d2d2d6',
-                    backgroundColor: '#f8f9fa'
+                  style={{
+                    borderColor: "#d2d2d6",
+                    backgroundColor: "#f8f9fa",
                   }}
                 >
                   <div className="d-flex align-items-center justify-content-between">
                     <div className="d-flex align-items-center">
-                      <div 
+                      <div
                         className="me-3 d-flex align-items-center justify-content-center"
                         style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: '#2979ff',
-                          borderRadius: '8px',
-                          color: 'white'
+                          width: "40px",
+                          height: "40px",
+                          backgroundColor: "#2979ff",
+                          borderRadius: "8px",
+                          color: "white",
                         }}
                       >
                         📄
                       </div>
                       <div>
                         <div className="fw-medium text-dark">{file.name}</div>
-                        <div className="text-muted small">{formatFileSize(file.size)}</div>
+                        <div className="text-muted small">
+                          {formatFileSize(file.size)}
+                        </div>
                         <div className="text-success small">
                           <i className="fas fa-check-circle me-1"></i>
                           File selected successfully
@@ -300,7 +317,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
                       className="p-0 text-danger"
                       onClick={handleClearFile}
                       title="Remove file"
-                      style={{ fontSize: '20px' }}
+                      style={{ fontSize: "20px" }}
                     >
                       ×
                     </Button>
@@ -310,19 +327,19 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
             </Form.Group>
 
             <div className="d-flex justify-content-end gap-2">
-              <Button 
-                type="button" 
-                variant="outline-secondary" 
+              <Button
+                type="button"
+                variant="outline-secondary"
                 onClick={handleClose}
                 className="px-4"
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 variant="primary"
                 className="px-4"
-                style={{ backgroundColor: '#2979ff', borderColor: '#2979ff' }}
+                style={{ backgroundColor: "#2979ff", borderColor: "#2979ff" }}
                 disabled={!file || !sowVendorId}
               >
                 <i className="fas fa-search me-2"></i>
@@ -334,7 +351,12 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
 
         {loading && (
           <Alert variant="light" className="text-center py-4">
-            <Spinner animation="border" role="status" className="me-3" variant='primary'>
+            <Spinner
+              animation="border"
+              role="status"
+              className="me-3"
+              variant="primary"
+            >
               <span className="visually-hidden">{loading}</span>
             </Spinner>
             <div className="fw-medium">{loading}</div>
