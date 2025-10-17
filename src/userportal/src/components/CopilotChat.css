@@ -79,7 +79,6 @@ ul.session-list {
     }
 }
 
-/* Subtle scrollbar styling like Microsoft Copilot for chat areas */
 .sidebar-responsive,
 .messages {
   scrollbar-width: thin;

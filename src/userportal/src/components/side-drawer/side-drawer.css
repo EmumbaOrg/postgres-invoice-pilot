@@ -1,4 +1,3 @@
-/* Send button styling for side drawer (matches dashboard input disabled styles) */
 .send-button {
   border-radius: 4px;
   display: flex;
@@ -27,7 +26,6 @@
     box-shadow: none !important;
 }
 
-/* Subtle scrollbar styling like Microsoft Copilot */
 .messages-container {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
