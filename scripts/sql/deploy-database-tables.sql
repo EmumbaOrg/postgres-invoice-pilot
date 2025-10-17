@@ -346,11 +346,170 @@ INSERT INTO sow_validation_results (
     validation_passed
 )
 VALUES
-    (1, CURRENT_TIMESTAMP - INTERVAL '2 hours', 'Missing deliverables section.', FALSE),
-    (1, CURRENT_TIMESTAMP - INTERVAL '1 hour', 'Deliverables section contains wrong information and incorrect total billable amount for milestone 1.', FALSE),
-    (1, CURRENT_TIMESTAMP, 'The SOW has been correct and is now correct.', TRUE),
-    (2, CURRENT_TIMESTAMP - INTERVAL '1 hour', 'Incorrect milestone dates.', FALSE),
-    (2, CURRENT_TIMESTAMP, 'Everything is correct now.', TRUE);
+    (1, CURRENT_TIMESTAMP - INTERVAL '2 hours', '### SOW Validation
+
+1. **Vendor Validation:**
+   - Vendor name in SOW: "Adatum Corporation"
+   - Given vendor name: "Adatum Corporation"
+   - Result: Match
+
+2. **Section Details Validation:**
+   - Tasks: Present
+   - Payments: Present
+   - Schedules: Present
+   - Compliance: Present
+   - Signatures: Present
+   - Project Name: Present
+   - Requirements: Present
+   - Project Scope: Present
+   - Project Objectives: Present
+   - SOW Number: Present
+   - Total Amount: Present
+   - Effective Date: Present
+   - Project Completion Date: Present
+   - Project Deliverables: Present
+   - Result: All sections are present
+
+3. **Total Amount Validation:**
+   - Total amount in SOW: $43,600.00
+   - Billed amounts for deliverables: $8,600.00 + $7,000.00 + $7,000.00 + $10,500.00 + $2,000.00 + $3,500.00 + $5,000.00 = $43,600.00
+   - Result: Correct total amount
+
+4. **Project Date Validation:**
+   - Project start date: 01 November 2024
+   - Project end date: 31 December 2024
+   - Milestone submission dates:
+     - Project kick-off: 01 November 2024
+     - Initial monitoring setup: 08 November 2024
+     - Scaling implementation: 15 November 2024
+     - Cost optimization review: 22 November 2024
+     - Maintenance practices established: 13 December 2024
+     - Final troubleshooting and wrap-up: 31 December 2024
+   - Result: All milestone dates are before or on the project completion date. Project end date is after the start date.
+
+### Milestone Validation
+
+1. **Milestones and Deliverables Validation:**
+   - Milestone: Monitoring
+     - Deliverable: Monitoring of resources
+     - Amount: $8,600.00
+     - Payment due date: 08 December 2024
+     - Result: Matches SOW
+
+   - Milestone: Resource Scaling
+     - Deliverable: Implementation of automated scaling
+     - Amount: $7,000.00
+     - Payment due date: 08 December 2024
+     - Result: Matches SOW
+
+   - Milestone: Cost Management
+     - Deliverable: Cost Management Implementation
+     - Amount: $7,000.00
+     - Payment due date: 22 December 2024
+     - Result: Matches SOW
+
+   - Milestone: Maintenance Practices
+     - Deliverable: Maintenance & troubleshooting practices
+     - Amount: $10,500.00
+     - Payment due date: 27 December 2024
+     - Result: Matches SOW
+
+   - Milestone: App Troubleshooting
+     - Deliverable: Identify Azure application issues
+     - Amount: $2,000.00
+     - Payment due date: 27 December 2024
+     - Result: Matches SOW
+
+   - Milestone: App Troubleshooting
+     - Deliverable: Resolution of Azure application issues
+     - Amount: $3,500.00
+     - Payment due date: 31 January 2025
+     - Result: Matches SOW
+
+   - Milestone: App Troubleshooting
+     - Deliverable: Implementation of app monitoring
+     - Amount: $5,000.00
+     - Payment due date: 31 January 2025
+     - Result: Matches SOW
+
+### Summary of Validation Results
+
+- All vendor details match.
+- All sections of the SOW are present and accounted for.
+- The total amount billed matches the specified total amount in the SOW.
+- All milestone dates are within the project timeline, and payment terms are within the ''Net 30'' terms.
+- All deliverables and their associated amounts match the details specified in the SOW.
+
+No discrepancies or anomalies were found. The SOW is legitimate and ready for payment.
+
+[PASSED]', TRUE),
+    (2, CURRENT_TIMESTAMP - INTERVAL '1 hour', '### SOW Validation
+
+1. **Vendor Validation:**
+   - The vendor name in the SOW ("Trey Research") matches the given vendor details ("Trey Research"). ✔️
+
+2. **Section Details:**
+   - **Tasks:** Present
+   - **Payments:** Present
+   - **Schedules:** Present
+   - **Compliance:** Present
+   - **Signatures:** Present
+   - **Project Name:** Present
+   - **Requirements:** Present
+   - **Project Scope:** Present
+   - **Project Objectives:** Present
+   - **SOW Number:** Present
+   - **Total Amount:** Present
+   - **Effective Date:** Present
+   - **Project Completion Date:** Present
+   - **Project Deliverables:** Present
+
+   All sections are present. ✔️
+
+3. **Total Amount Validation:**
+   - The total amount specified in the SOW is $60,000.00, which matches the sum of deliverables (10000 + 20000 + 15000 + 15000 = 60000). ✔️
+
+4. **Date Validation:**
+   - The project start date (Effective Date) is 11 November 2024, and the project end date is 31 August 2025. The end date is after the start date. ✔️
+   - All milestone completion due dates are before or on the project completion date.
+     - Project kick-off: 12 November 2024 ✔️
+     - DevOps Strategy & Planning: 20 November 2024 ✔️
+     - CI/CD Pipeline Implementation: 27 November 2024 ✔️
+     - Infrastructure as Code (IaC): 15 December 2024 ✔️
+     - Security, Monitoring & Optimization: 31 December 2024 ✔️
+
+### Milestone Validation
+
+1. **Milestone: DevOps Strategy**
+   - Deliverable: "DevOps Roadmap & Report" matches "DevOps Strategy & Planning".
+   - Amount: $10,000.00 matches the billable amount.
+   - Milestone Payment Due Date: 20 December 2024 (Net 30 terms are met as the milestone completion due date is 20 November 2024). ✔️
+
+2. **Milestone: CI/CD Pipeline**
+   - Deliverable: "Build, Deployment, Source Control" matches "CI/CD Pipeline Implementation".
+   - Amount: $20,000.00 matches the billable amount.
+   - Milestone Payment Due Date: 27 December 2024 (Net 30 terms are met as the milestone completion due date is 27 November 2024). ✔️
+
+3. **Milestone: Infrastructure as Code**
+   - Deliverable: "Implementation of IaC, Containerization" matches "Infrastructure as Code (IaC)".
+   - Amount: $15,000.00 matches the billable amount.
+   - Milestone Payment Due Date: 15 January 2025 (Net 30 terms are met as the milestone completion due date is 15 December 2024). ✔️
+
+4. **Milestone: Security and Monitoring**
+   - Deliverable: "Security & Compliance Integration" matches "Security, Monitoring & Optimization".
+   - Amount: $15,000.00 matches the billable amount.
+   - Milestone Payment Due Date: 31 January 2025 (Net 30 terms are met as the milestone completion due date is 31 December 2024). ✔️
+
+### Summary
+- All vendor information is correct.
+- All required sections are present in the SOW.
+- The total amount is accurate.
+- Project dates and milestone dates are in proper order.
+- Milestone deliverables and amounts are validated and match the SOW.
+
+The SOW is legitimate and ready for payment.
+
+[PASSED]', FALSE);
 
 CREATE SEQUENCE IF NOT EXISTS sow_validation_results_id_seq;
 SELECT setval('sow_validation_results_id_seq', COALESCE((SELECT MAX(id) FROM sow_validation_results), 1) + 1);
@@ -548,12 +707,226 @@ INSERT INTO invoice_validation_results (
 )
 VALUES
     
-    (1, CURRENT_TIMESTAMP - INTERVAL '2 hours', 'Total amount was wrong.', FALSE),
-    (1, CURRENT_TIMESTAMP, 'Invoice had total amount added changed and passed with no errors.', TRUE),
-    (2, CURRENT_TIMESTAMP, 'Invoice validation passed with warnings: Payment terms was missing penalty text.', TRUE),
-    (3, CURRENT_TIMESTAMP - INTERVAL '2 hours', 'The amount invoiced for fixing application issues was $500 more than allowed by the contract.', FALSE),
-    (4, CURRENT_TIMESTAMP - INTERVAL '2 hours', 'Lots of mistakes. Returning to vendor for corrections', FALSE),
-    (4, CURRENT_TIMESTAMP, 'Everything fix. All good.', TRUE);
+    (1, CURRENT_TIMESTAMP - INTERVAL '2 hours', '**Invoice Validation:**
+
+- **Invoice Number:** Matches the vendor''s records.
+- **Total Amount:** $15,600.00 (Correct)
+- **Payment Terms:** Matches SOW (Net 30), with 10% penalty for late payments.
+
+**Milestone Validation:**
+
+1. **Monitoring of resources**
+   - **Invoice Amount:** $8,600.00
+   - **SOW Amount:** $8,600.00
+   - **Invoice Due Date:** 08 December 2024
+   - **SOW Due Date:** 08 December 2024
+   - **Validation Result:** Valid
+
+2. **Implementation of automated scaling**
+   - **Invoice Amount:** $7,000.00
+   - **SOW Amount:** $7,000.00
+   - **Invoice Due Date:** 08 December 2024
+   - **SOW Due Date:** 08 December 2024
+   - **Validation Result:** Valid
+
+**Summary:**
+
+- The invoice number "INV-AC2024-001" matches the vendor''s records.
+- The total amount of $15,600.00 on the invoice is correct.
+- The milestone delivery dates are before or on the respective submission due dates specified in the SOW.
+- No late fees or penalties apply as the milestones are within the due dates.
+- The line items on the invoice match the billing milestones in the SOW.
+- The amounts billed for each line item match the billable amounts specified in the SOW.
+- No discrepancies or anomalies were found.
+
+**Conclusion:**
+
+The invoice is legitimate and ready for payment.
+
+[PASSED]', TRUE),
+    (2, CURRENT_TIMESTAMP, '### Invoice Validation
+
+**Invoice Details:**
+- Invoice Number: INV-AC2024-002
+- Client: Woodgrove Bank
+- Vendor: Adatum Corporation
+- Total Amount: $7000.00
+- Invoice Date: 22 November 2024
+- SOW Number: SOW-2024-073
+
+### Milestone Validation
+
+**Milestones from SOW:**
+1. Monitoring: $8600.00, Due 08 December 2024
+2. Resource Scaling: $7000.00, Due 08 December 2024
+3. Cost Management: $7000.00, Due 22 December 2024
+4. Maintenance Practices: $10500.00, Due 27 December 2024
+5. App Troubleshooting: $2000.00, Due 27 December 2024
+6. App Troubleshooting: $3500.00, Due 31 January 2025
+7. App Troubleshooting: $5000.00, Due 31 January 2025
+
+**Milestones on Invoice:**
+1. Cost Management: $7000.00, Due 22 December 2024
+
+### Validation Results
+
+1. **Invoice Number Verification:**
+   - The invoice number (INV-AC2024-002) matches the vendor''s records.
+
+2. **Total Amount Verification:**
+   - The total amount on the invoice ($7000.00) matches the amount specified for the "Cost Management" milestone in the SOW.
+
+3. **Milestone Delivery Dates:**
+   - The milestone "Cost Management" has a due date of 22 December 2024, which is future-dated and therefore compliant.
+
+4. **Penalties and Late Fees:**
+   - No penalties or late fees apply as the milestone is not past due.
+
+5. **Line Item Validation:**
+   - The line item "Cost Management: $7000.00" on the invoice matches the billing milestone "Cost Management: $7000.00" in the SOW.
+
+6. **Notes for Discrepancies:**
+   - There are no discrepancies noted in the invoice.
+
+7. **Legitimacy Confirmation:**
+   - The invoice appears legitimate and ready for payment.
+
+### Summary of Validation:
+
+- The invoice number matches.
+- The total amount on the invoice is correct.
+- The milestone delivery date is compliant.
+- No late fees or penalties apply.
+- The line items on the invoice match the SOW milestones.
+- There are no discrepancies or anomalies.
+
+Invoice Status: Valid
+
+[PASSED]', TRUE),
+    (3, CURRENT_TIMESTAMP - INTERVAL '2 hours', '### Invoice Validation
+- **Invoice Number**: INV-AC2024-003
+- **SOW Number**: SOW-2024-073
+- **Total Amount**: $12,500.00
+- **Invoice Date**: 27 November 2024
+- **Payment Terms**: Net 30 days (matches SOW)
+- **Vendor**: Adatum Corporation
+- **Client**: Woodgrove Bank
+
+### Milestone Validation
+1. **Maintenance Practices**
+   - **Milestone Payment Due Date**: 27 December 2024
+   - **Amount Billed**: $10,500.00
+   - **Delivery Date**: Before or on due date (Valid)
+   - **Amount in SOW**: $10,500.00
+   - **Validation**: Matches SOW
+
+2. **App Troubleshooting**
+   - **Milestone Payment Due Date**: 27 December 2024
+   - **Amount Billed**: $2,000.00
+   - **Delivery Date**: Before or on due date (Valid)
+   - **Amount in SOW**: $2,000.00
+   - **Validation**: Matches SOW
+
+### Summary of Validation Results
+- **Invoice Number**: Matches vendor records.
+- **Total Amount**: Correct as per the line items.
+- **Milestone Delivery Dates**: All milestone delivery dates are before or on their respective submission due dates as specified in the SOW.
+- **Late Fees or Penalties**: No late deliveries; hence, no penalties applied.
+- **Line Items**: All line items match the billing milestones in the SOW.
+- **Amounts Billed for Each Line Item**: All amounts billed match the billable amounts specified in the SOW.
+- **Notes**: No discrepancies explained in the invoice notes.
+
+### Overall Assessment
+The invoice is legitimate and ready for payment. No discrepancies or anomalies found.
+
+[PASSED]', TRUE),
+    (4, CURRENT_TIMESTAMP - INTERVAL '2 hours', '### Invoice Validation
+
+**Invoice Number:** INV-AC2024-004
+**Vendor:** Adatum Corporation
+**Client:** Woodgrove Bank
+**Total Amount:** $8500.00
+**Invoice Date:** 01 January 2025
+**SOW Number:** SOW-2024-073
+
+### Milestone Validation
+
+**Milestone 1:**
+- **Milestone Name:** App Troubleshooting
+- **Deliverable:** Resolution of Azure application issues
+- **Amount:** $3500.00
+- **Milestone Payment Due Date:** 31 January 2025
+
+**Milestone 2:**
+- **Milestone Name:** App Troubleshooting
+- **Deliverable:** Implementation of app monitoring
+- **Amount:** $5000.00
+- **Milestone Payment Due Date:** 31 January 2025
+
+### Validation Summary
+1. **Invoice Number Match:** The invoice number (INV-AC2024-004) matches the vendor''s records.
+2. **Total Amount Check:** The total amount on the invoice ($8500.00) matches the sum of the line items.
+3. **Milestone Delivery Dates:** Both milestones have due dates of 31 January 2025, which are not overdue according to the SOW.
+4. **Late Fees or Penalties:** No late fees or penalties apply as the milestones are not past due.
+5. **Line Item Validation:**
+   - The line items on the invoice match the billing milestones in the SOW.
+   - The amounts billed for each milestone match the billable amounts specified in the SOW.
+6. **Discrepancy Notes:** No discrepancies or notes explaining discrepancies are found on the invoice.
+7. **Legitimacy of Invoice:** The invoice appears legitimate and ready for payment.
+
+### Conclusion
+The invoice is **valid** and matches the details provided in the SOW without any discrepancies or anomalies.
+
+[PASSED]', TRUE),
+(5, CURRENT_TIMESTAMP - INTERVAL '1 hour', '### Invoice Validation
+
+**Invoice Information:**
+- Invoice Number: INV-TR2024-001
+- SOW Number: SOW-2024-038
+- Total Amount: $10,000.00
+- Invoice Date: 20 November 2024
+- Client: Woodgrove Bank
+- Vendor: Trey Research
+- Payment Terms: Payment is due within 30 days of the invoice date, with a 10% penalty for late payments.
+
+**Validation Results:**
+1. **Invoice Number Match:** The invoice number matches the vendor''s records.
+2. **Total Amount:** The total amount on the invoice is $10,000.00, which is correct for the "DevOps Strategy" milestone.
+3. **Payment Terms:** The payment terms on the invoice match the SOW ("Net 30" and 10% penalty for late payments).
+4. **Invoice Date:** The invoice date is 20 November 2024, which is within the milestone completion due date range.
+
+### Milestone Validation
+
+**SOW Milestones:**
+1. **DevOps Strategy & Planning**
+   - Milestone Completion Due Date: 20 November 2024
+   - Milestone Payment Due Date: 20 December 2024
+   - Amount: $10,000.00
+
+**Invoice Milestones:**
+1. **DevOps Strategy**
+   - Milestone Completion Due Date: 20 December 2024
+   - Amount: $10,000.00
+
+**Validation Results:**
+1. **Milestone Delivery Date:** The milestone delivery date for "DevOps Strategy" is before the payment due date (20 December 2024), as specified in the SOW.
+2. **Milestone Amount:** The amount billed for the "DevOps Strategy" milestone is $10,000.00, which matches the billable amount specified in the SOW.
+3. **Line Items:** The line items on the invoice match the billing milestones in the SOW.
+
+### Summary of Validation Results
+
+- The invoice number matches the vendor''s records.
+- The total amount on the invoice is correct.
+- The milestone delivery dates are within the due date as specified in the SOW.
+- The amount billed for each line item matches the billable amount specified in the SOW.
+- No discrepancies or anomalies were found between the invoice and the SOW.
+
+### Conclusion
+
+The invoice is legitimate and ready for payment.
+
+[PASSED]',TRUE);
+
 
 CREATE SEQUENCE IF NOT EXISTS invoice_validation_results_id_seq;
 SELECT setval('invoice_validation_results_id_seq', COALESCE((SELECT MAX(id) FROM invoice_validation_results), 1) + 1);

@@ -19,7 +19,7 @@ FOR EACH ROW
 EXECUTE FUNCTION sow_chunks_insert_trigger_fn();
 
 
-/* ----- 'sow_validaton_results' table ----- */
+/* ----- 'sow_validation_results' table ----- */
 
 CREATE OR REPLACE FUNCTION sow_validation_results_insert_trigger_fn()
 RETURNS trigger AS $$
