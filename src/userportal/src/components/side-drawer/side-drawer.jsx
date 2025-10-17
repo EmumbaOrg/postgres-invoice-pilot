@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {  Offcanvas, Form, Button, InputGroup, Spinner } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 
@@ -13,6 +13,14 @@ export default function SideDrawer({handleCloseAIdrawer, showDrawer}) {
 
   const[showChatHistory, setShowChatHistory] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState(null);
+  const messagesContainerRef = useRef(null);
+
+  // Auto-scroll to bottom when new messages arrive (after submit)
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const onSubmit = (e) => {
     e.preventDefault()
@@ -66,91 +74,116 @@ const handleSessionSelect = (selectedSessionId) => {
           </div>
         </Offcanvas.Header>
 
-        <Offcanvas.Body className="d-flex flex-column">
+        <Offcanvas.Body className="d-flex flex-column p-0">
           {/* Main Content Area */}
           {showChatHistory &&  <ChatSessions isDrawerView={true} sessionId={sessionId} setSessionId={handleSessionSelect} setSessionToDelete={setSessionToDelete} messages={messages} setMessages={setMessages} sessionToDelete={sessionToDelete} setError={setError} />}
             {!showChatHistory &&  
           <>
-            {messages.length === 0 && !isThinking && !showChatHistory && (
-          <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center px-3">
-            <div className="mb-4">
-            <i className="fa-solid fa-wand-sparkles"></i>
-            </div>
-
-            {/* Help Text */}
-            <h4 className="mb-3 fw-bold text-dark">How can I help you with?</h4>
-            <p className="text-muted mb-0">Write "What's on your mind?" so I can help.</p>
-          </div>
-          )}
-            {messages.map((msg, index) => (
-                       <div key={index} className={`message position-relative ${msg.role} mb-2 d-flex ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
-                {msg.role === "assistant" && (
-                  <Button
-                    variant="outlined-primary"
-                    size="sm"
-                    onClick={() => handleCopy(msg.content, index)}
-                    className="position-absolute  m-2"
-                    style={{
-                      color: "#2979FF",
-                      top: '-16px',
-                      right: '0',
-                    }}
-                  >
-                    {copiedMessageIndex === index ? "Copied!" : <i className="fa-regular fa-clone"></i>}
-                  </Button>
-                )}
-                         {!error && index === messages.length - 1 && <div ref={messagesEndRef} />}
-                         <div className={`alert ${msg.role === 'user' ? 'user-message' : 'chat-response'}`} style={{ maxWidth: '90%', wordBreak:'break-word' }} role="alert">
-                           <ReactMarkdown>{msg.content}</ReactMarkdown>
-                         </div>
-                       </div>
-                     ))}
-                     {error && <div className="alert alert-danger" role="alert">{error}<div ref={messagesEndRef} /></div>}
-                     {isThinking && <div className="d-flex justify-content-center">
-                      <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
-        <Spinner animation="border" role="status" variant="primary">
-        </Spinner>
-      </div>
-                         <div ref={messagesEndRef} />
-                       </div>}
-          {/* Input Area */}
-          {  !showChatHistory && 
-          <div className="mt-auto">
-            <Form onSubmit={onSubmit} >
-              <InputGroup>
-                <Form.Control
-                  type="text"
-                  placeholder="What do you have in mind?"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { handleSendMessage(e); e.preventDefault(); return false; } }}
-                  className="border-end-0"
-                  style={{
-                    borderRadius: "8px 0 0 8px",
-                    fontSize: "14px",
-                  }}
-                  disabled={isThinking}
-                />
-                <Button
-                onClick={handleSendMessage}
-                  type="submit"
-                  variant="primary"
-                  className="px-3"
-                  style={{
-                    borderRadius: "0 8px 8px 0",
-                    backgroundColor: "#2979ff",
-                    borderColor: "#2979ff",
-                  }}
-                  disabled={!input.trim() || isThinking}
+            {/* Messages Container - Scrollable area */}
+            <div 
+              ref={messagesContainerRef}
+              className="flex-grow-1 overflow-auto px-3 messages-container"
+              style={{ 
+                paddingBottom: '16px', 
+                paddingTop: '16px'
+              }}
+            >
+              {messages.length === 0 && !isThinking && !showChatHistory && (
+                <div className="d-flex flex-column justify-content-center align-items-center text-center h-100">
+                  <div className="mb-4">
+                    <i className="fa-solid fa-wand-sparkles"></i>
+                  </div>
+                  {/* Help Text */}
+                  <h4 className="mb-3 fw-bold text-dark">How can I help you with?</h4>
+                  <p className="text-muted mb-0">Write "What's on your mind?" so I can help.</p>
+                </div>
+              )}
+              
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`message position-relative ${msg.role} d-flex ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}
+                  style={
+                    msg.role === 'assistant'
+                      ? {
+                          background: '#FAFAFA',
+                          borderRadius: '4px',
+                          padding: '24px',
+                          marginBottom: '30px'
+                        }
+                      : { marginBottom: '16px' }
+                  }
                 >
-                 <i className="fa-solid fa-paper-plane"></i>
-                </Button>
-              </InputGroup>
-            </Form>
-          </div>
-}
+                  {msg.role === 'assistant' && (
+                    <Button
+                      variant="text-primary"
+                      size="sm"
+                      onClick={() => handleCopy(msg.content, index)}
+                      className="position-absolute"
+                      style={{
+                        color: '#2979FF',
+                        top: '24px',
+                        right: '24px',
+                        zIndex: 10
+                      }}
+                    >
+                      {copiedMessageIndex === index ? 'Copied!' : <i className="fa-regular fa-clone"></i>}
+                    </Button>
+                  )}
+                  {!error && index === messages.length - 1 && <div ref={messagesEndRef} />}
+                  <div
+                    className={`alert ${msg.role === 'user' ? 'user-message' : 'chat-response'}`}
+                    style={{ maxWidth: '90%', wordBreak: 'break-word' }}
+                    role="alert"
+                  >
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                </div>
+              ))}
+              
+              {error && <div className="alert alert-danger" role="alert">{error}<div ref={messagesEndRef} /></div>}
+              
+              {isThinking && (
+                <div className="d-flex justify-content-center">
+                  <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+                    <Spinner animation="border" role="status" variant="primary">
+                    </Spinner>
+                  </div>
+                  <div ref={messagesEndRef} />
+                </div>
+              )}
+            </div>
+            
+            {/* Sticky Input Area */}
+            <div className="px-3 py-3 bg-white" style={{ flexShrink: 0 }}>
+              <Form onSubmit={onSubmit}>
+                <InputGroup>
+                  <Form.Control
+                    type="text"
+                    placeholder="What do you have in mind?"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { handleSendMessage(e); e.preventDefault(); return false; } }}
+                    className="border-end-0"
+                    style={{
+                      borderRadius: "8px 0 0 8px",
+                      fontSize: "14px",
+                    }}
+                    disabled={isThinking}
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    type="submit"
+                    className="send-button"
+                    disabled={isThinking || !input.trim()}
+                  >
+                    <i className="fa-solid fa-paper-plane"></i>
+                  </Button>
+                </InputGroup>
+              </Form>
+            </div>
           </>
-}    
+        }    
         </Offcanvas.Body>
       </Offcanvas>
     </>

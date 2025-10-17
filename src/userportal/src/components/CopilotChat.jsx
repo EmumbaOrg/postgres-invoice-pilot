@@ -6,6 +6,7 @@ import { Row, Col, Button, Breadcrumb } from "react-bootstrap";
 import { useChatSession } from "../hooks/useChatSession";
 import ChatSessions from "./chat-sessions/chat-sessions";
 import "./CopilotChat.css";
+import { BackIcon } from "../icon-svgs/icon-svgs";
 
 const CopilotChat = () => {
   const location = useLocation();
@@ -89,17 +90,18 @@ const CopilotChat = () => {
   }
 
   return (
-    <div className="ai-chat p-5 pt-0 m-4 mb-0" aria-busy={isThinking}>
+    <div className="ai-chat p-5 pt-4" aria-busy={isThinking} style={{backgroundColor: "#F9FBFF"}}>
       <Row style={{ gap: "5rem" }}>
         <Col
           lg={2}
-          className="px-1"
+          className="px-1 sidebar-responsive"
           style={{
             boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.15)",
             borderRadius: "8px",
             height: "82vh",
             overflowY: "auto",
             overflowX: "hidden",
+            backgroundColor: "#FFFFFF",
           }}
         >
           <ChatSessions
@@ -116,17 +118,17 @@ const CopilotChat = () => {
           <div className="d-flex justify-content-between mb-2">
             <div>
               <Breadcrumb className="mb-0">
-                <Breadcrumb.Item href="/">Dashboard</Breadcrumb.Item>
-                <Breadcrumb.Item active>Chats</Breadcrumb.Item>
+                <Breadcrumb.Item href="/"><p style={{color: "#2979FF", margin: 0}}>Dashboard</p></Breadcrumb.Item>
+                <Breadcrumb.Item active><p style={{display: "inline-block", color: "#292A31", margin: 0}}>Chats</p></Breadcrumb.Item>
               </Breadcrumb>
-              <Button
+              <Button   
                 area-label="Back to Dashboard"
                 alt="Back to Dashboard"
                 href="/"
                 variant="link"
                 className="styled-button text-decoration-none"
               >
-                <i className="fa-solid fa-arrow-left"></i> Back to Dashboard
+                <BackIcon /> Back to Dashboard
               </Button>
             </div>
             <Button
@@ -145,12 +147,19 @@ const CopilotChat = () => {
               overflowY: "scroll",
               boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.15)",
               borderRadius: "8px",
+              backgroundColor: "#FFFFFF",
             }}
           >
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`message position-relative ${msg.role} mb-2 d-flex ${msg.role === "user" ? "justify-content-end" : "justify-content-start"}`}
+                className={`message position-relative ${msg.role} d-flex ${msg.role === "user" ? "justify-content-end" : "justify-content-start"}`}
+                style={msg.role === "assistant" ? { 
+                  background: "#FAFAFA", 
+                  borderRadius: "4px", 
+                  padding: "24px", 
+                  marginBottom: "30px"
+                } : {}}
               >
                 {/* Only show copy button for assistant messages */}
                 {msg.role === "assistant" && (
@@ -158,8 +167,13 @@ const CopilotChat = () => {
                     variant="text-primary"
                     size="sm"
                     onClick={() => handleCopy(msg.content, index)}
-                    className="position-absolute top-0 end-0 m-2"
-                    style={{ color: "#2979FF" }}
+                    className="position-absolute"
+                    style={{ 
+                      color: "#2979FF", 
+                      top: "24px", 
+                      right: "24px", 
+                      zIndex: 10 
+                    }}
                   >
                     {copiedMessageIndex === index ? (
                       "Copied!"
