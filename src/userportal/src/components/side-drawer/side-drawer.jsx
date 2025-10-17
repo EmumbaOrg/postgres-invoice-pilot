@@ -174,15 +174,10 @@ const handleSessionSelect = (selectedSessionId) => {
                   <Button
                     onClick={handleSendMessage}
                     type="submit"
-                    variant="primary"
-                    className="px-3"
-                    style={{
-                      borderRadius: "0 8px 8px 0",
-                      backgroundColor: "#2979ff",
-                      borderColor: "#2979ff",
-                    }}
+                    className="send-button"
+                    disabled={isThinking || !input.trim()}
                   >
-                   <i className="fa-solid fa-paper-plane"></i>
+                    <i className="fa-solid fa-paper-plane"></i>
                   </Button>
                 </InputGroup>
               </Form>

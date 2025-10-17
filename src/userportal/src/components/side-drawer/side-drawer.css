@@ -1,3 +1,28 @@
+/* Send button styling for side drawer (matches dashboard input disabled styles) */
+.send-button {
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2979ff !important;
+  border-color: #2979ff !important;
+  color: #fff !important;
+  transition: background 0.2s, border 0.2s, opacity 0.2s;
+}
+
+.send-button:disabled,
+.send-button[disabled] {
+  background-color: #f1f1f1 !important;
+  border-color: #e0e0e0 !important;
+  color: #b0b0b0 !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+.send-button:hover:not(:disabled) {
+  background-color: #1a68e5 !important;
+  border-color: #1a68e5 !important;
+}
 .form-control:focus{
     box-shadow: none !important;
 }
