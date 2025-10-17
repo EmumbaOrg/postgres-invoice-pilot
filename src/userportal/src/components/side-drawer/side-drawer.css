@@ -1,3 +1,31 @@
 .form-control:focus{
     box-shadow: none !important;
 }
+
+/* Subtle scrollbar styling like Microsoft Copilot */
+.messages-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.messages-container::-webkit-scrollbar-thumb:active {
+  background-color: rgba(0, 0, 0, 0.4);
+}

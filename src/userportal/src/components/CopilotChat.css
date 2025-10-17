@@ -78,6 +78,41 @@ ul.session-list {
         height: auto !important;
     }
 }
+
+/* Subtle scrollbar styling like Microsoft Copilot for chat areas */
+.sidebar-responsive,
+.messages {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.sidebar-responsive::-webkit-scrollbar,
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-responsive::-webkit-scrollbar-track,
+.messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-responsive::-webkit-scrollbar-thumb,
+.messages::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-responsive::-webkit-scrollbar-thumb:hover,
+.messages::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-responsive::-webkit-scrollbar-thumb:active,
+.messages::-webkit-scrollbar-thumb:active {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
 .assistant {
     background-color: red;
 
