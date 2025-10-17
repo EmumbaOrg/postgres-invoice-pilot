@@ -8,7 +8,6 @@ param environmentName string
 @allowed([
   'australiaeast'
   'brazilsouth'
-  'canadaeast'
   'eastus'
   'eastus2'
   'francecentral'
@@ -18,10 +17,8 @@ param environmentName string
   'koreacentral'
   'northcentralus'
   'norwayeast'
-  'polandcentral'
   'southafricanorth'
   'southcentralus'
-  'southindia'
   'swedencentral'
   'switzerlandnorth'
   'uaenorth'
