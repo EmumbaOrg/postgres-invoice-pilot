@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-from agent_framework import ChatAgent, ChatMessage
-from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_prompt_service
+from app.lifespan_manager import get_genai_provider, get_db_connection_pool, get_prompt_service
+from app.genai.interface import GenAIProviderBase
 from app.models import InvoiceValidationResult, ListResponse, SowValidationResult
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import timedelta
@@ -10,7 +10,6 @@ import json
 router = APIRouter(
     prefix = "/validation",
     tags = ["Validation"],
-    dependencies = [Depends(get_chat_client)],
     responses = {404: {"description": "Not found"}}
 )
 
@@ -24,20 +23,20 @@ async def list_invoice_validations(id: int, pool = Depends(get_db_connection_poo
 
 @router.post('/invoice/{id}', response_model = str)
 #async def validate_invoice_by_id(request: ValidationRequest, id: int, llm = Depends(get_chat_client)):
-async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt_service = Depends(get_prompt_service)):
+async def validate_invoice_by_id(
+    id: int,
+    genai_provider: GenAIProviderBase = Depends(get_genai_provider),
+    prompt_service = Depends(get_prompt_service),
+):
     """Generate a chat completion to Validate the Invoice using the Azure OpenAI API."""
-    
-    messages = []
+
     system_prompt = prompt_service.get_prompt("invoice_validation")
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
-    # Add the current user message to the messages list
-    userMessage = f"""validate Invoice with ID of {id}"""
-    messages.append(ChatMessage(role="user", content=userMessage))
-
-    agent = ChatAgent(chat_client=llm, instructions=system_prompt, tools=validate_invoice)
-    completion = str(await agent.run(messages))
+    user_message = f"""validate Invoice with ID of {id}. invoice_id={id}"""
+    await genai_provider.build_agent(system_prompt=system_prompt, tools=[validate_invoice])
+    completion = str(await genai_provider.run(user_message=user_message))
 
     # Check if completion contains [PASSED] or [FAILED]
     # This is based on the prompt telling the AI to return either [PASSED] or [FAILED]
@@ -94,19 +93,20 @@ async def list_sow_validations(id: int, pool = Depends(get_db_connection_pool)):
     return ListResponse(data=validations, total = len(validations), skip = 0, limit = len(validations))
 
 @router.post('/sow/{id}', response_model = str)
-async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_service = Depends(get_prompt_service)):
+async def validate_sow_by_id(
+    id: int,
+    genai_provider: GenAIProviderBase = Depends(get_genai_provider),
+    prompt_service = Depends(get_prompt_service)
+):
     """Generate a chat completion to Validate the SOW using the Azure OpenAI API."""
 
-    messages = []
     system_prompt = prompt_service.get_prompt("sow_validation")
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
-    userMessage = f"""validate SOW with ID {id}"""
-    messages.append(ChatMessage(role="user", content=userMessage))
-
-    agent = ChatAgent(chat_client=llm, instructions=system_prompt, tools=validate_sow)
-    completion = str(await agent.run(messages))
+    user_message = f"""validate SOW with ID {id}"""
+    await genai_provider.build_agent(system_prompt=system_prompt, tools=[validate_sow])
+    completion = str(await genai_provider.run(user_message=user_message))
 
     # Check if completion contains [PASSED] or [FAILED]
     validation_passed = completion.find('[PASSED]') != -1

@@ -1,19 +1,20 @@
 from typing import Optional
+from fastapi.encoders import jsonable_encoder
+from app.genai.interface import GenAIProviderBase
+
 
 class ChatFunctions:
-    def __init__(self, db_pool, embedding_client, chat_model_deployment):
+    def __init__(self, db_pool, agent_service: GenAIProviderBase, chat_model_deployment):
         self.pool = db_pool
         self.model = chat_model_deployment
-        self.embedding_client = embedding_client
+        self.agent_service: GenAIProviderBase = agent_service
 
     async def __create_query_embeddings(self, user_query: str):
         """
-        Generates vector embeddings for the user query.
+        Generates vector embeddings for the user query using GenAI facade.
         """
-        # Create embeddings using the LangChain Azure OpenAI Embeddings client
-        # This makes an API call to the Azure OpenAI service to generate embeddings,
-        # which can be used to compare the user query with vectorized data in the database.
-        query_embeddings = await self.embedding_client.aembed_query(user_query)
+        await self.agent_service.init_embedding_client()
+        query_embeddings = await self.agent_service.aembed_query(user_query)
         return query_embeddings
     
     async def __execute_query(self, query: str):
@@ -23,7 +24,7 @@ class ChatFunctions:
         # Acquire a connection from the pool and execute the query
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(query)
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
     
     async def __execute_graph_query(self, query: str):
         """
@@ -35,7 +36,7 @@ class ChatFunctions:
             await conn.execute('SET search_path = ag_catalog, "$user", public;')
             # Execute the graph query
             rows = await conn.fetch(query)
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
         
     async def __execute_scalar_query(self, query: str):
         """
@@ -64,7 +65,7 @@ class ChatFunctions:
         query = f'SELECT {", ".join(columns)} FROM invoice_line_items WHERE invoice_id = {invoice_id};'
         
         rows = await self.__execute_query(query)
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def get_invoice_validation_results(self, invoice_id: Optional[int] = None):
         """
@@ -80,7 +81,7 @@ class ChatFunctions:
             query += f' WHERE invoice_id = {invoice_id}'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def get_invoices(self, invoice_id: Optional[int] = None, vendor_id: Optional[int] = None, sow_id: Optional[int] = None):
         """
@@ -113,7 +114,7 @@ class ChatFunctions:
                 query += f' WHERE sow_id = {sow_id}'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
     
     async def get_unpaid_invoices_for_vendor(self, vendor_id: int):
         """
@@ -127,7 +128,7 @@ class ChatFunctions:
         $$) as (vendor_id BIGINT, vendor_name TEXT, sow_id BIGINT, sow_number TEXT, invoice_id BIGINT, invoice_number TEXT, payment_status TEXT);
         """
         rows = await self.__execute_graph_query(graph_query)
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def get_sow_id(self, number: str) -> int:
         """
@@ -149,7 +150,7 @@ class ChatFunctions:
         query = f'SELECT {", ".join(columns)} FROM sow_chunks WHERE sow_id = {sow_id};'
 
         rows = await self.__execute_query(query)
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def get_sow_milestones(self, sow_id: int):
         """
@@ -157,7 +158,7 @@ class ChatFunctions:
         """
         query = f'SELECT * FROM milestones WHERE sow_id = {sow_id};'
         rows = await self.__execute_query(query)
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
     
     async def get_milestone_deliverables(self, milestone_id: int):
         """
@@ -169,7 +170,7 @@ class ChatFunctions:
         query = f'SELECT {", ".join(columns)} FROM deliverables WHERE milestone_id = {milestone_id}'
 
         rows = await self.__execute_query(f'{query}')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def get_sow_validation_results(self, sow_id: Optional[int] = None):
         """
@@ -185,7 +186,7 @@ class ChatFunctions:
             query += f' WHERE sow_id = {sow_id}'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def get_sows(self, sow_id: Optional[int] = None, vendor_id: Optional[int] = None):
         """
@@ -205,12 +206,12 @@ class ChatFunctions:
             query += f' WHERE vendor_id = {vendor_id}'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def get_vendors(self):
         """Retrieves a list of vendors from the database."""
         rows = await self.__execute_query('SELECT * FROM vendors;')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     """
     The following methods are used for hybrid searches against the database.
@@ -242,7 +243,7 @@ class ChatFunctions:
         query += f' ORDER BY rank ASC'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
     
     async def find_invoice_line_items(self, user_query: str, invoice_id: Optional[int] = None):
         """
@@ -270,7 +271,7 @@ class ChatFunctions:
         query += f' ORDER BY rank ASC'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def find_invoice_validation_results(self, user_query: str, invoice_id: Optional[int] = None):
         """
@@ -300,7 +301,7 @@ class ChatFunctions:
         query += f' ORDER BY rank ASC'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
 
     async def find_sow_chunks(self, user_query: str, sow_id: Optional[int] = None):
         """
@@ -326,7 +327,7 @@ class ChatFunctions:
         query += f' ORDER BY rank ASC'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
     
     async def find_sow_chunks_with_semantic_ranking(self, user_query: str, sow_id: Optional[int] = None, max_results: int = 3):
         """
@@ -360,7 +361,7 @@ class ChatFunctions:
         """
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]
     
     async def find_sow_validation_results(self, user_query: str, sow_id: Optional[int] = None): 
         """
@@ -390,4 +391,4 @@ class ChatFunctions:
         query += f' ORDER BY rank ASC'
 
         rows = await self.__execute_query(f'{query};')
-        return [dict(row) for row in rows]
+        return [jsonable_encoder(row) for row in rows]

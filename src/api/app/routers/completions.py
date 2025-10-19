@@ -1,23 +1,21 @@
+from app.genai.interface import GenAIProviderBase
 from app.functions.chat_functions import ChatFunctions
-from app.lifespan_manager import get_chat_client, get_config_service, get_db_connection_pool, get_embedding_client, get_prompt_service
+from app.lifespan_manager import get_genai_provider, get_config_service, get_db_connection_pool, get_prompt_service
 from app.models import CompletionRequest, CompletionResponse
 from fastapi import APIRouter, Depends
-from agent_framework import ChatAgent, ChatMessage
 
 
 router = APIRouter(
     prefix = "/completions",
     tags = ["Completions"],
-    dependencies = [Depends(get_chat_client)],
     responses = {404: {"description": "Not found"}}
 )
 
 @router.post('/chat', response_model=CompletionResponse)
 async def generate_chat_completion(
     request: CompletionRequest,
-    llm = Depends(get_chat_client),
     db_pool = Depends(get_db_connection_pool),
-    embedding_client = Depends(get_embedding_client),
+    genai_provider: GenAIProviderBase = Depends(get_genai_provider),
     prompt_service = Depends(get_prompt_service),
     app_config = Depends(get_config_service),
 ):
@@ -37,36 +35,31 @@ async def generate_chat_completion(
     async with db_pool.acquire() as conn:
         chat_history = await get_chat_history(conn, session_id)
         for message in chat_history[-request.max_history:]:
-            messages.append(ChatMessage(role=message["role"], text=message["content"]))
-   
-    cf = ChatFunctions(db_pool, embedding_client, app_config.get_chat_model_deployment())
+            messages.append({"role": message["role"], "content": message["content"]})
+
+    cf = ChatFunctions(db_pool, genai_provider, app_config.get_chat_model_deployment())
     tools = [
-        # Hybrid search functions
         cf.find_invoice_line_items,
         cf.find_invoice_validation_results,
         cf.find_milestone_deliverables,
         cf.find_sow_chunks_with_semantic_ranking,
         cf.find_sow_validation_results,
-        # Get invoice data functions
         cf.get_invoice_id,
         cf.get_invoice_line_items,
         cf.get_invoice_validation_results,
         cf.get_invoices,
         cf.get_unpaid_invoices_for_vendor,
-        # Get SOW data functions
         cf.get_sow_chunks,
         cf.get_sow_id,
         cf.get_sow_milestones,
         cf.get_milestone_deliverables,
         cf.get_sow_validation_results,
         cf.get_sows,
-        # Get vendor data functions
         cf.get_vendors,
     ]
-    agent = ChatAgent(chat_client=llm, instructions=system_prompt, tools=tools)
-    completion = await agent.run(messages)
+    genai_provider = await genai_provider.build_agent(system_prompt=system_prompt, tools=tools)
+    completion = await genai_provider.run(user_message=request.message, messages=messages)
 
-    # Write the chat history to the database
     async with db_pool.acquire() as conn:
         await write_chat_history(conn, session_id, "user", request.message)
         await write_chat_history(conn, session_id, "assistant", str(completion))
