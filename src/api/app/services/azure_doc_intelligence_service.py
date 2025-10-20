@@ -147,9 +147,8 @@ class AzureDocIntelligenceService:
     async def format_text_to_json(self, full_text: str, genai_provider: GenAIProviderBase, system_prompt: str):
         """Use LLM to format data into JSON structure"""
 
-        user_messages = {"role": "user", "content": full_text}
         genai_provider = await genai_provider.build_agent(system_prompt=system_prompt)
-        response = await genai_provider.run(user_message=user_messages, messages=[])
-        json_response = json.loads(response.content)
+        response = await genai_provider.run(user_message=full_text, messages=[])
+        json_response = json.loads(response)
 
         return json_response
