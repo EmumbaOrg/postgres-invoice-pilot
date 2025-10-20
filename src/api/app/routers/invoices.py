@@ -99,8 +99,7 @@ async def analyze_invoice(
                 message="The document does not appear to be a Invoice. Please upload a Invoice and try again."
             )
         else:
-            metadata = response.get("metadata", {})
-
+            metadata = response
 
         # extract required fields from metadata and then remove them from metadata
         invoice_number = str(metadata['Invoice_Number']) or f"INV-{datetime.now().strftime('%Y-%m%d')}"
