@@ -10,7 +10,7 @@ export default function ActivityTile({
   onMenuAction = () => {},
 }) {
   return (
-    <Card className="mb-3 border-1 shadow-sm tile-outer">
+    <Card className="border-1 shadow-sm tile-outer">
       <Card.Body className="py-3 px-4">
         <Row className="align-items-center gap-4">
           <Col xs="auto" className="icon-bg">
