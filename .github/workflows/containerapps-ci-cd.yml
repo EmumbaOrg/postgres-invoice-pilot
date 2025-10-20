@@ -47,6 +47,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      security-events: write
     needs: detect-changes
     if: needs.detect-changes.outputs.api == 'true'
     steps:
@@ -102,11 +103,12 @@ jobs:
             --image ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$IMAGE_TAG
 
   portal-build-and-deploy:
-    name: User Portal - Build & Deploy
+    name: Portal - Build & Deploy
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+      security-events: write
     needs: detect-changes
     if: needs.detect-changes.outputs.portal == 'true'
     steps:
