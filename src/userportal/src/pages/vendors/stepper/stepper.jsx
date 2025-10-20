@@ -354,7 +354,7 @@ const NavigationStepper = () => {
                 <h5 className="section-heading">Vendor Details</h5>
                 <div className="row g-3">
                   <div className="col-12">
-                      <Form.Group className="mb-4">
+                      <Form.Group>
                 <input
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
@@ -367,7 +367,7 @@ const NavigationStepper = () => {
                   </div>
                   <div className="col-12">
                     <input
-                    style={{"margin":0}}
+                      style={{ margin: 0 }}
                       type="text"
                       className="form-control p-3"
                       placeholder="Type *"
@@ -820,7 +820,7 @@ const NavigationStepper = () => {
 
   return (
     <div className="container-fluid" style={{ backgroundColor: "#F9FBFF" }}>
-      <div className="row m-4 p-4 mt-0">
+    <div className="row m-4 p-4 mt-0 mb-0 wrapper-inner">
         <main className="col-lg-12">
           <div className="row gap-5">
             {/* Stepper Navigation - col-lg-2 */}
@@ -929,15 +929,12 @@ const NavigationStepper = () => {
               </div>
 
               {/* Main Content */}
-              <div
-                className="p-4 background-styled
-              "
-              >
+              <div className="p-4 background-styled vendor-stepper-inner">
                 <div className="mb-4">
                   <h2 className="page-title mb-0">New Vendor</h2>
                 </div>
 
-                <div className="content-card p-4">{renderStepContent()}</div>
+                <div className="content-card p-4 pb-0">{renderStepContent()}</div>
               </div>
             </div>
           </div>

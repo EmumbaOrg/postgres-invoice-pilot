@@ -18,12 +18,9 @@ function App() {
   };
 
   return (
-    <span>
-    
-      <div >
+      <div style={{height: '100vh'}}>
         {isLoggedIn ? <Shell onLogout={handleLogout}  /> : <Login onLogin={handleLogin} />}
       </div>
-    </span>
   );
 }
 
