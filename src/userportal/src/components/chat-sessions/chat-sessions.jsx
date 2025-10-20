@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react';
 import { Row, Button, OverlayTrigger, Tooltip, Spinner } from 'react-bootstrap';
 import ConfirmModal from '../ConfirmModal'; 
 import api from '../../api/Api';
+import "./chat-session.css";
+import { DeleteChatHistoryIcon } from '../../icon-svgs/icon-svgs';
 
 const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessages, sessionToDelete, setError, isDrawerView = false}) => {
   const [sessions, setSessions] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sessionHistoryLoading, setSessionHistoryLoading] = useState(false);
+  const [isDeletingSession, setIsDeletingSession] = useState(false);
 
 
     const refreshSessionList = async () => {
@@ -41,6 +44,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         if (!sessionToDelete) return;
     
         setError(null);
+        setIsDeletingSession(true);
         try {
           await api.completions.deleteSession(sessionToDelete);
     
@@ -50,9 +54,11 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         } catch (err) {
           console.error('Error deleting session:', err);
           setError('Error deleting session. Please try again.');
+        } finally {
+          setIsDeletingSession(false);
+          setShowDeleteModal(false);
+          refreshSessionList();
         }
-        setShowDeleteModal(false);
-        refreshSessionList();
       };
 
       useEffect(() => {
@@ -68,8 +74,8 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
 
     return (
         <>
-        <Row className='px-4 py-2' >
-        <strong style={{color: "#1B4EA3"}}>Chat History</strong>
+        <Row className="chat-sessions-container">
+        <h3 className='chat-history-title'>Chat History</h3>
         {sessionHistoryLoading  &&
         <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
         <Spinner animation="border" role="status" variant="primary">
@@ -77,11 +83,11 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
       </div>
         }
         {!sessionHistoryLoading && (!sessions || sessions.length === 0) && <p>No sessions</p>}
-        {sessions && sessions.length > 0 && <ul className="session-list">
+        {!sessionHistoryLoading && sessions && sessions.length > 0 && <ul className="session-list">
           {sessions.map((session, index) => (
               <li key={index}
                 className={`session ${sessionId === session.id ? 'selected' : ''}`}
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px 8px 10px', borderBottom: '1px solid #ccc', cursor: 'pointer' }}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 16px', border: '1px solid #C4DAFF', cursor: 'pointer', borderRadius: '4px' }}
                 onClick={() => setSessionId(session.id)}
               >
                 <OverlayTrigger
@@ -89,7 +95,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
                   delay={{ show: 250, hide: 400 }}
                   overlay={<Tooltip id={`tooltip-${index}`}>{session.name.substring(0, 300)}</Tooltip>}
                 >
-                  <a alt={session.name}>{session.name}</a>
+                  <a style={{fontSize: '14px', color: '#292A31', fontWeight:400}} alt={session.name}>{session.name}</a>
                 </OverlayTrigger>
                 <div>
                   <OverlayTrigger
@@ -100,7 +106,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
                     <Button className="btn-danger" style={{ marginRight: '10px', border:'none' }}
                       title="Delete Session"
                       onClick={(e) => { setSessionToDelete(session.id); setShowDeleteModal(true); e.stopPropagation(); }}>
-                      <i className="fas fa-trash" style={{color:'red'}}></i>
+                      <DeleteChatHistoryIcon/>
                     </Button>
                   </OverlayTrigger>
                 </div>
@@ -114,6 +120,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         handleConfirm={handleDelete}
         message="This action cannot be reverted. Are you sure you want to delete this chat?"
         title={'Delete Chat?'}
+        isLoading={isDeletingSession}
       />  
         </>
     );

@@ -1,0 +1,9 @@
+.chat-sessions-container{
+    padding: 24px;
+}   
+.chat-history-title{
+    font-weight: 700;
+    font-size: 14px;
+    color: #2979FF;
+}
+

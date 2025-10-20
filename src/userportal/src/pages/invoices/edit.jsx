@@ -1,5 +1,5 @@
 import ReactMarkdown from 'react-markdown';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { NumericFormat } from 'react-number-format';
@@ -11,6 +11,7 @@ import PagedTable from '../../components/PagedTable';
 import ConfirmModal from '../../components/ConfirmModal';
 import StatusChip from '../../components/status-chip/status-chip';
 import ActivityTile from '../../components/activity-tile/activity-tile';
+import SelectFormField from '../../components/SelectFormField';
 
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
@@ -18,6 +19,7 @@ const useQuery = () => {
 
 const InvoiceEdit = () => {
   const query = useQuery();
+  const navigate = useNavigate();
   const { id } = useParams(); // Extract Vendor ID from URL
   const [vendorId, setVendorId] = useState(0);
   const [sowId, setSowId] = useState('');
@@ -29,6 +31,7 @@ const InvoiceEdit = () => {
   const [metadata, setMetadata] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [validating, setValidating] = useState(false);
   const [showDeleteInvoiceLineItemModal, setShowDeleteInvoiceLineItemModal] = useState(false);
@@ -173,7 +176,7 @@ const InvoiceEdit = () => {
             >
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
-            <Dropdown.Menu>
+            <Dropdown.Menu align="end">
               <Dropdown.Item href={`/invoice-line-items/${row.original.id}`} className="d-flex align-items-center gap-1">
               <i className="fas fa-edit" style={{ color: 'var(--bs-primary)' }} />
                 Edit
@@ -198,7 +201,10 @@ const InvoiceEdit = () => {
   );
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    setIsSaving(true);
     try {
       var data = {
         vendor_id: vendorId,
@@ -213,10 +219,15 @@ const InvoiceEdit = () => {
       updateDisplay(updatedItem);
       setSuccess('Invoice updated successfully!');
       setError(null);
+      setTimeout(() => {
+        navigate('/invoices');
+      }, 500);
     } catch (err) {
       console.error(err);
       setError('Failed to update Invoice');
       setSuccess(null);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -294,8 +305,15 @@ const InvoiceEdit = () => {
         <Button type="button" variant="danger" className="ms-2" onClick={() => { setSowToDelete(id); setShowDeleteModal(true); }}>
           Delete
         </Button>
-             <Button type="submit" variant="primary">
-          Save
+             <Button type="button" variant="primary" onClick={handleSubmit} disabled={isSaving}>
+           {isSaving ? (
+            <>
+              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+              Saving...
+            </>
+          ) : (
+            'Save'
+          )}
         </Button>
 
             </div>
@@ -319,29 +337,19 @@ const InvoiceEdit = () => {
           />
         </Form.Group>
           </Col>
-             <Col>
-            <Form.Group>
-              <Form.Label>SOW</Form.Label>
-              <Form.Control
-                as="select"
-                value={sowId}
-                onChange={(e) => setSowId(e.target.value)}
-                required
-                disabled={sows.length === 0}
-              >
-                {sows.length === 0 ? (
-                  <option value="">Loading SOWs...</option>
-                ) : (
-                  <option value="">Select SOW</option>
-                )}
-                {sows.map((sow) => (
-                  <option key={sow.id} value={sow.id}>
-                    {sow.number}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-          </Col>
+            <Col>
+              <Form.Group>
+                <Form.Label>SOW</Form.Label>
+                <SelectFormField
+                  options={sows.map(s => ({ value: s.id, label: s.number }))}
+                  value={sows.find(s => s.id == sowId) ? { value: sowId, label: (sows.find(s => s.id == sowId) || {}).number } : null}
+                  onChange={(opt) => setSowId(opt?.value || '')}
+                  placeholder={sows.length === 0 ? 'Loading SOWs...' : 'Select SOW'}
+                  isSearchable
+                  isDisabled={sows.length === 0}
+                />
+              </Form.Group>
+            </Col>
             <Col>
             <Form.Group className="mb-3">
               <Form.Label>Amount</Form.Label>
@@ -361,24 +369,14 @@ const InvoiceEdit = () => {
           <Col>
             <Form.Group>
               <Form.Label>Vendor</Form.Label>
-              <Form.Control
-                as="select"
-                value={vendorId}
-                onChange={(e) => setVendorId(e.target.value)}
-                required
-                disabled={vendors.length === 0}
-              >
-                {vendors.length === 0 ? (
-                  <option value="">Loading Vendors...</option>
-                ) : (
-                  <option value="">Select Vendor</option>
-                )}
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.name}
-                  </option>
-                ))}
-              </Form.Control>
+              <SelectFormField
+                options={vendors.map(v => ({ value: v.id, label: v.name }))}
+                value={vendors.find(v => v.id == vendorId) ? { value: vendorId, label: (vendors.find(v => v.id == vendorId) || {}).name } : null}
+                onChange={(opt) => setVendorId(opt?.value || '')}
+                placeholder={vendors.length === 0 ? 'Loading Vendors...' : 'Select Vendor'}
+                isSearchable
+                isDisabled={vendors.length === 0}
+              />
             </Form.Group>
         </Col>
           <Col>
