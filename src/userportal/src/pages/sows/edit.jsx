@@ -436,7 +436,7 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
         <h3>Milestones</h3>
       <hr />
         <Button variant="outline-primary" onClick={() => window.location.href = `/milestones/create/${id}`}>
-           <i className="fas fa-plus" />Add New Milestone
+           <i className="fas fa-plus" style={{marginRight: '0.5em'}} />Add New Milestone
         </Button>
       </div>
       <PagedTable columns={milestoneColumns}
