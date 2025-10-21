@@ -1,13 +1,13 @@
 from typing import Optional
 from fastapi.encoders import jsonable_encoder
-from app.genai.interface import GenAIProviderBase
+from app.framework_providers.interface import FrameworkProviderBase
 
 
 class ChatFunctions:
-    def __init__(self, db_pool, agent_service: GenAIProviderBase, chat_model_deployment):
+    def __init__(self, db_pool, agent_service: FrameworkProviderBase, chat_model_deployment):
         self.pool = db_pool
         self.model = chat_model_deployment
-        self.agent_service: GenAIProviderBase = agent_service
+        self.agent_service: FrameworkProviderBase = agent_service
 
     async def __create_query_embeddings(self, user_query: str):
         """

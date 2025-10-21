@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Callable
 
-class GenAIProviderBase(ABC):
+class FrameworkProviderBase(ABC):
     """Abstract base class for GenAI provider integration."""
 
     @abstractmethod
@@ -10,15 +10,15 @@ class GenAIProviderBase(ABC):
         pass
 
     @abstractmethod
-    async def init_chat_client(self, credentials: Any, **kwargs) -> 'GenAIProviderBase':
+    async def init_chat_client(self, credentials: Any, **kwargs) -> 'FrameworkProviderBase':
         pass
     
     @abstractmethod
-    async def init_embedding_client(self, credentials: Any, **kwargs) -> 'GenAIProviderBase':
+    async def init_embedding_client(self, credentials: Any, **kwargs) -> 'FrameworkProviderBase':
         pass
 
     @abstractmethod
-    async def build_agent(self, client: Any, system_prompt: str, tools: list[Callable] | None = None, **kwargs) -> 'GenAIProviderBase':
+    async def build_agent(self, client: Any, system_prompt: str, tools: list[Callable] | None = None, **kwargs) -> 'FrameworkProviderBase':
         pass
 
     @abstractmethod

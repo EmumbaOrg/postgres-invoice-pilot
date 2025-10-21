@@ -1,4 +1,4 @@
-from app.genai.interface import GenAIProviderBase
+from app.framework_providers.interface import FrameworkProviderBase
 from app.functions.chat_functions import ChatFunctions
 from app.lifespan_manager import get_genai_provider, get_config_service, get_db_connection_pool, get_prompt_service
 from app.models import CompletionRequest, CompletionResponse
@@ -15,7 +15,7 @@ router = APIRouter(
 async def generate_chat_completion(
     request: CompletionRequest,
     db_pool = Depends(get_db_connection_pool),
-    genai_provider: GenAIProviderBase = Depends(get_genai_provider),
+    genai_provider: FrameworkProviderBase = Depends(get_genai_provider),
     prompt_service = Depends(get_prompt_service),
     app_config = Depends(get_config_service),
 ):

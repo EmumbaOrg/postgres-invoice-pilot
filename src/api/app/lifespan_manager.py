@@ -1,5 +1,5 @@
 import os
-from app.genai.interface import GenAIProviderBase
+from app.framework_providers.interface import FrameworkProviderBase
 from app.services import (
     AzureDocIntelligenceService,
     ConfigService,
@@ -11,7 +11,7 @@ from app.services import (
 from azure.identity.aio import DefaultAzureCredential
 from azure.core.credentials import AzureKeyCredential
 from contextlib import asynccontextmanager
-from app.genai.factory import GenAIProviderFactory
+from app.framework_providers.factory import FrameworkProviderFactory
 
 
 # Create a global async Azure OpenAI
@@ -51,20 +51,19 @@ async def lifespan(app):
 
     # Create ConfigService instance
     config_service = ConfigService(credential)
-    azure_config = {
-        "chat_deployment_name": "completions",
-        "embedding_deployment_name": "embeddings",
-        "api_version": "2024-10-21",
-        "api_endpoint": await config_service.get_openai_endpoint(),
+    
+    framework_config = {
+        "chat_deployment_name": os.getenv("CHAT_DEPLOYMENT_NAME"),
+        "embedding_deployment_name": os.getenv("EMBEDDING_DEPLOYMENT_NAME"),
+        "openai_api_version": os.getenv("OPENAI_API_VERSION"),
+        "openai_api_endpoint": await config_service.get_openai_endpoint(),
     }
-
     genai_framework = os.getenv("GENAI_FRAMEWORK", "agent-framework")
-    genai_provider_factory = GenAIProviderFactory(
+    genai_provider_factory = FrameworkProviderFactory(
         provider=genai_framework,
-        azure_config=azure_config,
+        azure_config=framework_config,
     )
     genai_provider = genai_provider_factory.get_provider_service()
-    print(f"Using GenAI provider: {genai_framework}")
 
     # Create an async Azure Document Intelligence Service client
     doc_intelligence_credential = AzureKeyCredential(await config_service.get_doc_intelligence_key())
@@ -115,5 +114,5 @@ async def get_prompt_service():
 async def get_activity_log_service():
     return activity_log_service
 
-async def get_genai_provider() -> GenAIProviderBase:
+async def get_genai_provider() -> FrameworkProviderBase:
     return genai_provider

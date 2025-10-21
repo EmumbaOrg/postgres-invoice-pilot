@@ -1,13 +1,13 @@
 from typing import Any, Callable
-from agent_framework import ChatAgent as AFChatAgent, ChatMessage as AFChatMessage, TextContent
+from agent_framework import ChatAgent as AFChatAgent, ChatMessage as AFChatMessage
 from agent_framework.azure import AzureOpenAIChatClient
 from langchain_openai import AzureOpenAIEmbeddings
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from .interface import GenAIProviderBase
+from .interface import FrameworkProviderBase
 
-class AgentFrameworkProvider(GenAIProviderBase):
-    """Concrete implementation of GenAIProviderBase for Agent Framework."""
+class AgentFrameworkProvider(FrameworkProviderBase):
+    """Concrete implementation of FrameworkProviderBase for Agent Framework."""
     _chat_client: Any
     _embedding_client: Any
     _agent: Any
@@ -38,7 +38,12 @@ class AgentFrameworkProvider(GenAIProviderBase):
 
     async def build_agent(self, system_prompt: str, tools: list[Callable] | None = None, **kwargs) -> 'AgentFrameworkProvider':
         await self.init_chat_client()
-        self._agent = AFChatAgent(chat_client=self._chat_client, instructions=system_prompt, tools=tools)
+        self._agent = AFChatAgent(
+            chat_client=self._chat_client, 
+            instructions=system_prompt,
+            tools=tools,
+            temperature=self.azure_config.get("temperature", 0.0),
+        )
         return self
 
     async def run(self, user_message: str | None = None, messages: list[Any] = [], **kwargs) -> str:

@@ -5,7 +5,7 @@ from datetime import date, datetime
 import re
 import json
 
-from app.genai.interface import GenAIProviderBase
+from app.framework_providers.interface import FrameworkProviderBase
 
 class TextChunk:
     heading: str
@@ -140,11 +140,11 @@ class AzureDocIntelligenceService:
         
         return False
 
-    def semantic_chunking(self, text, genai_provider: GenAIProviderBase):
+    def semantic_chunking(self, text, genai_provider: FrameworkProviderBase):
         """Chunk text into semantically meaningful pieces using GenAI facade."""
         return genai_provider.split_text(text, max_chunk_size=500, overlap=50)
 
-    async def format_text_to_json(self, full_text: str, genai_provider: GenAIProviderBase, system_prompt: str):
+    async def format_text_to_json(self, full_text: str, genai_provider: FrameworkProviderBase, system_prompt: str):
         """Use LLM to format data into JSON structure"""
 
         genai_provider = await genai_provider.build_agent(system_prompt=system_prompt)

@@ -6,10 +6,10 @@ from langchain_core.tools import StructuredTool
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 from azure.identity.aio import DefaultAzureCredential, get_bearer_token_provider
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from .interface import GenAIProviderBase
+from .interface import FrameworkProviderBase
 
-class LangchainProvider(GenAIProviderBase):
-    """Concrete implementation of GenAIProviderBase for Langchain."""
+class LangchainProvider(FrameworkProviderBase):
+    """Concrete implementation of FrameworkProviderBase for Langchain."""
     _chat_client: Any
     _embedding_client: Any
     _agent: Any
@@ -29,6 +29,7 @@ class LangchainProvider(GenAIProviderBase):
             azure_deployment=self.azure_config.get("chat_deployment_name", "completions"),
             azure_endpoint=self.azure_config.get("api_endpoint"),
             api_version=self.azure_config.get("api_version"),
+            temperature=self.azure_config.get("temperature", 0.0),
             azure_ad_token_provider=await self.__get_token_provider(self.credential)
         )
         return self
