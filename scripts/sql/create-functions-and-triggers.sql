@@ -70,3 +70,20 @@ CREATE TRIGGER invoice_validation_results_insert_trigger
 BEFORE INSERT ON invoice_validation_results
 FOR EACH ROW
 EXECUTE FUNCTION invoice_validation_results_insert_trigger_fn();  
+
+
+/* ----- 'sows' table ----- */
+CREATE OR REPLACE FUNCTION sows_insert_trigger_fn()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.metadata IS NOT NULL THEN
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.metadata, throw_on_error => FALSE, max_attempts => 1000, retry_delay_ms => 2000);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- setup INSERT TRIGGER to call function
+CREATE TRIGGER sows_insert_trigger
+BEFORE INSERT ON sows
+FOR EACH ROW
+EXECUTE FUNCTION sows_insert_trigger_fn();
