@@ -43,7 +43,8 @@ class LangchainProvider(FrameworkProviderBase):
         return self
 
     async def build_agent(self, system_prompt: str, tools: list[Callable] | None = None, **kwargs) -> Any:
-        tools = await self.__prepare_tools(tools)
+        if tools:
+            tools = await self.__prepare_tools(tools)
         await self.init_chat_client()
         prompt = ChatPromptTemplate.from_messages(
             [
