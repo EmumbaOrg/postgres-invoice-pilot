@@ -24,7 +24,6 @@ const VendorView = () => {
   const [invoices, setInvoices] = useState([])
   const [fetchingSows, setFetchingSows] = useState(false)
   const [fetchingInvoices, setFetchingInvoices] = useState(false)
-  const [loading, setLoading] = useState(true) // Unified loading flag for initial load
   const [openPDFView, setOpenPDFView] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showDeleteSOWModal, setShowDeleteSOWModal] = useState(false);
@@ -38,48 +37,16 @@ const VendorView = () => {
   const [isDeletingVendor, setIsDeletingVendor] = useState(false);
 
   useEffect(() => {
-    // Initial load: fetch vendor details, sows and invoices and show unified loading state
-    const loadInitial = async () => {
-      setLoading(true)
+    // Fetch vendor data when component mounts
+    const fetchSOW = async () => {
       try {
-        const results = await Promise.allSettled([
-          api.vendors.get(id),
-          api.sows.list(id, 0, -1),
-          api.invoices.list(id, 0, 10),
-        ])
-
-        // vendors
-        if (results[0].status === 'fulfilled') {
-          updateDisplay(results[0].value)
-        } else {
-          console.error(results[0].reason)
-          setError('Failed to load Vendor data')
-        }
-
-        // sows
-        if (results[1].status === 'fulfilled') {
-          setSows(results[1].value?.data || [])
-        } else {
-          console.error(results[1].reason)
-          setError((prev) => prev ? prev : 'Error fetching SOWs')
-        }
-
-        // invoices
-        if (results[2].status === 'fulfilled') {
-          setInvoices(results[2].value?.data || [])
-        } else {
-          console.error(results[2].reason)
-          setError((prev) => prev ? prev : 'Error fetching Invoices')
-        }
+        const data = await api.vendors.get(id)
+        updateDisplay(data)
       } catch (err) {
-        console.error(err)
-        setError('Error loading data')
-      } finally {
-        setLoading(false)
+        setError("Failed to load Vendor data")
       }
     }
-
-    loadInitial()
+    fetchSOW()
   }, [id])
 
 
@@ -102,12 +69,11 @@ const VendorView = () => {
     try {
       const data = await api.sows.list(id, 0, -1) // No pagination limit
       setSows(data?.data)
+      setFetchingSows(false);
     } catch (err) {
       console.error(err)
       setError("Error fetching SOWs")
       setSuccess(null)
-    } finally {
-      setFetchingSows(false);
     }
   }
 
@@ -120,9 +86,8 @@ const VendorView = () => {
     };
   
     useEffect(()=>{
-    // keep these here for manual reloads/updates after initial load
-    fetchInvoices();
-    fetchSows();
+        fetchInvoices();
+        fetchSows();
     },[])
 
     useEffect(() => {
@@ -223,16 +188,7 @@ const VendorView = () => {
 
   return (
     <Container fluid className="px-4 py-3" style={{ backgroundColor: "rgb(249, 251, 255)" }}>
-      {loading && (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: '60vh' }}>
-          <Spinner animation="border" role="status" variant="primary">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
-      )}
-  {!loading && (
-  <>
-  {/* Breadcrumb Navigation */}
+      {/* Breadcrumb Navigation */}
       <Breadcrumb className="mb-3">
         <Breadcrumb.Item href="/vendors">Vendors</Breadcrumb.Item>
         <Breadcrumb.Item active>View Vendor</Breadcrumb.Item>
@@ -396,9 +352,7 @@ const VendorView = () => {
             </Card.Body>
           </Card>
         </Col>
-  </Row>
-  </>
-  )}
+      </Row>
       <PdfPreviewModal
       show={openPDFView}
       handleClose={() => setOpenPDFView(false)}
