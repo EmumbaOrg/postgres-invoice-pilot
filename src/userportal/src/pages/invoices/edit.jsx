@@ -45,6 +45,9 @@ const InvoiceEdit = () => {
   const [sows, setSows] = useState([]);
   const [validations, setValidations] = useState([]);
   const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialInvoiceLineItems, setInitialInvoiceLineItems] = useState(null);
+  const [initialInvoiceLineItemsMeta, setInitialInvoiceLineItemsMeta] = useState({ total: 0, skip: 0, limit: 10 });
 
   useEffect(() => {
     const message = query.get('success');
@@ -58,51 +61,49 @@ const InvoiceEdit = () => {
   }, [useLocation().search]);
 
   useEffect(() => {
-    // Fetch data when component mounts
-    const fetchData = async () => {
+    // Load core invoice + reference data together and show a loading state
+    const loadAll = async () => {
+      setIsLoading(true);
       try {
-        const data = await api.invoices.get(id);
-        updateDisplay(data);
+        const invoicePromise = api.invoices.get(id);
+        const statusesPromise = api.statuses.list();
+        const vendorsPromise = api.vendors.list(0, -1);
+
+        const [invoiceData, statusesData, vendorsData] = await Promise.all([
+          invoicePromise,
+          statusesPromise,
+          vendorsPromise,
+        ]);
+
+        updateDisplay(invoiceData);
+        setStatuses(statusesData || []);
+        setVendors(vendorsData?.data || []);
+
+        // Fetch validations and invoice line items after invoice is available
+        try {
+          const [validationsData, lineItemsData] = await Promise.all([
+            api.validationResults.invoice(id),
+            api.invoiceLineItems.list(id, 0, -1),
+          ]);
+          setValidations(validationsData?.data || []);
+          if (lineItemsData) {
+            setInitialInvoiceLineItems(lineItemsData.data || []);
+            setInitialInvoiceLineItemsMeta({ total: lineItemsData.total || 0, skip: lineItemsData.skip || 0, limit: lineItemsData.limit || 10 });
+          }
+        } catch (err) {
+          console.error(err);
+          setError('Error fetching Validations or Line Items');
+          setSuccess(null);
+        }
       } catch (err) {
+        console.error(err);
         setError('Failed to load Invoice data');
-      }
-    };
-    fetchData();
-
-    const fetchStatuses = async () => {
-      try {
-        const data = await api.statuses.list();
-        setStatuses(data);
-      } catch (err) {
-        setError('Failed to load statuses');
-      }
-    }
-    fetchStatuses();
-    
-    const fetchVendors = async () => {
-      try {
-        const data = await api.vendors.list(0, -1); // No pagination limit
-        setVendors(data.data);
-      } catch (err) {
-        console.error(err);
-        setError('Error fetching Vendors');
-        setSuccess(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchVendors();
-
-    const fetchValidations = async () => {
-      try {
-        const data = await api.validationResults.invoice(id);
-        setValidations(data.data);
-      } catch (err) {
-        console.error(err);
-        setError('Error fetching Validations');
-        setSuccess(null);
-      }
-    };
-    fetchValidations();
+    loadAll();
   }, [id]);
 
   useEffect(() => {
@@ -279,6 +280,14 @@ const InvoiceEdit = () => {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className='d-flex justify-content-center align-items-center' style={{ height: '60vh' }}>
+        <Spinner animation="border" role="status" variant="primary" />
+      </div>
+    );
+  }
+
   return (
     <div className='px-5 py-3' style={{ backgroundColor: "rgb(249, 251, 255)", position: "relative" }}>
     <div className='position-absolute top-0' style={{left:"38%"}}>
@@ -448,6 +457,11 @@ const InvoiceEdit = () => {
         showPagination={false}
         noDataMessage={'No Line Items have been added yet.'}
         noDataDescription={'Click on "Add New Line Item" to begin adding line items.'}
+        initialData={initialInvoiceLineItems}
+        initialTotal={initialInvoiceLineItemsMeta.total}
+        initialSkip={initialInvoiceLineItemsMeta.skip}
+        initialLimit={initialInvoiceLineItemsMeta.limit}
+        initialLoadCompleted={initialInvoiceLineItems !== null}
         />
 
       <ConfirmModal

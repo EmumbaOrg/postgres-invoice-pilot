@@ -2,7 +2,7 @@ import { Spinner } from 'react-bootstrap';
 import React, { useEffect, useState, useRef } from 'react';
 import Table from './Table';
 
-const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination = true, reload, noDataMesssage, noDataDescription }) => {
+const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination = true, reload, noDataMesssage, noDataDescription, initialData = null, initialTotal = 0, initialSkip = 0, initialLimit = 10, initialLoadCompleted = false }) => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(0);
@@ -14,6 +14,15 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
 
   const loadingData = useRef(false);
   const loadData = async (skip, limit, sortBy, searchQuery) => {
+    // If initial data was provided and marked as completed, use it for the first load
+    if (initialLoadCompleted && !loadingData.current && skip === initialSkip && searchQuery === '' && sortBy.length === 0 && !reload) {
+      setData(initialData || []);
+      setTotal(initialTotal || 0);
+      setSkip(initialSkip || 0);
+      setLimit(initialLimit || 10);
+      return;
+    }
+
     if (!loadingData.current) {
       loadingData.current = true;
       setLoading(true);
@@ -86,9 +95,8 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
         </div>
       )}
       {loading ? (
-          <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
-          <Spinner animation="border" role="status" variant="primary">
-          </Spinner>
+          <div className="d-flex justify-content-center align-items-center py-4">
+          <Spinner animation="border" role="status" variant="primary" />
         </div>
       ) : error ? (
         <p>Error: {error}</p>

@@ -35,6 +35,9 @@ const SOWEdit = () => {
   const [validating, setValidating] = useState(false); 
   const [vendors, setVendors] = useState([]);
   const [validations, setValidations] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [initialMilestones, setInitialMilestones] = useState(null);
+  const [initialMilestonesMeta, setInitialMilestonesMeta] = useState({ total: 0, skip: 0, limit: 10 });
 
   const [showDeleteMilestoneModal, setShowDeleteMilestoneModal] = useState(false);
   const [milestoneToDelete, setMilestoneToDelete] = useState(null);
@@ -57,47 +60,46 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
   const sowLoaded = useRef(false);
 
   useEffect(() => {
-    // Fetch data when component mounts
+    // Fetch all required data when component mounts and show a loading state
     if (!sowLoaded.current) {
-       // Load Vendors dropdown options
-       const fetchVendors = async () => {
+      const loadAll = async () => {
+        setIsLoading(true);
         try {
-          const data = await api.vendors.list(0, -1); // No pagination limit
-          setVendors(data.data);
-        } catch (err) {
-          console.error(err);
-          setError('Error fetching Vendors');
-          setSuccess(null);
-        }
-      };
-      fetchVendors();
+          // Fetch vendors and sow in parallel (sow needs id)
+          const vendorsPromise = api.vendors.list(0, -1);
+          const sowPromise = api.sows.get(id);
 
-      // Load SOW Details
-      const fetchSow = async () => {
-        try {
-          const data = await api.sows.get(id);
-          updateDisplay(data);
+          const [vendorsData, sowData] = await Promise.all([vendorsPromise, sowPromise]);
+
+          setVendors(vendorsData?.data || []);
+          updateDisplay(sowData);
+
+          // Fetch validations and milestones after sow is available
+          try {
+            const [validationsData, milestonesData] = await Promise.all([
+              api.validationResults.sow(id),
+              api.milestones.list(id, 0, -1),
+            ]);
+            setValidations(validationsData?.data || []);
+            if (milestonesData) {
+              setInitialMilestones(milestonesData.data || []);
+              setInitialMilestonesMeta({ total: milestonesData.total || 0, skip: milestonesData.skip || 0, limit: milestonesData.limit || 10 });
+            }
+          } catch (err) {
+            console.error(err);
+            setError('Error fetching Validations or Milestones');
+            setSuccess(null);
+          }
+
+          sowLoaded.current = true;
         } catch (err) {
           console.error(err);
           setError('Failed to load SOW data');
+        } finally {
+          setIsLoading(false);
         }
-
-        // Load SOW Validations after SOW is loaded
-        const fetchValidations = async () => {
-          try {
-            const data = await api.validationResults.sow(id);
-            setValidations(data.data);
-          } catch (err) {
-            console.error(err);
-            setError('Error fetching Validations');
-            setSuccess(null);
-          }
-        };
-        fetchValidations();
-
-        sowLoaded.current = true;
       };
-      fetchSow();
+      loadAll();
     }
   }, [id]);
 
@@ -282,6 +284,14 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
     setError(null);
   };
 
+  if (isLoading) {
+    return (
+      <div className='d-flex justify-content-center align-items-center' style={{ height: '60vh' }}>
+        <Spinner animation="border" role="status" variant="primary" />
+      </div>
+    );
+  }
+
   return (
     <div className='px-5 py-3' style={{ backgroundColor: "rgb(249, 251, 255)", position: "relative" }}>
       <div className='position-absolute top-0' style={{left:"38%"}}>
@@ -436,7 +446,7 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
         <h3>Milestones</h3>
       <hr />
         <Button variant="outline-primary" onClick={() => window.location.href = `/milestones/create/${id}`}>
-           <i className="fas fa-plus" />Add New Milestone
+           <i className="fas fa-plus" style={{marginRight: '0.5em'}} />Add New Milestone
         </Button>
       </div>
       <PagedTable columns={milestoneColumns}
@@ -445,6 +455,11 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
         showPagination={false}
         noDataMesssage={'No milestones have been added yet.'}
         noDataDescription={'Click on "Add New Milestone" to begin adding milestones.'}
+        initialData={initialMilestones}
+        initialTotal={initialMilestonesMeta.total}
+        initialSkip={initialMilestonesMeta.skip}
+        initialLimit={initialMilestonesMeta.limit}
+        initialLoadCompleted={initialMilestones !== null}
         />
       <ConfirmModal
         show={showDeleteMilestoneModal}
