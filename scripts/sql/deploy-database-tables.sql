@@ -508,10 +508,7 @@ VALUES
 (3,'App Troubleshooting','Identify Azure application issues',2000,'In Progress','2024-12-27'),
 (4,'App Troubleshooting','Resolution of Azure application issues',3500,'Completed','2025-01-31'),
 (4,'App Troubleshooting','Implementation of app monitoring',5000,'In Progress','2025-01-31'),
-(5,'DevOps Strategy','DevOps Roadmap & Report',10000,'Completed','2024-12-20'),
-(6,'CI/CD Pipeline','Build, Deployment, Source Control',20000,'Completed','2024-12-27'),
-(7,'Infrastructure as Code','Implementation of IaC, Containerization',15000,'Pending','2025-01-15'),
-(8,'Security and Monitoring','Security & Compliance Integration',15000,'Pending','2025-01-31');
+(5,'DevOps Strategy','DevOps Roadmap & Report',10000,'Completed','2024-12-20');
 
 CREATE SEQUENCE IF NOT EXISTS invoice_line_items_id_seq;
 SELECT setval('invoice_line_items_id_seq', COALESCE((SELECT MAX(id) FROM invoice_line_items), 1) + 1);
