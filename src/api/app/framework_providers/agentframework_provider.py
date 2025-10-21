@@ -57,7 +57,7 @@ class AgentFrameworkProvider(FrameworkProviderBase):
         embeddings = await self._embedding_client.aembed_query(text)
         return embeddings
 
-    async def split_text(self, text: str, **kwargs) -> list[str]:
+    def split_text(self, text: str, **kwargs) -> list[str]:
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=kwargs.get("chunk_size", 500),
             chunk_overlap=kwargs.get("chunk_overlap", 50),

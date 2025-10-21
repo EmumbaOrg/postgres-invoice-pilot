@@ -30,5 +30,5 @@ class FrameworkProviderBase(ABC):
         pass
 
     @abstractmethod 
-    async def split_text(self, text: str, **kwargs) -> list[str]:
+    def split_text(self, text: str, **kwargs) -> list[str]:
         pass
