@@ -27,8 +27,8 @@ class LangchainProvider(FrameworkProviderBase):
     async def init_chat_client(self, **kwargs) -> Any:
         self._chat_client = AzureChatOpenAI(
             azure_deployment=self.azure_config.get("chat_deployment_name", "completions"),
-            azure_endpoint=self.azure_config.get("api_endpoint"),
-            api_version=self.azure_config.get("api_version"),
+            azure_endpoint=self.azure_config.get("openai_api_endpoint"),
+            api_version=self.azure_config.get("openai_api_version"),
             temperature=self.azure_config.get("temperature", 0.0),
             azure_ad_token_provider=await self.__get_token_provider(self.credential)
         )
@@ -37,7 +37,7 @@ class LangchainProvider(FrameworkProviderBase):
     async def init_embedding_client(self, **kwargs) -> Any:
         self._embedding_client = AzureOpenAIEmbeddings(
             azure_deployment=self.azure_config.get("embedding_deployment_name", "completions"),
-            azure_endpoint=self.azure_config.get("api_endpoint"),
+            azure_endpoint=self.azure_config.get("openai_api_endpoint"),
             azure_ad_token_provider=await self.__get_token_provider(self.credential)
         )
         return self

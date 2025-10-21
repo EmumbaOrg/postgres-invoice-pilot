@@ -22,8 +22,8 @@ class AgentFrameworkProvider(FrameworkProviderBase):
     async def init_chat_client(self,  **kwargs) -> 'AgentFrameworkProvider':
         self._chat_client = AzureOpenAIChatClient(
             deployment_name=self.azure_config.get("chat_deployment_name", "completions"),
-            endpoint=self.azure_config.get("api_endpoint"),
-            api_version=self.azure_config.get("api_version"),
+            endpoint=self.azure_config.get("openai_api_endpoint"),
+            api_version=self.azure_config.get("openai_api_version"),
             ad_token_provider=await self.__get_token_provider(self.credential)
         )
         return self
@@ -31,7 +31,7 @@ class AgentFrameworkProvider(FrameworkProviderBase):
     async def init_embedding_client(self, **kwargs) -> 'AgentFrameworkProvider':
         self._embedding_client = AzureOpenAIEmbeddings(
             azure_deployment=self.azure_config.get("embedding_deployment_name", "completions"),
-            azure_endpoint=self.azure_config.get("api_endpoint"),
+            azure_endpoint=self.azure_config.get("openai_api_endpoint"),
             azure_ad_token_provider=await self.__get_token_provider(self.credential)
         )
         return self
