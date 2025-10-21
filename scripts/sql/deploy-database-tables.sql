@@ -509,7 +509,7 @@ No discrepancies or anomalies were found. The SOW is legitimate and ready for pa
 
 The SOW is legitimate and ready for payment.
 
-[PASSED]', FALSE);
+[PASSED]', TRUE);
 
 CREATE SEQUENCE IF NOT EXISTS sow_validation_results_id_seq;
 SELECT setval('sow_validation_results_id_seq', COALESCE((SELECT MAX(id) FROM sow_validation_results), 1) + 1);
