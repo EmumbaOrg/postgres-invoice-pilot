@@ -4,7 +4,7 @@ In this step, you will configure your Python development environment in Visual S
 
 - [X] Created a Python virtual environment
 - [X] Installed the required Python libraries from `requirements.txt`
-- [X] Create and populated a `.env` file in the **Woodgrove API** project.
+- [X] Create and populated a `.env` file in the **Invoice Pilot API** project.
 - [X] Connected to your database using pgAdmin
 
 ## Create a Python virtual environment
@@ -54,7 +54,7 @@ The `requirements.txt` file in the `src\api` folder contains the set of Python l
 
 ## Create `.env` file
 
-Configuration values, such as connection string and endpoints, that allow your application to interact with Azure services are hosted in an Azure App Configuration service. To enable your application to retrieve these values, you must provide it with the endpoint of that service. You will use a `.env` file to host the endpoint as an environment variable, which will allow you to run the Woodgrove API locally. The `.env` file will be created within the `src\api\app` folder of the project.
+Configuration values, such as connection string and endpoints, that allow your application to interact with Azure services are hosted in an Azure App Configuration service. To enable your application to retrieve these values, you must provide it with the endpoint of that service. You will use a `.env` file to host the endpoint as an environment variable, which will allow you to run the Invoice Pilot API locally. The `.env` file will be created within the `src\api\app` folder of the project.
 
 1. In VS Code, navigate to the `src\api\app` folder in the **Explorer** panel.
 
@@ -102,7 +102,7 @@ You will use pgAdmin from your machine to configure various features in the data
 
     1. On the **General** tab, enter "PostgreSQLSolutionAccelerator" into the **Name** field and clear the **Connect now** option.
 
-        ![Screenshot of the Register Server general tabl with the name and connect now fields highlighted.](../img/pgadmin-register-server-general-tab.png)
+        ![Screenshot of the Register Server general table with the name and connect now fields highlighted.](../img/pgadmin-register-server-general-tab.png)
 
     2. Select the **Connection** tab and provide your Azure Database for PostgreSQL flexible server instance details for **Hostname/address** and **Username**.
 

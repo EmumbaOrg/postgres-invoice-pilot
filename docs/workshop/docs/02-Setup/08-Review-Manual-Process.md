@@ -1,20 +1,20 @@
 # 2.8 Review Manual Process
 
-Before beginning the process if integrating AI capabilities into the _Woodgrove Bank Contract Management_ application, let's review the manually process they are currently using to enter data into the system. Keep in mind that a user would need to first read the SOW and Invoice document, before copying and pasting the correct information into the application fields. This manual process can be very time consuming and error-prone.
+Before beginning the process of integrating AI capabilities into the _Invoice Pilot_ application, let's review the manual process they are currently using to enter data into the system. Keep in mind that a user would need to first read the SOW and Invoice document, before copying and pasting the correct information into the application fields. This manual process can be very time consuming and error-prone.
 
 ## Review SOWs
 
 Let's review the application UI for SOWs.
 
-1. In the Woodgrove Bank Contract Management Portal, select the **SOWs** page and to view the list of SOWs.
+1. In the Invoice Pilot Portal, select the **SOWs** page and to view the list of SOWs.
 
-    ![Screenshot of the list of SOWs in the Woodgrove Bank Contract Management portal.](../img/2.8.1.png)
+    ![Screenshot of the list of SOWs in the Invoice Pilot Bank Contract Management portal.](../img/2.8.1.png)
 
 2. Locate the **SOW-2024-073** SOW, then select the **Edit** button under the **Actions** column. This will open the edit page for the SOW.
 
     ![Screenshot of the SOWs list with the edit button highlighted for the 'SOW-2024-073' SOW at the top of the list.](../img/2.8.2.png)
 
-3. On the SOW Edit page, notice the primary fields that need to be entered for the **Statement of Work** (Vendor, SOW Name, Budget, State Date, and End Date). Also, notice the list of Milestones that must be manually entered for the SOW based on the SOW document that was uploaded.
+3. On the SOW Edit page, notice the primary fields that need to be entered for the **Statement of Work** (Vendor, SOW Name, Budget, Start Date, and End Date). Also, notice the list of Milestones that must be manually entered for the SOW based on the SOW document that was uploaded.
 
     ![Screenshot of SOW edit page with SOW fields and milestones list showing.](../img/2.8.3.png)
 
@@ -34,7 +34,7 @@ Let's review the application UI for SOWs.
 
 Let's review the application UI for Invoices.
 
-1. In the Woodgrove Bank Contract Management Portal, select the **Invoices** page and to view the list of Invoices. Then select the **Edit** button for the first Invoice in the list. This will bring up the Invoice Edit page.
+1. In the Invoice Pilot Portal, select the **Invoices** page and to view the list of Invoices. Then select the **Edit** button for the first Invoice in the list. This will bring up the Invoice Edit page.
 
     ![Screenshot of the Invoices list with the Edit button highlighted for the first Invoice in the list.](../img/INV_2.8.1.png)
 

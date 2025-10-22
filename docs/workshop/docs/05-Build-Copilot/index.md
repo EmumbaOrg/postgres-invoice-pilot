@@ -15,7 +15,7 @@
     - Map Your Data: Identify how your data schema aligns with the existing functions.
     - Modify Functions: Adjust or rewrite functions to query and process your data appropriately, ensuring that the AI services can accurately interpret and respond based on your dataset.
 
-In this section, you will add an AI copilot to the _Woodgrove Bank Contract Management_ application using Python, the GenAI capabilities of Azure Database for PostgreSQL - Flexible Server, and the Azure AI extension. Using the AI-validated data, the copilot will use RAG to provide insights and answer questions about vendor contract performance and invoicing accuracy, serving as an intelligent assistant for Woodgrove Banks users. Here's what you will accomplish:
+In this section, you will add an AI copilot to the _Invoice Pilot_ application using Python, the GenAI capabilities of Azure Database for PostgreSQL - Flexible Server, and the Azure AI extension. Using the AI-validated data, the copilot will use RAG to provide insights and answer questions about vendor contract performance and invoicing accuracy, serving as an intelligent assistant for Invoice Pilot's users. Here's what you will accomplish:
 
 - [ ] Explore the API codebase
 - [ ] Review the RAG design
@@ -28,7 +28,7 @@ Following these steps will transform your application into a powerful AI-enhance
 
 ## What are copilots?
 
-Copilots are advanced AI assistants designed to augment human capabilities and improve productivity by providing intelligent, context-aware support, automating repetitive tasks, and enhancing decision-making processes. For instance, the Woodgrove Bank copilot will assist in data analysis, helping users identify patterns and trends in financial datasets.
+Copilots are advanced AI assistants designed to augment human capabilities and improve productivity by providing intelligent, context-aware support, automating repetitive tasks, and enhancing decision-making processes. For instance, the Invoice Pilot copilot will assist in data analysis, helping users identify patterns and trends in financial datasets.
 
 ## Why use Python?
 
