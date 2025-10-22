@@ -74,13 +74,6 @@ var blobStorageContainerName = 'documents'
 var graphContainerName = 'graph'
 
 var deployOpenAi = empty(existingOpenAiInstance.name)
-// var azureOpenAiEndpoint = deployOpenAi ? openAi.outputs.endpoint : customerOpenAi.properties.endpoint
-// var azureOpenAi = deployOpenAi ? openAiInstance : existingOpenAiInstance
-// var openAiInstance = {
-//   name: openAi.outputs.name
-//   resourceGroup: rg.name
-//   subscriptionId: subscription().subscriptionId
-// }
 
 // Tags that should be applied to all resources.
 // 
@@ -106,12 +99,6 @@ resource customerOpenAiResourceGroup 'Microsoft.Resources/resourceGroups@2021-04
     scope: subscription(existingOpenAiInstance.subscriptionId)
     name: existingOpenAiInstance.resourceGroup
   }
-
-// resource customerOpenAi 'Microsoft.CognitiveServices/accounts@2023-05-01' existing =
-//   if (!deployOpenAi) {
-//     name: existingOpenAiInstance.name
-//     scope: customerOpenAiResourceGroup
-//   }
 
 module keyVault './shared/keyvault.bicep' = {
   name: 'keyvault'
@@ -146,11 +133,6 @@ module monitoring './shared/monitoring.bicep' = {
   }
   scope: rg
 }
-
-//resource appInsights 'Microsoft.Insights/components@2022-05-01' existing = {
-//  name: monitoring.outputs.applicationInsightsName
-//  scope: rg
-//}
 
 module registry './shared/registry.bicep' = {
   name: 'registry'
