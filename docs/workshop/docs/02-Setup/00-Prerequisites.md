@@ -35,7 +35,7 @@ To be able to complete this solution accelerator, you will need:
 
 ## What You Should Know
 
-To get the most of of this solution accelerator, you should have:
+To get the most of this solution accelerator, you should have:
 
 ### Recommended knowledge and experience
 
@@ -45,9 +45,6 @@ To get the most of of this solution accelerator, you should have:
 2. **Familiarity with the Azure portal**
     - The workshop assumes you are familiar with navigating to resources within the Azure portal.
     - You will use the Azure portal to retrieve endpoints, keys, and other values associated with the resources you deploy for this workshop.
-3. **Familiarity with PostgreSQL**
-    - The workshop assumes you are familiar with basic SQL syntax.
-    - You will be executin SQL statements to alter tables, create extensions, and run queries against tables.
 
 ### Preferred knowledge and experience
 
@@ -56,11 +53,7 @@ To get the most of of this solution accelerator, you should have:
     - You will be committing code changes to your forked repo.
 2. **Familiarity with the `bash` shell**.
     - If needed, you will use `bash` in the VS Code terminal to run post-provisioning scripts.
-    - You will also use it to run Azure CLI and Azure Developer CLI commands during setup. 
-3. **Familiarity with Python and JavaScript UI frameworks**.
-    - You will modify REACT JavaScript and Python code to implement changes to the starter solution.
-    - In some steps, you will create and run Python code from the command line and VS Code.
-    - You will select a Python kernel and run pre-existing scripts in some steps.
+    - You will also use it to run Azure CLI and Azure Developer CLI commands during setup.
 
 ## What You Will Take Away
 

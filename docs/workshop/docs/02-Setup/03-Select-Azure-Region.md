@@ -14,7 +14,7 @@ Follow the instructions below to review regional availability of the required se
 
 1. Review the regional availability guidance for the [gpt-4o](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-chat-completions#standard-models-by-endpoint) and [text-embedding-ada-002](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-embeddings#standard-models-by-endpoint) models in Azure OpenAI.
 
-2. Ensure you have a **at least 10K TPMs of `Standard` capacity available in the region** for both the `gpt-4o` and `text-embedding-ada-002` models. Follow [these instructions](https://learn.microsoft.com/azure/ai-services/openai/how-to/quota?tabs=rest#view-and-request-quota) to check your available quota.
+2. Ensure you have at **at least 10K TPMs of `Standard` capacity available in the region** for both the `gpt-4o` and `text-embedding-ada-002` models. Follow [these instructions](https://learn.microsoft.com/azure/ai-services/openai/how-to/quota?tabs=rest#view-and-request-quota) to check your available quota.
 
 ## Select an Azure region that supports workshop resources
 

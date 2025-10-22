@@ -137,7 +137,7 @@ export default function RecentActivity() {
   };
 
   return (
-    <Container fluid className="py-5 section-wrapper">
+    <Container fluid className="py-5 section-wrapper" style={{minHeight: "467px"}}>
       <Row className="gap-5 justify-content-center">
         {/* Left Section - Recent Activity */}
         <Col lg={6}>
@@ -150,7 +150,7 @@ export default function RecentActivity() {
               {error}
             </div>
           )}
-          <div>
+          <div style={{display:"flex", flexDirection: "column", gap:"16px"}}>
                 {loadingActivities &&    
              <div className="d-flex justify-content-center align-items-center" style={{ height: '20vh' }}>
                 <Spinner animation="border" role="status" variant="primary">
@@ -175,7 +175,7 @@ export default function RecentActivity() {
             <h3 className="fw-bold text-dark mb-2">Recent Documents</h3>
             <p className="text-muted">Recently uploaded invoices and SOW files</p>
           </div>
-          <div>
+          <div style={{display:"flex", flexDirection:"column", gap:"16px"}}>
             {loadingDocuments &&    
              <div className="d-flex justify-content-center align-items-center" style={{ height: '20vh' }}>
                 <Spinner animation="border" role="status" variant="primary">

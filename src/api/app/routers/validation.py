@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from datetime import timedelta
 from pydantic import parse_obj_as
 import json
+import re
 
 router = APIRouter(
     prefix = "/validation",
@@ -41,7 +42,7 @@ async def validate_invoice_by_id(
     # Check if completion contains [PASSED] or [FAILED]
     # This is based on the prompt telling the AI to return either [PASSED] or [FAILED]
     # at the end of the response to indicate if the invoice passed or failed validation.
-    validation_passed = completion.find('[PASSED]') != -1
+    validation_passed = await is_validation_passed(completion)
 
     # Write validation result to database
     pool = await get_db_connection_pool()
@@ -63,6 +64,8 @@ async def validate_invoice(invoice_id: int):
             raise HTTPException(status_code=404, detail=f'An invoice with an id of {invoice_id} was not found.')
         invoice = dict(invoice_row)
         invoice_metadata_dict = json.loads(invoice.get("metadata"))
+
+        # add more information regarding the invoice and its line items to the invoice metadata
         invoice_metadata_dict_updated = await update_metadata_invoice(invoice, invoice_metadata_dict, conn)
 
         # Get the vendor name
@@ -73,6 +76,8 @@ async def validate_invoice(invoice_id: int):
         sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', invoice.get("sow_id"))
         sow = dict(sow_row)
         sow_metadata_dict = json.loads(sow.get("metadata"))
+
+        # add more information regarding the invoice's SOW, its Milestones and Deliverables to the sow metadata
         sow_metadata_dict_updated = await(update_metadata_sow(sow, sow_metadata_dict, conn))
 
         # convert date to text format as it is easier for LLM to understand
@@ -109,8 +114,8 @@ async def validate_sow_by_id(
     completion = str(await genai_provider.run(user_message=user_message))
 
     # Check if completion contains [PASSED] or [FAILED]
-    validation_passed = completion.find('[PASSED]') != -1
-
+    validation_passed = await is_validation_passed(completion)
+    
     # Write validation result to database
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
@@ -120,6 +125,8 @@ async def validate_sow_by_id(
         ''', id, datetime.utcnow(), completion, validation_passed)
 
     return completion
+
+
 
 async def validate_sow(sow_id: int):
     """Retrieves a SOW and it's associated Milestones and Deliverables."""
@@ -281,3 +288,23 @@ async def update_metadata_invoice(invoice_dict, metadata_dict, conn):
     metadata_dict['Project_Deliverables'] = Project_Deliverables
 
     return metadata_dict
+
+
+async def is_validation_passed(validationResult: str):
+
+    """Extracts the final status from the validation result."""
+
+    status = validationResult.split('\n')[-1]
+
+    # Remove all punctuations, spaces, and non-alphabetic characters
+    clean_status = re.sub(r'[^A-Za-z]', '', status)
+
+    # convert to upper case
+    clean_status_upper = clean_status.upper()
+
+    if clean_status_upper == "PASSED":
+        return True
+    elif clean_status_upper == "FAILED":
+        return False
+
+

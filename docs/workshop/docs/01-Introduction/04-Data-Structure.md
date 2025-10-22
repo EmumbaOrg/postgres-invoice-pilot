@@ -71,7 +71,7 @@ The solution accelerator integrates with **Azure AI services** to extract, valid
 | `embedding`         | `deliverables`, `sow_chunks`, `invoice_line_items`, `invoice_validation_results`, `sow_validation_results` | Used for vector search and similarity retrieval in **semantic search models**. |
 | `due_date`       | `deliverables`, `invoice_line_items`              | AI extracts and can validate deadlines. |
 | `amount`            | `invoices`                | AI extracts and detects discrepancies in invoice details. |
-|`result`            | `sow_validation_results`, `invoice_validation_results`    |  AI-generated analysis of compliance for dpcuments processed  |
+|`result`            | `sow_validation_results`, `invoice_validation_results`    |  AI-generated analysis of compliance for documents processed  |
 | `validation_passed`        | `sow_validation_results`, `invoice_validation_results` | AI-driven validation result for compliance analysis. |
 | `metadata`                 |`invoices`                | JSONB column for storing dynamic, AI-generated insights. |
 

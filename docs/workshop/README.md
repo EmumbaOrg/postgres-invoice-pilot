@@ -7,7 +7,7 @@
 
 ## About the PostgreSQL Solution Accelerator - Build your own advanced AI Copilot with PostgreSQL
 
-This resource is both a solution accelerator and a learning tool for developers who want to create AI-powered solutions using Azure Database for PostgreSQL and Azure AI Services. The **Woodgrove Bank** solution is an actively updated project that will reflect the latest features and best practices for development of AI-enabled applications and RAG-based copilots on the Azure AI platform.
+This resource is both a solution accelerator and a learning tool for developers who want to create AI-powered solutions using Azure Database for PostgreSQL and Azure AI Services. The **Invoice Pilot** solution is an actively updated project that will reflect the latest features and best practices for development of AI-enabled applications and RAG-based copilots on the Azure AI platform.
 
 **The current version of the sample follows this high-level architecture**.
 

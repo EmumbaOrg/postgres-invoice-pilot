@@ -127,3 +127,21 @@
     font-weight: bold !important;
     font-size: 20px !important;
 }
+.vendor-stepper-wrapper {
+    overflow-y: auto; /* allow inner scroll when needed */
+}
+
+@media (min-width: 992px) {
+    .vendor-stepper-wrapper {
+        height: calc(100vh - 220px);
+    }
+    .row.wrapper-inner{
+        padding-bottom: 0px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .row.wrapper-inner {
+        padding-bottom: 80px !important;
+    }
+}

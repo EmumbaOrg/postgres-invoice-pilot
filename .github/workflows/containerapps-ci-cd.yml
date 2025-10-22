@@ -47,6 +47,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      security-events: write
     needs: detect-changes
     if: needs.detect-changes.outputs.api == 'true'
     steps:
@@ -77,6 +78,19 @@ jobs:
             -t ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$COMMIT_ID \
             src/api
 
+      - name: Run Trivy vulnerability scanner on API container
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:${{ env.IMAGE_TAG }}
+          format: 'sarif'
+          output: 'trivy-api-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab (API)
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-api-results.sarif'
+
       - name: Push image to ACR (API)
         run: |
           docker push ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$IMAGE_TAG
@@ -89,11 +103,12 @@ jobs:
             --image ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/api-byoacdev:$IMAGE_TAG
 
   portal-build-and-deploy:
-    name: User Portal - Build & Deploy
+    name: Portal - Build & Deploy
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+      security-events: write
     needs: detect-changes
     if: needs.detect-changes.outputs.portal == 'true'
     steps:
@@ -125,6 +140,19 @@ jobs:
             -f DOCKERFILE \
             -t ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$COMMIT_ID \
             .
+
+      - name: Run Trivy vulnerability scanner on User Portal container
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:${{ env.IMAGE_TAG }}
+          format: 'sarif'
+          output: 'trivy-portal-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab (Portal)
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-portal-results.sarif'
 
       - name: Push image to ACR (User Portal)
         run: |
