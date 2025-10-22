@@ -89,6 +89,8 @@ async def validate_invoice(id: int):
             raise HTTPException(status_code=404, detail=f'An invoice with an id of {id} was not found.')
         invoice = dict(invoice_row)
         invoice_metadata_dict = json.loads(invoice.get("metadata"))
+
+        # add more information regarding the invoice and its line items to the invoice metadata
         invoice_metadata_dict_updated = await update_metadata_invoice(invoice, invoice_metadata_dict, conn)
 
         # Get the vendor name
@@ -99,6 +101,8 @@ async def validate_invoice(id: int):
         sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', invoice.get("sow_id"))
         sow = dict(sow_row)
         sow_metadata_dict = json.loads(sow.get("metadata"))
+
+        # add more information regarding the invoice's SOW, its Milestones and Deliverables to the sow metadata
         sow_metadata_dict_updated = await(update_metadata_sow(sow, sow_metadata_dict, conn))
 
         # convert date to text format as it is easier for LLM to understand
