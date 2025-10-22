@@ -30,7 +30,7 @@ const SOWList = () => {
     setIsDeleting(true);
     try {
       await api.sows.delete(sowToDelete);
-      setReload(true); // Refresh the data
+      setReload((prev) => !prev);
       setError(null);
       setShowDeleteModal(false);
       setSowToDelete(null);

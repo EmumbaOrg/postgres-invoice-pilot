@@ -34,7 +34,7 @@ const InvoiceList = () => {
       setError(null);
       setShowDeleteModal(false);
       setSowToDelete(null);
-      setReload(true); // Refresh the data
+      setReload((prev) => !prev);
     } catch (err) {
       setSuccess(null);
       setError(`Error deleting invoice: ${err.message}`);
