@@ -21,7 +21,7 @@ class LangchainProvider(FrameworkProviderBase):
     async def prepare_messages(self, messages: list[dict[str, Any]]) -> Any:
         return messages
 
-    async def init_chat_client(self) -> Any:
+    async def init_chat_client(self) -> 'LangchainProvider':
         if self._chat_client is None:
             self._chat_client = AzureChatOpenAI(
                 azure_deployment=self.azure_config.get("chat_deployment_name", "completions"),
@@ -32,7 +32,7 @@ class LangchainProvider(FrameworkProviderBase):
             )
         return self
 
-    async def init_embedding_client(self) -> Any:
+    async def init_embedding_client(self) -> 'LangchainProvider':
         if self._embedding_client is None:
             self._embedding_client = AzureOpenAIEmbeddings(
                 azure_deployment=self.azure_config.get("embedding_deployment_name", "completions"),
@@ -41,10 +41,7 @@ class LangchainProvider(FrameworkProviderBase):
             )
         return self
 
-    async def build_agent(self, system_prompt: str, tools: list[Callable] | None = []) -> Any:
-        if tools:
-            tools = await self.__prepare_tools(tools)
-        await self.init_chat_client()
+    async def build_agent(self, system_prompt: str, tools: list[Callable] | None = None) -> 'LangchainProvider':
         escaped_system_prompt = system_prompt.replace("{", "{{").replace("}", "}}")
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -54,20 +51,25 @@ class LangchainProvider(FrameworkProviderBase):
                 MessagesPlaceholder("agent_scratchpad")
             ]
         )
+
+        tools = tools or []
+        prepared_tools = await self.__prepare_tools(tools)
+        await self.init_chat_client()
         agent = create_openai_functions_agent(
             llm=self._chat_client,
-            tools=tools,
+            tools=prepared_tools,
             prompt=prompt,
         )
         self._agent = AgentExecutor(
             agent=agent,
-            tools=tools,
+            tools=prepared_tools,
             verbose=True,
             return_intermediate_steps=True
         )
         return self
 
-    async def run(self, user_message: str, messages: list[Any] = []) -> str:
+    async def run(self, user_message: str, messages: list[Any] | None = None) -> str:
+        messages = messages or []
         result = await self._agent.ainvoke({"input": user_message, "chat_history": messages})
         return result["output"]
 

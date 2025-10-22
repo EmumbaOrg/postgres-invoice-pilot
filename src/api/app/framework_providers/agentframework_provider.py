@@ -38,7 +38,7 @@ class AgentFrameworkProvider(FrameworkProviderBase):
             )
         return self
 
-    async def build_agent(self, system_prompt: str, tools: list[Callable] | None = []) -> 'AgentFrameworkProvider':
+    async def build_agent(self, system_prompt: str, tools: list[Callable] | None = None) -> 'AgentFrameworkProvider':
         await self.init_chat_client()
         self._agent = AFChatAgent(
             chat_client=self._chat_client, 
@@ -48,12 +48,12 @@ class AgentFrameworkProvider(FrameworkProviderBase):
         )
         return self
 
-    async def run(self, user_message: str | None = None, messages: list[Any] = []) -> str:
+    async def run(self, user_message: str | None = None, messages: list[Any] | None = None) -> str:
+        messages = messages or []
         if user_message:
             messages.append({"role": "user", "content": user_message})
         messages = await self.prepare_messages(messages)
         result = await self._agent.run(messages)
-
         return str(result)
 
     async def chat(self, user_message: str, system_prompt: str) -> str:
@@ -62,7 +62,7 @@ class AgentFrameworkProvider(FrameworkProviderBase):
         agent = self._chat_client.create_agent(instructions=system_prompt)
         response = await agent.run(messages)
         return str(response)
-    
+
     async def aembed_query(self, text: str):
         embeddings = await self._embedding_client.aembed_query(text)
         return embeddings
