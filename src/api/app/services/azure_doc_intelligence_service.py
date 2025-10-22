@@ -144,11 +144,9 @@ class AzureDocIntelligenceService:
         """Chunk text into semantically meaningful pieces using GenAI facade."""
         return genai_provider.split_text(text, max_chunk_size=500, overlap=50)
 
-    async def format_text_to_json(self, full_text: str, genai_provider: FrameworkProviderBase, system_prompt: str):
+    async def format_text_to_json(self, genai_provider: FrameworkProviderBase, full_text: str, system_prompt: str):
         """Use LLM to format data into JSON structure"""
-
-        genai_provider = await genai_provider.build_agent(system_prompt=system_prompt)
-        response = await genai_provider.run(user_message=full_text, messages=[])
+        response = await genai_provider.chat(user_message=full_text, system_prompt=system_prompt)
         json_response = json.loads(response)
 
         return json_response

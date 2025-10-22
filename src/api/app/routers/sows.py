@@ -109,7 +109,7 @@ async def analyze_sow(
         full_text = analysis_result.full_text
 
         # format text into json object
-        metadata = await doc_intelligence_service.format_text_to_json(full_text, genai_provider, prompt_service.get_prompt("format_sow_text_to_json"))
+        metadata = await doc_intelligence_service.format_text_to_json(genai_provider, full_text, prompt_service.get_prompt("format_sow_text_to_json"))
 
         # extract required fields from metadata json and then remove them from metadata
         sow_number = str(metadata['SOW_Number'] or sow_number)

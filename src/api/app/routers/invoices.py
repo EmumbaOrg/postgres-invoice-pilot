@@ -95,7 +95,7 @@ async def analyze_invoice(
         text_chunks = doc_intelligence_service.semantic_chunking(full_text, genai_provider)
 
         # format information into json object
-        metadata = await doc_intelligence_service.format_text_to_json(full_text, genai_provider, prompt_service.get_prompt("format_invoice_text_to_json"))
+        metadata = await doc_intelligence_service.format_text_to_json(genai_provider, full_text, prompt_service.get_prompt("format_invoice_text_to_json"))
         
         # extract required fields from metadata and then remove them from metadata
         invoice_number = str(metadata['Invoice_Number']) or f"INV-{datetime.now().strftime('%Y-%m%d')}"

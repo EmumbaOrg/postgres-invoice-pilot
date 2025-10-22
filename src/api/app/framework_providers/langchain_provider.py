@@ -10,45 +10,45 @@ from .interface import FrameworkProviderBase
 
 class LangchainProvider(FrameworkProviderBase):
     """Concrete implementation of FrameworkProviderBase for Langchain."""
-    _chat_client: Any
-    _embedding_client: Any
-    _agent: Any
+    _chat_client: AzureChatOpenAI = None
+    _embedding_client: AzureOpenAIEmbeddings = None
+    _agent: AgentExecutor = None
 
     def __init__(self, credential: DefaultAzureCredential, azure_config: dict[str, Any]):
         self.credential = credential
         self.azure_config = azure_config
 
-    def prepare_message(self, role: str, content: str) -> dict[str, str]:
-        return {"role": role, "content": content}
-
     async def prepare_messages(self, messages: list[dict[str, Any]]) -> Any:
         return messages
 
-    async def init_chat_client(self, **kwargs) -> Any:
-        self._chat_client = AzureChatOpenAI(
-            azure_deployment=self.azure_config.get("chat_deployment_name", "completions"),
-            azure_endpoint=self.azure_config.get("openai_api_endpoint"),
-            api_version=self.azure_config.get("openai_api_version"),
-            temperature=self.azure_config.get("temperature", 0.0),
-            azure_ad_token_provider=await self.__get_token_provider(self.credential)
-        )
+    async def init_chat_client(self) -> Any:
+        if self._chat_client is None:
+            self._chat_client = AzureChatOpenAI(
+                azure_deployment=self.azure_config.get("chat_deployment_name", "completions"),
+                azure_endpoint=self.azure_config.get("openai_api_endpoint"),
+                api_version=self.azure_config.get("openai_api_version"),
+                temperature=self.azure_config.get("temperature", 0.0),
+                azure_ad_token_provider=await self.__get_token_provider(self.credential)
+            )
         return self
 
-    async def init_embedding_client(self, **kwargs) -> Any:
-        self._embedding_client = AzureOpenAIEmbeddings(
-            azure_deployment=self.azure_config.get("embedding_deployment_name", "completions"),
-            azure_endpoint=self.azure_config.get("openai_api_endpoint"),
-            azure_ad_token_provider=await self.__get_token_provider(self.credential)
-        )
+    async def init_embedding_client(self) -> Any:
+        if self._embedding_client is None:
+            self._embedding_client = AzureOpenAIEmbeddings(
+                azure_deployment=self.azure_config.get("embedding_deployment_name", "completions"),
+                azure_endpoint=self.azure_config.get("openai_api_endpoint"),
+                azure_ad_token_provider=await self.__get_token_provider(self.credential)
+            )
         return self
 
-    async def build_agent(self, system_prompt: str, tools: list[Callable] | None = None, **kwargs) -> Any:
+    async def build_agent(self, system_prompt: str, tools: list[Callable] | None = []) -> Any:
         if tools:
             tools = await self.__prepare_tools(tools)
         await self.init_chat_client()
+        escaped_system_prompt = system_prompt.replace("{", "{{").replace("}", "}}")
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", system_prompt),
+                ("system", escaped_system_prompt),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("user", "{input}"),
                 MessagesPlaceholder("agent_scratchpad")
@@ -67,11 +67,20 @@ class LangchainProvider(FrameworkProviderBase):
         )
         return self
 
-    async def run(self, user_message: str, messages: list[Any] = [], **kwargs) -> str:
+    async def run(self, user_message: str, messages: list[Any] = []) -> str:
         result = await self._agent.ainvoke({"input": user_message, "chat_history": messages})
         return result["output"]
+
+    async def chat(self, user_message: str, system_prompt: str) -> str:
+        await self.init_chat_client()
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message}
+        ]
+        response = await self._chat_client.ainvoke(messages)
+        return response.content
     
-    async def aembed_query(self, text: str, **kwargs) -> str:
+    async def aembed_query(self, text: str) -> str:
         embeddings = await self._embedding_client.aembed_query(text)
         return embeddings
 

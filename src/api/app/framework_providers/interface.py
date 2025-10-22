@@ -10,23 +10,27 @@ class FrameworkProviderBase(ABC):
         pass
 
     @abstractmethod
-    async def init_chat_client(self, credentials: Any, **kwargs) -> 'FrameworkProviderBase':
+    async def init_chat_client(self) -> 'FrameworkProviderBase':
         pass
     
     @abstractmethod
-    async def init_embedding_client(self, credentials: Any, **kwargs) -> 'FrameworkProviderBase':
+    async def init_embedding_client(self) -> 'FrameworkProviderBase':
         pass
 
     @abstractmethod
-    async def build_agent(self, client: Any, system_prompt: str, tools: list[Callable] | None = None, **kwargs) -> 'FrameworkProviderBase':
+    async def build_agent(self, client: Any, system_prompt: str, tools: list[Callable] | None = []) -> 'FrameworkProviderBase':
         pass
 
     @abstractmethod
-    async def run(self, agent: Any, user_message: str, messages: list[Any] = [], **kwargs) -> str:
+    async def run(self, agent: Any, user_message: str, messages: list[Any] = []) -> str:
         pass
 
     @abstractmethod
-    async def aembed_query(self, text: str, **kwargs) -> str:
+    async def chat(self, user_message: str, system_prompt: str) -> str:
+        pass
+
+    @abstractmethod
+    async def aembed_query(self, text: str) -> str:
         pass
 
     @abstractmethod 
