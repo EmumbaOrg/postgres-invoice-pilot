@@ -25,8 +25,8 @@ load_dotenv()
 # Instantiate the FastAPI app
 app = FastAPI(
     lifespan=lifespan,
-    title="Woodgrove Bank API",
-    summary="Woodgrove Bank API for the Build Your Own Copilot with Azure Database for PostgreSQL Solution Accelerator",
+    title="Invoice Pilot API",
+    summary="Invoice Pilot API for the Build Your Own Copilot with Azure Database for PostgreSQL Solution Accelerator",
     version="1.0.0",
     docs_url="/swagger",
     openapi_url="/swagger/v1/swagger.json"
@@ -59,7 +59,7 @@ app.include_router(activity_logs.router)
 @app.get("/")
 async def get():
     """API welcome message."""
-    return {"message": "Welcome to the Woodgrove Bank API!"}
+    return {"message": "Welcome to the Invoice Pilot API!"}
 
 if __name__ == "__main__":
     import uvicorn

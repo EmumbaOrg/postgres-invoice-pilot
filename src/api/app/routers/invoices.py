@@ -88,8 +88,19 @@ async def analyze_invoice(
         text_chunks = doc_intelligence_service.semantic_chunking(full_text)
 
         # format information into json object
-        metadata = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_invoice_text_to_json"))
+        response = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_invoice_text_to_json"))
         
+        # Check if the uploaded document is a Invoice or not
+        if response.get("invoice_check")=="failed":    
+            await storage_service.delete_document(documentName)
+            return InvoiceAnalyzeResult(
+                hasError=True,
+                sow=None,
+                message="The document does not appear to be a Invoice. Please upload a Invoice and try again."
+            )
+        else:
+            metadata = response
+
         # extract required fields from metadata and then remove them from metadata
         invoice_number = str(metadata['Invoice_Number']) or f"INV-{datetime.now().strftime('%Y-%m%d')}"
         amount = metadata['Total_Amount'] if metadata['Total_Amount']!="" else 0

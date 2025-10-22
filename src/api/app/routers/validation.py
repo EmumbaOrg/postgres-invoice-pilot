@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from datetime import timedelta
 from pydantic import parse_obj_as
 import json
+import re
 
 # Initialize the router
 router = APIRouter(
@@ -67,7 +68,7 @@ async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt
     # Check if validationResult contains [PASSED] or [FAILED]
     # This is based on the prompt telling the AI to return either [PASSED] or [FAILED]
     # at the end of the response to indicate if the invoice passed or failed validation.
-    validation_passed = validationResult.find('[PASSED]') != -1
+    validation_passed = await is_validation_passed(validationResult)
 
     # Write validation result to database
     pool = await get_db_connection_pool()
@@ -160,8 +161,8 @@ async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_ser
     validationResult = completion['output']
 
     # Check if validationResult contains [PASSED] or [FAILED]
-    validation_passed = validationResult.find('[PASSED]') != -1
-
+    validation_passed = await is_validation_passed(validationResult)
+    
     # Write validation result to database
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
@@ -171,6 +172,8 @@ async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_ser
         ''', id, datetime.utcnow(), validationResult, validation_passed)
 
     return validationResult
+
+
 
 async def validate_sow(id: int):
     """Retrieves a SOW and it's associated Milestones and Deliverables."""
@@ -332,3 +335,23 @@ async def update_metadata_invoice(invoice_dict, metadata_dict, conn):
     metadata_dict['Project_Deliverables'] = Project_Deliverables
 
     return metadata_dict
+
+
+async def is_validation_passed(validationResult: str):
+
+    """Extracts the final status from the validation result."""
+
+    status = validationResult.split('\n')[-1]
+
+    # Remove all punctuations, spaces, and non-alphabetic characters
+    clean_status = re.sub(r'[^A-Za-z]', '', status)
+
+    # convert to upper case
+    clean_status_upper = clean_status.upper()
+
+    if clean_status_upper == "PASSED":
+        return True
+    elif clean_status_upper == "FAILED":
+        return False
+
+
