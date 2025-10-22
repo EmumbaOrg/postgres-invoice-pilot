@@ -6,7 +6,7 @@ The Setup section of this guide will tell you how to choose this deployment opti
 
 Here's a breakout of the _estimated cost_ of Azure resources deployed for this solution:
 
-- Azure Database for PostgreSQL (General Purpose Standard_D2ds_v4): ~$4.27/day
+- Azure Database for PostgreSQL: ~$4.27/day
 - Azure App Configuration: ~$0.02/day
 - Azure Container Registry: ~$0.17/day
 - Azure OpenAI Service: Dependent upon usage of Copilot, AI-validation, and number of documents processed in the solution.
