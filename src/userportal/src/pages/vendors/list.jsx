@@ -32,7 +32,7 @@ const VendorList = () => {
       setError(null);
       setShowDeleteModal(false);
       setVendorToDelete(null);
-      setReload(true); // Refresh the data
+      setReload((prev) => !prev);
     } catch (err) {
       setSuccess(null);
       setError(`Error deleting vendor: ${err.message}`);
