@@ -4,7 +4,14 @@
 
 In the financial services industry, validating contract-related documents such as Statements of Work (SOWs) and invoices presents unique challenges. Ensuring that invoices align with SOWs, especially for milestone-based payments and specific deliverables, can be a meticulous and error-prone process. Traditionally, this validation involves manual comparison and cross-checking, often leading to delays, errors, and increased operational costs. This accelerator offers a solution that leverages Azure Database for PostgreSQL - Flexible Server and Azure's comprehensive suite of AI services to automate and streamline this process, resulting in faster, more accurate, and cost-effective invoice validation.
 
-The accelerator is designed to demonstrate how an existing financial services application can be enhanced by integrating advanced AI capabilities into Azure Database for PostgreSQL through the Azure AI extension and incorporating Azure OpenAI's GPT-4 model to validate and review contract-related documents.
+**Invoice Pilot** demonstrates how this challenge can be addressed using Azure technologies. The solution leverages **Azure Database for PostgreSQL – Flexible Server** along with **Azure’s AI capabilities** to automate and streamline contract validation. By combining database extensions, AI services, and generative AI models, the accelerator delivers faster, more accurate, and cost-effective invoice verification workflows.
+
+This reference implementation shows how a financial services organization can integrate advanced AI capabilities into their existing application by using:
+
+- **Azure AI extension** and **pgvector** to enable AI functions and vector search directly inside PostgreSQL.  
+- **Azure Document Intelligence** to extract and validate key information from uploaded invoices and SOWs.  
+- **Azure OpenAI (GPT-4)** to reason over extracted data and verify alignment between documents.  
+- **Apache AGE** to add graph analytics capabilities for exploring relationships among vendors, SOWs, and invoices.
 
 ??? question "Using your own data?"
 
@@ -12,13 +19,27 @@ The accelerator is designed to demonstrate how an existing financial services ap
     You can replace these with your own datasets to better align with your specific business needs.
     Key steps where adjustments may be required have been highlighted throughout the guide.
 
-## Getting Started with the Woodgrove Bank Application
+## Getting Started with Invoice Pilot
 
-You have been provided starter code and deployment scripts for the _Woodgrove Bank_ web application. This application comprises an enterprise user portal integrated with a custom backend API. You will enhance this application by integrating Azure AI services throughout this accelerator. Key steps include:
+The **Invoice Pilot** application is fully implemented and ready to deploy. It includes:
 
-1. **Integrating Generative AI (GenAI) Capabilities into Azure Database for PostgreSQL**: Use the Azure AI `azure_ai` and pgvector (`vector`) extensions to enhance your PostgreSQL database with advanced GenAI and vector search capabilities.
-2. **Automating Data Validation with AI:** Enhance the data ingestion process with automated, AI-driven validation using Azure Document Intelligence and Azure AI services.
-3. **Building a Copilot:** Create an intelligent assistant using Azure OpenAI and Azure Database for PostgreSQL - Flexible Server, incorporating the Retrieval Augmented Generation (RAG) design pattern to ensure its responses are based on the private data maintained by the enterprise.
-4. **Adding GraphRAG functionality**: Install the Apache AGE (`age`) extension to allow your PostgreSQL database to be used as a graph database, providing a comprehensive solution for analyzing interconnected data.
+- A **web application** that serves as an enterprise portal for uploading and reviewing invoices.  
+- A **backend API** integrated with Azure Database for PostgreSQL and Azure AI services.  
+- A **set of automation pipelines** that handle document ingestion, validation, and AI-based reasoning.
 
-This solution accelerator aims to teach you how to integrate AI capabilities into an existing application by leveraging Microsoft Azure's AI services to automate and streamline the validation of contract-related documents in the financial services industry. This integration results in faster, more accurate, and cost-effective processes. Additionally, the copilot will provide intelligent assistance, enabling users to gain actionable insights from data stored in the Azure Database for PostgreSQL, enhancing their overall experience.
+Once deployed, you can explore the following key capabilities:
+
+1. **Integrated Generative AI in PostgreSQL**  
+   The solution uses the Azure AI (`azure_ai`) and pgvector (`vector`) extensions to enable semantic reasoning and vector similarity search inside the database.  
+
+2. **Automated Data Validation**  
+   The system automatically validates invoices using Azure Document Intelligence for extraction and Azure AI for semantic matching against corresponding SOWs.  
+
+3. **Copilot Experience**  
+   A built-in conversational assistant, powered by Azure OpenAI and the PostgreSQL database, provides contextual answers based on enterprise data through Retrieval-Augmented Generation (RAG).  
+
+4. **Graph-Based Insights**  
+   With the Apache AGE (`age`) extension, the database can perform graph queries to reveal relationships between projects, vendors, and contracts.
+
+This solution accelerator serves as a **guide** to understanding how AI-powered data processing, retrieval, and reasoning can be integrated into enterprise systems using Azure’s AI and database ecosystem.  
+By the end of this guide, you’ll have a complete understanding of the architecture, deployment flow, and design principles behind Invoice Pilot—without needing to modify or build any components yourself.

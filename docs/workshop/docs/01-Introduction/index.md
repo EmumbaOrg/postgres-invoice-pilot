@@ -1,32 +1,74 @@
 # Introduction
 
-This solution accelerator is designed as an end-to-end example of a Financial Services Industry AI-enabled application. It demonstrates the implementation of generative AI capabilities to enhance an existing application with AI-driven data validation, vector search, semantic ranking, and GraphRAG on Azure Database for PostgreSQL, and illustrates how they can be combined to deliver high quality responses to financial questions via an intelligent copilot. The app uses a small sample dataset made up of statements of work (SOWs) and invoices. The source code for the accelerator is provided in the following repo: <http://aka.ms/pg-byoac-repo/>.
+The **Invoice Pilot** solution accelerator serves as a complete end-to-end example of an AI-enabled application for the financial services industry. It showcases how **generative AI** can be used to enhance existing enterprise systems with automated data validation, vector search, semantic ranking, and GraphRAG — all powered by **Azure Database for PostgreSQL** and **Azure AI Services**.  
 
-The application has the following architecture:
+The solution demonstrates how these capabilities can work together to deliver accurate, explainable, and context-aware responses to financial and contractual queries through an intelligent copilot interface.  
+
+A small sample dataset of **Statements of Work (SOWs)** and **invoices** is included for demonstration. The complete source code for the accelerator is available here:  
+👉 <http://aka.ms/pg-byoac-repo/>
+
+---
+
+## Application Architecture
+
+The Invoice Pilot solution integrates a modern frontend, high-performance backend, and Azure-native AI services in a modular architecture designed for scalability and flexibility.
 
 ![High-level architecture diagram for the solution](../img/solution-architecture-diagram.png)
 
-## Bringing your own data to the solution
+---
 
-This solution accelerator is structured to use sample vendor, SOW, and invoice data, which has been provided for demonstration purposes. However, if you want to use it with your own data or augment an existing solution, you will need to modify certain steps. Where applicable, notes are provided to indicate key areas where adjustments may be necessary to integrate custom datasets.
+## Bringing Your Own Data
 
-## Learning Objectives
+The accelerator is preconfigured with sample data for vendors, SOWs, and invoices. However, the solution is fully extensible for custom datasets.  
 
-The goal of the solution accelerator is to teach you to how to **add rich AI capabilities** using Azure Database for PostgreSQL and Azure AI Services to your existing applications. You will gain hands-on experience integrating advanced AI validation during data ingestion to ensure financial documents, like invoices, align with their associated statement of work. By leveraging Azure OpenAI for robust data validation and Azure Document Intelligence for comprehensive extraction and analysis, you will improve data quality. By adding a copilot chat feature, you will provide the ability for users to gain deep insights into vendors' invoicing accuracy, timeliness, and quality. This comprehensive approach equips you with the skills to seamlessly enrich your existing applications with AI-enhanced features, boosting their performance and reliability in the financial services industry.
+If you choose to adapt the accelerator for your own organization’s data, you can modify the ingestion pipeline, schema, and AI model prompts to suit your business context.  
+The documentation includes notes identifying where such modifications may be required to ensure compatibility and optimal results.
 
-By completing the solution accelerator, you will learn to:
+---
 
-- Use Azure AI Services to automate data validation tasks during ingestion to streamline workflows.
-- Integrate Generative AI capabilities into your Azure Database for PostgreSQL-based applications using the [Azure AI extension](https://learn.microsoft.com/azure/postgresql/flexible-server/how-to-integrate-azure-ai).
-- Use the [Retrieval Augmented Generation (RAG) pattern](https://learn.microsoft.com/azure/ai-studio/concepts/retrieval-augmented-generation) in a copilot <br/> (to ground responses in your own data).
-- Use [Azure Container Apps](https://aka.ms/azcontainerapps) for deployment <br/> (to get hosted UI and API apps for real-world use).
-- Use [Azure Developer CLI](https://aka.ms/azd) with AI Application Templates <br/> (to provision & deploy apps consistently across teams)
+## Key Learning Objectives
+
+This solution guide is designed to help you understand how to enrich existing applications with **AI-driven intelligence** using **Azure Database for PostgreSQL** and **Azure AI Services**.  
+
+By following this guide, you will gain a complete understanding of how Invoice Pilot integrates AI throughout its lifecycle — from ingestion and validation to interactive analysis — and how these techniques can be applied to your own workloads.
+
+### You’ll Learn How to:
+
+- **Automate Data Validation**  
+  Use Azure AI Services during data ingestion to automatically validate invoices against their associated SOWs.
+
+- **Integrate Generative AI with PostgreSQL**  
+  Extend PostgreSQL with the [Azure AI extension](https://learn.microsoft.com/azure/postgresql/flexible-server/how-to-integrate-azure-ai) to enable vector search, embeddings, and in-database model inference.
+
+- **Implement the RAG Pattern**  
+  Use the [Retrieval Augmented Generation (RAG)](https://learn.microsoft.com/azure/ai-studio/concepts/retrieval-augmented-generation) approach to ground your copilot’s responses in your organization’s private data.
+
+- **Deploy Scalable Applications**  
+  Host containerized backend and frontend services using [Azure Container Apps](https://aka.ms/azcontainerapps) for production-ready deployment.
+
+- **Use the Azure Developer CLI (azd)**  
+  Streamline provisioning and deployment with [Azure Developer CLI](https://aka.ms/azd) and AI application templates for consistent multi-environment workflows.
+
+---
 
 ## Learning Resources
 
-1. **Azure Database for PostgreSQL - Flexible Server** | [Overview](https://learn.microsoft.com/azure/postgresql/flexible-server/service-overview)
-2. **Generative AI with Azure Database for PostgreSQL - Flexible Server** | [Overview](https://learn.microsoft.com/azure/postgresql/flexible-server/generative-ai-overview)
-3. **Azure AI extension for PostreSQL** | [How to integrate Azure AI](https://learn.microsoft.com/azure/postgresql/flexible-server/generative-ai-azure-overview)
-4. **Azure AI Foundry**  | [Documentation](https://learn.microsoft.com/azure/ai-studio/) · [Architecture](https://learn.microsoft.com/azure/ai-studio/concepts/architecture) · [SDKs](https://learn.microsoft.com/azure/ai-studio/how-to/develop/sdk-overview) ·  [Evaluation](https://learn.microsoft.com/azure/ai-studio/how-to/evaluate-generative-ai-app)
-5. **Azure Container Apps**  | [Azure Container Apps](https://learn.microsoft.com/azure/container-apps/) · [Deploy from code](https://learn.microsoft.com/azure/container-apps/quickstart-repo-to-cloud?tabs=bash%2Ccsharp&pivots=with-dockerfile)
-6. **Responsible AI**  | [Overview](https://www.microsoft.com/ai/responsible-ai) · [With AI Services](https://learn.microsoft.com/azure/ai-services/responsible-use-of-ai-overview?context=%2Fazure%2Fai-studio%2Fcontext%2Fcontext) · [Azure AI Content Safety](https://learn.microsoft.com/azure/ai-services/content-safety/)
+To explore the services and concepts demonstrated in this accelerator, refer to the following resources:
+
+1. **Azure Database for PostgreSQL – Flexible Server**  
+   [Overview](https://learn.microsoft.com/azure/postgresql/flexible-server/service-overview)
+
+2. **Generative AI with Azure Database for PostgreSQL – Flexible Server**  
+   [Overview](https://learn.microsoft.com/azure/postgresql/flexible-server/generative-ai-overview)
+
+3. **Azure AI Extension for PostgreSQL**  
+   [Integration Guide](https://learn.microsoft.com/azure/postgresql/flexible-server/generative-ai-azure-overview)
+
+4. **Azure AI Foundry**  
+   [Documentation](https://learn.microsoft.com/azure/ai-studio/) · [Architecture](https://learn.microsoft.com/azure/ai-studio/concepts/architecture) · [SDKs](https://learn.microsoft.com/azure/ai-studio/how-to/develop/sdk-overview) · [Evaluation](https://learn.microsoft.com/azure/ai-studio/how-to/evaluate-generative-ai-app)
+
+5. **Azure Container Apps**  
+   [Overview](https://learn.microsoft.com/azure/container-apps/) · [Deploy from Code](https://learn.microsoft.com/azure/container-apps/quickstart-repo-to-cloud?tabs=bash%2Ccsharp&pivots=with-dockerfile)
+
+6. **Responsible AI**  
+   [Overview](https://www.microsoft.com/ai/responsible-ai) · [Responsible Use with AI Services](https://learn.microsoft.com/azure/ai-services/responsible-use-of-ai-overview?context=%2Fazure%2Fai-studio%2Fcontext%2Fcontext) · [Azure AI Content Safety](https://learn.microsoft.com/azure/ai-services/content-safety/)
