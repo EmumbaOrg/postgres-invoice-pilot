@@ -10,7 +10,7 @@
     - [X] You deployed the REACT UI and Python API to Azure Container Apps
     - [X] You configured your local development environment
 
-Here's a reminder of the Azure Application Architecture you can reference as you check your provisioned Resource Group to enure these resources were created.
+Here's a reminder of the Azure Application Architecture you can reference as you check your provisioned Resource Group to ensure these resources were created.
 
 ![Solution Architecture](../img/data-ingestion-validation-architecture-diagram.png)
 
@@ -63,37 +63,37 @@ In this section, you will validate your setup before moving on to the next phase
 
 ## Ensure the deployed apps are running
 
-The `azd up` command included steps to deploy the Woodgrove Bank application into **Azure Container Apps** (ACA). Two containers were created. One for the Woodgrove Bank portal UI and a second for the backend API that supports it.
+The `azd up` command included steps to deploy the Invoice Pilot application into **Azure Container Apps** (ACA). Two containers were created. One for the Invoice Pilot portal UI and a second for the backend API that supports it.
 
 !!! info "Azure Container Apps (ACA) deployment"
 
     ACA is a fully managed serverless platform that allows you to deploy and manage containerized applications effortlessly. They simplify deployment, offer scalability and cost-effectiveness, and make it easier to focus on building applications without worrying about infrastructure management.
 
-### Confirm the Woodgrove API Is Running
+### Confirm the Invoice Pilot API Is Running
 
 1. In the browser window opened to your Azure resource group, select the **Container app** resource whose name starts with **ca-api**.
 
     ![Screenshot of the resources in the resource group, with the ca-api Container app resource highlighted.](../img/azure-portal-rg-ca-api.png)
 
-2. In the **Essentials** section of the API Container App's **Overview** page, select the **Application Url** to open the deployed Woodgrove Bank API in a new browser tab.
+2. In the **Essentials** section of the API Container App's **Overview** page, select the **Application Url** to open the deployed Invoice Pilot API in a new browser tab.
 
     ![Screenshot of the API container app page in the Azure portal, with the Application Url highlighted.](../img/azure-portal-api-container-app.png)
 
-3. You should see a `Welcome to the Woodgrove Bank API!` message on the screen, which serves as confirmation the API app was deployed successfully.
+3. You should see a `Welcome to the Invoice Pilot API!` message on the screen, which serves as confirmation the API app was deployed successfully.
 
-### Open the Woodgrove Portal UI
+### Open the Invoice Pilot Portal UI
 
 1. In the Azure portal, return to the resource group containing your resources and select the **Container app** resource whose name begins with **ca-portal**.
 
     ![Screenshot of the resources in the resource group, with the ca-portal Container app resource highlighted.](../img/azure-portal-rg-ca-portal.png)
 
-2. In the **Essentials** section of the Portal Container App's **Overview** page, select the **Application Url** to open the deployed Woodgrove Bank Portal in a new browser tab.
+2. In the **Essentials** section of the Portal Container App's **Overview** page, select the **Application Url** to open the deployed Invoice Pilot Portal in a new browser tab.
 
     ![Screenshot of the API container app page in the Azure portal, with the Application Url highlighted.](../img/azure-portal-portal-container-app.png)
 
-3. In the Woodgrove Bank Contract Management Portal, select the **Vendors** page and verify the list of vendors loads correctly.
+3. In the Invoice Pilot Contract Management Portal, select the **Vendors** page and verify the list of vendors loads correctly.
 
-    ![Screenshot of the Vendors page in the Woodgrove Bank Contract Management Portal](../img/woodgrove-bank-portal-vendors.png)
+    ![Screenshot of the Vendors page in the Invoice Pilot Contract Management Portal](../img/woodgrove-bank-portal-vendors.png)
 
 ## View Azure OpenAI model deployments in Azure AI Foundry
 
@@ -121,7 +121,7 @@ If you chose to deploy the Azure ML semantic ranker model during setup, you will
 
 !!! warning "You only need to do this step if you chose `mini` or `bge` for `deployAMLModel` during the `azd up` deployment. If you selected `none`, skip this step."
 
-1. In the Azure portal, return to the resource group containing your resources and select the **Azure Machine Learning Workspace** resoure.
+1. In the Azure portal, return to the resource group containing your resources and select the **Azure Machine Learning Workspace** resource.
 
     ![Screenshot of the resources in the resource group, with the Azure Machine Learning Workspace resource highlighted.](../img/azure-portal-rg-aml-workspace.png)
 
@@ -137,6 +137,6 @@ If you chose to deploy the Azure ML semantic ranker model during setup, you will
 
 5. On your endpoint page, ensure the **Provisioning state** for the (_bgev2m3-v1_ or _msmarco-minilm-deployment-6_) deployment is **Succeeded**.
 
-    ![Screenshot of the semantic ranker model deployment in Azure ML Studio, with the model's provisioning state of Succeded highlighted.](../img/aml-studio-endpoints-model-deployment-succeeded.png)
+    ![Screenshot of the semantic ranker model deployment in Azure ML Studio, with the model's provisioning state of Succeeded highlighted.](../img/aml-studio-endpoints-model-deployment-succeeded.png)
 
 !!! tip "Leave the Azure Portal open. You will revisit it later."

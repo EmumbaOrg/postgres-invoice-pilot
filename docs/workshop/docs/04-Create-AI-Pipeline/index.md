@@ -2,7 +2,7 @@
 
 ## Building an AI-Enhanced Data Ingestion and Processing Pipeline
 
-An end-to-end AI-powered data pipeline has been provided to automate Woodgrove Bank's data ingestion and validation process. This pipeline starts when documents are uploaded to Azure Blob Storage and employs Azure AI services for intelligent ingestion, automated validation, semantic analysis, and optimized storage.
+An end-to-end AI-powered data pipeline has been provided to automate Invoice Pilot's data ingestion and validation process. This pipeline starts when documents are uploaded to Azure Blob Storage and employs Azure AI services for intelligent ingestion, automated validation, semantic analysis, and optimized storage.
 
 Before integrating AI into the data ingestion workflow, the application required manual parsing and input of invoice and SOW data into the application. This process was a time-consuming and labor-intensive process.
 

@@ -85,7 +85,7 @@ Docker Desktop is an application that allows you to build, share, and run contai
     - Open Docker Desktop
     - Click Resources
     - Click WSL integration
-    - Select `Enable integration with me default WSL distro`
+    - Select `Enable integration with my default WSL distro`
     - Select `Ubuntu`
     - Click `Apply & restart`
 

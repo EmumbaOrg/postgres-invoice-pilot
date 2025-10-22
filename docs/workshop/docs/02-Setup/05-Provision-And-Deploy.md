@@ -4,7 +4,7 @@ You will need a valid Azure subscription, a GitHub account, and access to releva
 
 ## Start Docker Desktop
 
-Docker Desktop is used to create and deploy the containers used for runnig the _Woodgrove Bank Portal and API_ applications. It must be running before you begin the deployment process using `azd up`.
+Docker Desktop is used to create and deploy the containers used for running the _Invoice Pilot Portal and API_ applications. It must be running before you begin the deployment process using `azd up`.
 
 1. Launch Docker Desktop from the applications menu on your computer.
 
@@ -57,7 +57,7 @@ Before running the `azd up` command, you must authenticate your VS Code environm
 
 ## Provision Azure Resource and Deploy App (UI and API)
 
-You are now ready to provision your Azure resources and deploy the Woodgrove Bank solution.
+You are now ready to provision your Azure resources and deploy the Invoice Pilot solution.
 
 1. Use `azd up` to provision your Azure infrastructure and deploy the web application to Azure.
 
