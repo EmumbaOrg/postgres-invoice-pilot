@@ -34,7 +34,7 @@ async def validate_invoice_by_id(
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
-    user_message = f"""validate Invoice with ID of {id}."""
+    user_message = f"""validate Invoice with invoice_id = {id}."""
     await genai_provider.build_agent(system_prompt=system_prompt, tools=[validate_invoice])
     completion = str(await genai_provider.run(user_message=user_message))
 
@@ -53,14 +53,14 @@ async def validate_invoice_by_id(
 
     return completion
 
-async def validate_invoice(id: int):
+async def validate_invoice(invoice_id: int):
     """Retrieves an Invoice and it's associated Line Items, SOW, and Milestones."""
 
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
-        invoice_row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', id)
+        invoice_row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', invoice_id)
         if invoice_row is None:
-            raise HTTPException(status_code=404, detail=f'An invoice with an id of {id} was not found.')
+            raise HTTPException(status_code=404, detail=f'An invoice with an id of {invoice_id} was not found.')
         invoice = dict(invoice_row)
         invoice_metadata_dict = json.loads(invoice.get("metadata"))
         invoice_metadata_dict_updated = await update_metadata_invoice(invoice, invoice_metadata_dict, conn)
@@ -104,7 +104,7 @@ async def validate_sow_by_id(
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
-    user_message = f"""validate SOW with ID {id}"""
+    user_message = f"""validate SOW with sow_id = {id}"""
     await genai_provider.build_agent(system_prompt=system_prompt, tools=[validate_sow])
     completion = str(await genai_provider.run(user_message=user_message))
 
@@ -121,14 +121,14 @@ async def validate_sow_by_id(
 
     return completion
 
-async def validate_sow(id: int):
+async def validate_sow(sow_id: int):
     """Retrieves a SOW and it's associated Milestones and Deliverables."""
 
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
-        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
+        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', sow_id)
         if sow_row is None:
-            raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
+            raise HTTPException(status_code=404, detail=f'A SOW with an id of {sow_id} was not found.')
 
         sow_dict = dict(sow_row)
 
