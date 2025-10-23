@@ -32,7 +32,7 @@ class AgentFrameworkProvider(FrameworkProviderBase):
     async def init_embedding_client(self) -> 'AgentFrameworkProvider':
         if self._embedding_client is None:
             self._embedding_client = AzureOpenAIEmbeddings(
-                azure_deployment=self.azure_config.get("embedding_deployment_name", "completions"),
+                azure_deployment=self.azure_config.get("embedding_deployment_name", "embeddings"),
                 azure_endpoint=self.azure_config.get("openai_api_endpoint"),
                 azure_ad_token_provider=await self.__get_token_provider(self.credential)
             )
