@@ -25,7 +25,6 @@ Virtual environments in Python are essential for maintaining a clean and organiz
 3. Activate the virtual environment.
 
     !!! note "Select the appropriate command for your OS and shell from the table."
-
         | Platform | Shell | Command to activate virtual environment |
         | -------- | ----- | --------------------------------------- |
         | POSIX | bash/zsh | `source .venv/bin/activate` |
@@ -43,7 +42,6 @@ Virtual environments in Python are essential for maintaining a clean and organiz
 The `requirements.txt` file in the `src\api` folder contains the set of Python libraries needed to run the Python components of the solution accelerator.
 
 !!! tip "Review required libraries"
-
     Open the `src\api\requirements.txt` file in the repo to review the required libraries and the versions that are being used.
 
 1. From the integrated terminal window in VS Code, run the following command to install the required libraries in your virtual environment:
@@ -69,15 +67,10 @@ Configuration values, such as connection string and endpoints, that allow your a
     ```
 
     !!! note "Retrieve the endpoint for your App Configuration resource"
-
-        To get the endpoint for your App Configuration resource:
-
-        1. Navigate to your App Configuration resource in the [Azure portal](https://portal.azure.com/).
-        
-        2. Select **Access settings** from the resource navigation menu, under **Settings**.
-        
+        To get the endpoint for your App Configuration resource:  
+        1. Navigate to your App Configuration resource in the [Azure portal](https://portal.azure.com/).  
+        2. Select **Access settings** from the resource navigation menu, under **Settings**.  
         3. Copy the **Endpoint** value and paste it into the `.env` file.
-
             ![Screenshot of the App Configuration Access Settings page, with the Endpoint copy button highlighted.](../img/app-config-access-settings-endpoint.png)
 
 5. Save the `.env` file.
@@ -119,18 +112,15 @@ You will use pgAdmin from your machine to configure various features in the data
     5. In the **Connect to Server** dialog, you will need to provide an access token.
 
         !!! note "To Retrieve Your Microsoft Entra ID Access Token"
-
-            1. In VS Code, open a new integrated terminal.
-
-            2. At the integrated terminal prompt, execute the following command to generate and output an access token:
-
+            1. In VS Code, open a new integrated terminal.  
+            2. At the integrated terminal prompt, execute the following command to generate and output an access token:  
                 ```bash
                 $token = az account get-access-token --resource-type oss-rdbms --output json | ConvertFrom-Json
                 $token.accessToken
-                ```
+                ```  
+            3. Copy the output value.  
 
-            3. Copy the output value.
-
+                <!-- markdownlint-disable MD046 -->
                 !!! info "The token is a Base64 string. It encodes all the information about the authenticated user and is targeted to the Azure Database for PostgreSQL service."
 
     6. Return to pgAdmin and the **Connect to Server** dialog and paste the access token into the password field.

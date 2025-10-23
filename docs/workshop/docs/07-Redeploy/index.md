@@ -26,6 +26,7 @@ To deploy the updated app, follow the steps below:
 
     !!! danger "Execute the following Azure Developer CLI command!"
 
+    <!-- markdownlint-disable MD046 -->
     ```bash title=""
     azd deploy
     ```

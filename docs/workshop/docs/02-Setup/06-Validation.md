@@ -24,6 +24,7 @@ In this section, you will validate your setup before moving on to the next phase
 
 1. Open a new browser tab and navigate to the link below. You may be prompted to login.
 
+    <!-- markdownlint-disable MD046 -->
     ```bash title=""
     https://portal.azure.com/#browse/resourcegroups
     ```

@@ -31,8 +31,7 @@ Much nicer than the old cmd.exe or bare PowerShell.
 
 ### Install WSL 2 and Ubuntu (Only if using Windows)
 
-Windows Subsystem for Linux (WSL) is a powerful tool that allows the ability to run Linux based Docker images on the Windows operating system.  Plus, WSL 2 provides advantages to using 
-Docker Desktop on Windows, such as better memory management for large containers.  WSL 2 is needed because the dev container for this solution accelerator is built on an Ubuntu Linux base image.
+Windows Subsystem for Linux (WSL) is a powerful tool that allows the ability to run Linux based Docker images on the Windows operating system.  Plus, WSL 2 provides advantages to using Docker Desktop on Windows, such as better memory management for large containers.  WSL 2 is needed because the dev container for this solution accelerator is built on an Ubuntu Linux base image.
 
 1. First we need to install Ubuntu from the Microsoft App Store:
 
@@ -96,7 +95,7 @@ the needed extensions will automatically be installed within the `dev container`
 
 1. Download and install from <https://code.visualstudio.com/download>.
 
-    - Use the default options in the installer.    
+    - Use the default options in the installer.
 
 2. After installation completed, launch Visual Studio Code.
 

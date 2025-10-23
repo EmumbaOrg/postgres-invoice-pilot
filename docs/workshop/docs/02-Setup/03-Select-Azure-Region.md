@@ -25,3 +25,4 @@ Follow the instructions below to review regional availability of the required se
     - Choosing a region that doesn't support both Azure OpenAI models will result in deployment failure when running `azd up`.
 
     - Selecting a region that does not have at least 10K TPM capacity for both the `gpt-4o` and `text-embedding-ada-002` models will result in a deployment failure when running `azd up`.
+    
