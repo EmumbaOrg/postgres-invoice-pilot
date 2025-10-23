@@ -7,7 +7,7 @@ CREATE OR REPLACE FUNCTION sow_chunks_insert_trigger_fn()
 RETURNS trigger AS $$
 BEGIN
   IF NEW.content IS NOT NULL THEN
-    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.content, throw_on_error => FALSE, max_attempts => 1000, retry_delay_ms => 2000);
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.content, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
   END IF;
   RETURN NEW;
 END;
@@ -25,7 +25,7 @@ CREATE OR REPLACE FUNCTION sow_validation_results_insert_trigger_fn()
 RETURNS trigger AS $$
 BEGIN
   IF NEW.result IS NOT NULL THEN
-    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.result, throw_on_error => FALSE, max_attempts => 1000, retry_delay_ms => 2000);
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.result, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
   END IF;
   RETURN NEW;
 END;
@@ -43,7 +43,7 @@ CREATE OR REPLACE FUNCTION invoices_insert_trigger_fn()
 RETURNS trigger AS $$
 BEGIN
   IF NEW.content IS NOT NULL THEN
-    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.content, throw_on_error => FALSE, max_attempts => 1000, retry_delay_ms => 2000);
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.content, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
   END IF;
   RETURN NEW;
 END;
@@ -60,7 +60,7 @@ CREATE OR REPLACE FUNCTION invoice_validation_results_insert_trigger_fn()
 RETURNS trigger AS $$
 BEGIN
   IF NEW.result IS NOT NULL THEN
-    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.result, throw_on_error => FALSE, max_attempts => 1000, retry_delay_ms => 2000);
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.result, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
   END IF;
   RETURN NEW;
 END;
@@ -77,7 +77,7 @@ CREATE OR REPLACE FUNCTION sows_insert_trigger_fn()
 RETURNS trigger AS $$
 BEGIN
   IF NEW.metadata IS NOT NULL THEN
-    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.metadata, throw_on_error => FALSE, max_attempts => 1000, retry_delay_ms => 2000);
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.metadata::text, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
   END IF;
   RETURN NEW;
 END;
