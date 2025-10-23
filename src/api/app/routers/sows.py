@@ -1,4 +1,11 @@
-from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_azure_doc_intelligence_service, get_activity_log_service, get_chat_client, get_prompt_service
+from app.lifespan_manager import (
+    get_db_connection_pool,
+    get_storage_service,
+    get_azure_doc_intelligence_service,
+    get_activity_log_service,
+    get_genai_provider,
+    get_prompt_service,
+)
 from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from datetime import datetime, timedelta
@@ -72,7 +79,7 @@ async def analyze_sow(
     pool = Depends(get_db_connection_pool),
     storage_service = Depends(get_storage_service),
     doc_intelligence_service = Depends(get_azure_doc_intelligence_service),
-    llm = Depends(get_chat_client),
+    genai_provider = Depends(get_genai_provider),
     prompt_service = Depends(get_prompt_service),
     activity_service = Depends(get_activity_log_service)
 ):
@@ -102,7 +109,7 @@ async def analyze_sow(
         full_text = analysis_result.full_text
 
         # format text into json object
-        response = await doc_intelligence_service.format_text_to_json(full_text, llm, prompt_service.get_prompt("format_sow_text_to_json"))
+        response = await doc_intelligence_service.format_text_to_json(genai_provider, full_text, prompt_service.get_prompt("format_sow_text_to_json"))
 
         # check if uploaded document is a SOW or not
         if response.get("sow_check")=="failed":            

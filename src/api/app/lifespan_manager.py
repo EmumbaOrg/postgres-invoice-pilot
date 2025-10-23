@@ -1,6 +1,7 @@
+import os
+from app.framework_providers.interface import FrameworkProviderBase
 from app.services import (
     AzureDocIntelligenceService,
-    AzureOpenAIService,
     ConfigService,
     DatabaseService,
     PromptService,
@@ -10,6 +11,8 @@ from app.services import (
 from azure.identity.aio import DefaultAzureCredential
 from azure.core.credentials import AzureKeyCredential
 from contextlib import asynccontextmanager
+from app.framework_providers.factory import FrameworkProviderFactory
+
 
 # Create a global async Azure OpenAI
 aoai_service = None
@@ -27,6 +30,8 @@ doc_intelligence_service = None
 prompt_service = None
 # Create a global ActivityLogService
 activity_log_service = None
+# Create a global GenAI provider
+genai_provider = None
 
 @asynccontextmanager
 async def lifespan(app):
@@ -39,15 +44,26 @@ async def lifespan(app):
     global storage_service
     global prompt_service
     global activity_log_service
+    global genai_provider
 
     # Create an async Microsoft Entra ID RBAC credential
     credential = DefaultAzureCredential()
 
     # Create ConfigService instance
     config_service = ConfigService(credential)
-
-    # Create an async Azure OpenAI chat and embeddings clients
-    aoai_service = AzureOpenAIService(credential, await config_service.get_openai_endpoint())
+    
+    framework_config = {
+        "chat_deployment_name": os.getenv("CHAT_DEPLOYMENT_NAME"),
+        "embedding_deployment_name": os.getenv("EMBEDDING_DEPLOYMENT_NAME"),
+        "openai_api_version": os.getenv("OPENAI_API_VERSION"),
+        "openai_api_endpoint": await config_service.get_openai_endpoint(),
+    }
+    genai_framework = os.getenv("GENAI_FRAMEWORK", "agent-framework")
+    genai_provider_factory = FrameworkProviderFactory(
+        provider=genai_framework,
+        azure_config=framework_config,
+    )
+    genai_provider = genai_provider_factory.get_provider_service()
 
     # Create an async Azure Document Intelligence Service client
     doc_intelligence_credential = AzureKeyCredential(await config_service.get_doc_intelligence_key())
@@ -83,12 +99,6 @@ async def get_config_service():
 async def get_credential():
     return credential
 
-async def get_chat_client():
-    return await aoai_service.get_chat_client()
-
-async def get_embedding_client():
-    return await aoai_service.get_embedding_client()
-
 async def get_azure_doc_intelligence_service():
     return doc_intelligence_service
     
@@ -103,3 +113,6 @@ async def get_prompt_service():
 
 async def get_activity_log_service():
     return activity_log_service
+
+async def get_genai_provider() -> FrameworkProviderBase:
+    return genai_provider
