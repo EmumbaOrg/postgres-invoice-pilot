@@ -17,6 +17,9 @@
       "runPostDeployScript":{
         "value": "${RUN_POSTDEPLOY_SCRIPT=true}"
       },
+      "genaiFramework": {
+        "value": "${GENAI_FRAMEWORK=agent-framework}"
+      },
       "portalDefinition": {
         "value": {
           "settings": []
