@@ -189,7 +189,7 @@ if __name__ == "__main__":
     # Group deliverables by invoice number
     grouped_deliverables = defaultdict(list)
     for deliverable in vendor_config['deliverables']:
-        grouped_deliverables[deliverable['invoice#']].append(deliverable)
+        grouped_deliverables[deliverable['invoice']].append(deliverable)
 
     # Generate invoices for each group of deliverables
     for invoice_num, deliverables in grouped_deliverables.items():
