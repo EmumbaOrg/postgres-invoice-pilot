@@ -359,8 +359,7 @@ The chatbot is equipped with comprehensive knowledge about:
   Query: `"Tell me about the accuracy of unpaid invoices from Adatum."`
   → The chatbot provides summary on the accuracy of unpaid invoices from Adatum.
 
-
-> ⚠️ The chatbot is designed specifically for Woodgrove Bank's vendor and document management, focusing on SOWs, invoices, and vendor relationships. It provides accurate insights based on the validation results and document analysis performed by the AI agents.
+> ⚠️ The chatbot is designed specifically for Invoice Pilot's vendor and document management, focusing on SOWs, invoices, and vendor relationships. It provides accurate insights based on the validation results and document analysis performed by the AI agents.
 
 ## 🔍 Understanding Supported Document Types and Validation Rules
 

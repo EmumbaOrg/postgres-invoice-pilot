@@ -106,19 +106,19 @@ SELECT 'SOW-2024-073',
        '2024-11-01',
        '2025-12-31',
        43600.00,
-       '1/sow/Statement_of_Work_Adatum_Corporation_Woodgrove_Bank_20241101.pdf',
+       '1/sow/Statement_of_Work_Adatum_Corporation_Invoice_Pilot_20241101.pdf',
        '{
   "Project_Name": "Optimization of Azure Resources",
   "Effective_Date": "2024-11-01",
   "Project_Completion_Date": "2024-12-31",
   "SOW_Number": "SOW-2024-073",
-  "Project_Scope": "Adatum Corporation will provide comprehensive Azure resource management services, including infrastructure monitoring, automated scaling, cost optimization, and application troubleshooting, to ensure high availability and efficiency for Woodgrove Bank.",
+  "Project_Scope": "Adatum Corporation will provide comprehensive Azure resource management services, including infrastructure monitoring, automated scaling, cost optimization, and application troubleshooting, to ensure high availability and efficiency for Invoice Pilot.",
   "Project_Objectives": [
     "Ensure the continuous performance and scalability of Azure resources.",
     "Implement cost-efficient resource management strategies.",
     "Minimize downtime through proactive monitoring and rapid troubleshooting.",
     "Provide detailed reporting and analysis of resource usage and performance metrics.",
-    "Collaborate with Woodgrove Bank."
+    "Collaborate with Invoice Pilot."
   ],
   "Tasks": [
     "Set up Azure resource monitoring tools.",
@@ -136,8 +136,8 @@ SELECT 'SOW-2024-073',
     {"Milestone_Name": "Final troubleshooting and wrap-up", "Milestone_Completion_Due_Date": "2024-12-31"}
   ],
   "Requirements": [
-    "Access to Woodgrove Bank''s Azure environment and necessary credentials.",
-    "Active collaboration from Woodgrove Bank''s IT team for resource planning and feedback.",
+    "Access to Invoice Pilot''s Azure environment and necessary credentials.",
+    "Active collaboration from Invoice Pilot''s IT team for resource planning and feedback.",
     "Approval of milestone completion before moving to subsequent phases."
   ],
   "Payments": {
@@ -164,10 +164,10 @@ SELECT 'SOW-2024-073',
   "Total_Amount": "43600",
   "Signatures": {
     "Adatum Corporation": "Elizabeth Moore",
-    "Woodgrove Bank": "Chris Green"
+    "Invoice Pilot": "Chris Green"
   }
 }',
-'Adatum Corporation has been tasked with optimizing Azure resources for Woodgrove Bank, with a focus on performance, scalability, cost efficiency, and minimal downtime. The project, effective November 1, 2024, aims to establish comprehensive monitoring, automate scaling, conduct cost optimization, and ensure robust troubleshooting for applications hosted on Azure. Deliverables include setting up monitoring tools, implementing scaling strategies, and applying cost-saving measures, with a final wrap-up by the end of 2024. Payments are structured with a penalty for late deliveries or payments, and strict compliance with data security, access control, auditing, incident response, and regulatory standards is mandatory. The total projected cost for all deliverables is $43,600, with a final deadline for all tasks and troubleshooting completed by early 2025 or shortly thereafter. The project involves close collaboration between Adatum Corporation and Woodgrove Bank''s IT team, with necessary approvals required to progress through the phases.'
+'Adatum Corporation has been tasked with optimizing Azure resources for Invoice Pilot, with a focus on performance, scalability, cost efficiency, and minimal downtime. The project, effective November 1, 2024, aims to establish comprehensive monitoring, automate scaling, conduct cost optimization, and ensure robust troubleshooting for applications hosted on Azure. Deliverables include setting up monitoring tools, implementing scaling strategies, and applying cost-saving measures, with a final wrap-up by the end of 2024. Payments are structured with a penalty for late deliveries or payments, and strict compliance with data security, access control, auditing, incident response, and regulatory standards is mandatory. The total projected cost for all deliverables is $43,600, with a final deadline for all tasks and troubleshooting completed by early 2025 or shortly thereafter. The project involves close collaboration between Adatum Corporation and Invoice Pilot''s IT team, with necessary approvals required to progress through the phases.'
 WHERE NOT EXISTS (SELECT 1 FROM sows WHERE number = 'SOW-2024-073');
 
 INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata, summary)
@@ -176,7 +176,7 @@ SELECT 'SOW-2024-038',
        '2024-05-01',
        '2025-08-31',
        60000.00,
-       '2/sow/Statement_of_Work_Trey_Research_Woodgrove_Bank_20240501.pdf',
+       '2/sow/Statement_of_Work_Trey_Research_Invoice_Pilot_20240501.pdf',
        '{
   "Project_Name": "DevOps Implementation",
   "Effective_Date": "2024-05-01",
@@ -228,7 +228,7 @@ SELECT 'SOW-2024-038',
   "Total_Amount": "60000",
   "Signatures": {
     "Trey Research": "Serena Davis",
-    "Woodgrove Bank": "Chris Green"
+    "Invoice Pilot": "Chris Green"
   }
 }',
 'Trey Research has been tasked with implementing comprehensive DevOps services for a project commencing on May 1, 2024, with completion expected by the end of August 2025. The project''s objectives include developing a DevOps strategy, implementing CI/CD pipelines, adopting Infrastructure as Code, and integrating security, monitoring, and optimization into DevOps processes. Payments are structured with a penalty for late deliveries or payments, and strict data security and access control measures are in place, including encryption and multi-factor authentication. The project will adhere to GDPR, PCI DSS, and ISO 27001 standards, with deliverables including a DevOps roadmap, CI/CD pipeline deployment, Infrastructure as Code implementation, and a detailed security integration plan, all with specified due dates and financial expectations. Regular audits, incident response protocols, and a focus on compliance underscore the project''s commitment to security and regulatory adherence. The overall goal is to enhance the client''s DevOps capabilities through a structured timeline and clear deliverables.'
@@ -248,20 +248,20 @@ CREATE TABLE IF NOT EXISTS sow_chunks (
 -- Insert starter data for sow_chunks
 INSERT INTO sow_chunks (sow_id, heading, content, page_number)
 VALUES
-(1, 'Project Scope', 'Adatum Corporation will provide comprehensive Azure resource management services, including infrastructure monitoring, automated scaling, cost optimization, and application troubleshooting, to ensure high availability and efficiency for Woodgrove Bank.', 1),
+(1, 'Project Scope', 'Adatum Corporation will provide comprehensive Azure resource management services, including infrastructure monitoring, automated scaling, cost optimization, and application troubleshooting, to ensure high availability and efficiency for Invoice Pilot.', 1),
 (1, 'Project Objectives', 'Ensure the continuous performance and scalability of Azure resources. Implement cost-efficient resource management strategies. Minimize downtime through proactive monitoring and rapid troubleshooting.', 1),
 (1, 'Tasks', '1. Set up Azure resource monitoring tools. 2. Design and implement automated scaling strategies. 3. Conduct cost analysis and apply optimization measures. 4. Perform regular maintenance on Azure-hosted applications. 5. Troubleshoot and resolve any application or resource issues.', 1),
 (1, 'Schedules', 'Project kick-off: November 01, 2024 - Initial monitoring setup: November 08, 2024 - Scaling implementation: November 15, 2024 - Cost optimization review: November 22, 2024 - Maintenance practices established: December 13, 2024 - Final troubleshooting and wrap-up: December 31, 2025', 1),
 (1, 'Payments', 'Payment terms are Net 30. Invoices will be issued upon the completion of each milestone and are payable within 30 days. A penalty of 10% will be applied for late deliveries or payments.', 1),
 (1, 'Compliance', '- Data Security: All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256). - Access Control: Access to the Azure resources and sensitive client information will be granted only to authorized personnel. Multi-factor authentication (MFA) will be enforced for all administrative access. - Audit and Monitoring: Adatum Corporation will maintain comprehensive logs of all access and changes to Azure resources. Regular audits will be conducted to ensure compliance with security protocols. - Incident Response: In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps. - Regulatory Compliance: The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of Azure resources.', 2),
-(1, 'Project Deliverables', 'Milestone Name Deliverables Amount Due Date 1 Monitoring Monitoring of resources $8,600.00 2024-11-08 2 Resource Scaling Implementation of automated scaling $7,000.00 2024-11-15 3 Cost Management Cost Management Implementation $7,000.00 2024-11-22 4 Maintenance Practices Maintenance & troubleshooting practice $10,500.00 2024-11-27 5 App Troubleshooting Identify Azure application issues $2,000.00 2024-11-27 5 App Troubleshooting Resolution of Azure application issues $3,500.00 2024-12-13 5 App Troubleshooting Implementation of app monitoring $5,000.00 2024-12-31 Total $43,600.00 Signatures (Adatum Corporation - Elizabeth Moore) (Woodgrove Bank - Sora Kim)', 2),
+(1, 'Project Deliverables', 'Milestone Name Deliverables Amount Due Date 1 Monitoring Monitoring of resources $8,600.00 2024-11-08 2 Resource Scaling Implementation of automated scaling $7,000.00 2024-11-15 3 Cost Management Cost Management Implementation $7,000.00 2024-11-22 4 Maintenance Practices Maintenance & troubleshooting practice $10,500.00 2024-11-27 5 App Troubleshooting Identify Azure application issues $2,000.00 2024-11-27 5 App Troubleshooting Resolution of Azure application issues $3,500.00 2024-12-13 5 App Troubleshooting Implementation of app monitoring $5,000.00 2024-12-31 Total $43,600.00 Signatures (Adatum Corporation - Elizabeth Moore) (Invoice Pilot - Sora Kim)', 2),
 (2, 'Project Scope', 'Trey Research will provide comprehensive DevOps implementation services, including strategy and planning, CI/CD pipeline implementation, infrastructure as code, and security, monitoring, and optimization.', 1),
 (2, 'Project Objectives', 'Develop a comprehensive DevOps strategy and roadmap. Implement CI/CD pipelines for automated build and deployment. Implement infrastructure as code (IaC) for consistent and repeatable infrastructure management. Integrate security, monitoring, and optimization practices into the DevOps processes.', 1),
 (2, 'Tasks', '1. DevOps Strategy & Planning 2. CI/CD Pipeline Implementation 3. Infrastructure as Code (IaC) 4. Security, Monitoring & Optimization', 1),
 (2, 'Schedules', 'Project kick-off: May 01, 2024 - DevOps Strategy & Planning: May 15, 2024 - CI/CD Pipeline Implementation: June 01, 2024 - Infrastructure as Code (IaC): September 01, 2024 - Security, Monitoring & Optimization: December 01, 2024', 1),
 (2, 'Payments', 'Payment terms are Net 30. Invoices will be issued upon the completion of each milestone and are payable within 30 days. A penalty of 10% will be applied for late deliveries or payments.', 1),
 (2, 'Compliance', '- Data Security: All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256). - Access Control: Access to the infrastructure and sensitive client information will be granted only to authorized personnel. Multi-factor authentication (MFA) will be enforced for all administrative access. - Audit and Monitoring: Trey Research will maintain comprehensive logs of all access and changes to the infrastructure. Regular audits will be conducted to ensure compliance with security protocols. - Incident Response: In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps. - Regulatory Compliance: The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of infrastructure.', 2),
-(2, 'Project Deliverables', 'Milestone Name Deliverables Amount Due Date 1 DevOps Strategy & Planning DevOps Roadmap & Report $10,000.00 2024-05-30 2 CI/CD Pipeline Implementation Deployment Pipeline, Version Control Implementation, Branching Strategy $20,000.00 2024-06-28 3 Infrastructure as Code (IaC) Infrastructure as Code Implementation, Containerization, Orchestration Setup $15,000.00 2024-09-15 4 Security, Monitoring & Optimization Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization $15,000.00 2024-12-01 Total $60,000.00 Signatures (Trey Research - Serena Davis) (Woodgrove Bank - Sora Kim)', 2);
+(2, 'Project Deliverables', 'Milestone Name Deliverables Amount Due Date 1 DevOps Strategy & Planning DevOps Roadmap & Report $10,000.00 2024-05-30 2 CI/CD Pipeline Implementation Deployment Pipeline, Version Control Implementation, Branching Strategy $20,000.00 2024-06-28 3 Infrastructure as Code (IaC) Infrastructure as Code Implementation, Containerization, Orchestration Setup $15,000.00 2024-09-15 4 Security, Monitoring & Optimization Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization $15,000.00 2024-12-01 Total $60,000.00 Signatures (Trey Research - Serena Davis) (Invoice Pilot - Sora Kim)', 2);
 
 
 
@@ -380,7 +380,7 @@ CREATE TABLE IF NOT EXISTS invoices (
 -- Insert starter data for invoices
 INSERT INTO invoices (id, number, vendor_id, sow_id, amount, invoice_date, payment_status, document, content, metadata)
 VALUES
-    (1, 'INV-AC2024-001', 1, 1, 15600, '2024-11-08', 'Paid', '1/invoice/INV-AC2024-001.pdf',  '{"Invoice Number: INV-AC2024-001 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-08 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone  Deliverables Amount Due Date Monitoring Monitoring of resources $8600.00 2024-12-08 Cost Management Cost Mangement Implementation $7000.00 2024-12-08 Total Amount $15600.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (1, 'INV-AC2024-001', 1, 1, 15600, '2024-11-08', 'Paid', '1/invoice/INV-AC2024-001.pdf',  '{"Invoice Number: INV-AC2024-001 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-08 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone  Deliverables Amount Due Date Monitoring Monitoring of resources $8600.00 2024-12-08 Cost Management Cost Mangement Implementation $7000.00 2024-12-08 Total Amount $15600.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
   "Invoice_Number": "INV-AC2024-001",
   "Vendor": "Adatum Corporation",
   "Vendor_Address": "789 Goldsmith Road, MainTown City",
@@ -389,9 +389,9 @@ VALUES
   "Vendor_Contact_Number": "555-789-7890",
   "SOW_Number": "SOW-2024-073",
   "Invoice_Date": "2024-11-08",
-  "Client": "Woodgrove Bank",
+  "Client": "Invoice Pilot",
   "Client_Contact_Name": "Chris Green",
-  "Client_Contact_Email": "chris.green@woodgrovebank.com",
+  "Client_Contact_Email": "chris.green@invoicepilot.com",
   "Total_Amount": "15600",
   "Payment_Account_Name": "Adatum Corporation",
   "Payment_Account_Number": "48273615",
@@ -400,7 +400,7 @@ VALUES
     "A penalty of 10% will be applied for late payments."
   ]
 }'),
-    (2, 'INV-AC2024-002', 1, 1, 7000, '2024-11-22', 'Paid', '2/invoice/INV-AC2024-002.pdf', '{"Invoice Number: INV-AC2024-002 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-22 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Resource Scaling Implementation of automated scaling $7000.00 2024-12-22 Total Amount $7000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-002 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (2, 'INV-AC2024-002', 1, 1, 7000, '2024-11-22', 'Paid', '2/invoice/INV-AC2024-002.pdf', '{"Invoice Number: INV-AC2024-002 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-22 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Resource Scaling Implementation of automated scaling $7000.00 2024-12-22 Total Amount $7000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-002 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
         "Invoice_Number": "INV-AC2024-002",
         "Vendor": "Adatum Corporation",
         "Vendor_Address": "789 Goldsmith Road, MainTown City",
@@ -409,9 +409,9 @@ VALUES
         "Vendor_Contact_Number": "555-789-7890",
         "SOW_Number": "SOW-2024-073",
         "Invoice_Date": "2024-11-22",
-        "Client": "Woodgrove Bank",
+        "Client": "Invoice Pilot",
         "Client_Contact_Name": "Chris Green",
-        "Client_Contact_Email": "chris.green@woodgrovebank.com",
+        "Client_Contact_Email": "chris.green@invoicepilot.com",
         "Total_Amount": "7000",
         "Payment_Account_Name": "Adatum Corporation",
         "Payment_Account_Number": "48273615",
@@ -420,7 +420,7 @@ VALUES
             "A penalty of 10% will be applied for late payments."
         ]
     }'),
-    (3, 'INV-AC2024-003', 1, 1, 12500, '2024-11-27', 'In Review', '3/invoice/INV-AC2024-003.pdf',  '{"Invoice Number: INV-AC2024-003 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-27 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Maintenance Practices Maintenance and troubleshooting practices $10500.00 2024-12-27 App Troubleshooting Identify Azure application issues $2000.00 2024-12-27 Total Amount $12500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-003 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (3, 'INV-AC2024-003', 1, 1, 12500, '2024-11-27', 'In Review', '3/invoice/INV-AC2024-003.pdf',  '{"Invoice Number: INV-AC2024-003 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-27 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Maintenance Practices Maintenance and troubleshooting practices $10500.00 2024-12-27 App Troubleshooting Identify Azure application issues $2000.00 2024-12-27 Total Amount $12500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-003 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
         "Invoice_Number": "INV-AC2024-003",
         "Vendor": "Adatum Corporation",
         "Vendor_Address": "789 Goldsmith Road, MainTown City",
@@ -429,9 +429,9 @@ VALUES
         "Vendor_Contact_Number": "555-789-7890",
         "SOW_Number": "SOW-2024-073",
         "Invoice_Date": "2024-11-27",
-        "Client": "Woodgrove Bank",
+        "Client": "Invoice Pilot",
         "Client_Contact_Name": "Chris Green",
-        "Client_Contact_Email": "chris.green@woodgrovebank.com",
+        "Client_Contact_Email": "chris.green@invoicepilot.com",
         "Total_Amount": "12500",
         "Payment_Account_Name": "Adatum Corporation",
         "Payment_Account_Number": "48273615",
@@ -440,7 +440,7 @@ VALUES
             "A penalty of 10% will be applied for late payments."
         ]
     }'),
-    (4, 'INV-AC2024-004', 1, 1, 8500, '2025-01-01', 'Pending', '4/invoice/INV-AC2024-004.pdf',  '{"Invoice Number: INV-AC2024-004 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2025-01-01 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date App Troubleshooting Resolution of Azure application issues $3500.00 2025-01-31 App Troubleshooting Implementation of app monitoring 5,000.00 2025-01-31 Total Amount $8500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-004 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (4, 'INV-AC2024-004', 1, 1, 8500, '2025-01-01', 'Pending', '4/invoice/INV-AC2024-004.pdf',  '{"Invoice Number: INV-AC2024-004 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2025-01-01 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date App Troubleshooting Resolution of Azure application issues $3500.00 2025-01-31 App Troubleshooting Implementation of app monitoring 5,000.00 2025-01-31 Total Amount $8500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-004 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
         "Invoice_Number": "INV-AC2024-004",
         "Vendor": "Adatum Corporation",
         "Vendor_Address": "789 Goldsmith Road, MainTown City",
@@ -449,9 +449,9 @@ VALUES
         "Vendor_Contact_Number": "555-789-7890",
         "SOW_Number": "SOW-2024-073",
         "Invoice_Date": "2025-01-01",
-        "Client": "Woodgrove Bank",
+        "Client": "Invoice Pilot",
         "Client_Contact_Name": "Chris Green",
-        "Client_Contact_Email": "chris.green@woodgrovebank.com",
+        "Client_Contact_Email": "chris.green@invoicepilot.com",
         "Total_Amount": "8500",
         "Payment_Account_Name": "Adatum Corporation",
         "Payment_Account_Number": "48273615",
@@ -460,7 +460,7 @@ VALUES
             "A penalty of 10% will be applied for late payments."
         ]
     }'),
-    (5, 'INV-TR2024-001', 2, 2, 10000, '2024-11-20', 'Paid', '5/invoice/INV-TR2024-001.pdf',  '{"Invoice Number: INV-TR2024-001 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2024-11-20 Client: Woodgrove Bank Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date DevOps Strategy DevOps Roadmap & Report $10000.00 2024-12-20 Total Amount $10000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 41536685 To help us allocate money correctly, please reference your invoice number: INV-TR2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (5, 'INV-TR2024-001', 2, 2, 10000, '2024-11-20', 'Paid', '5/invoice/INV-TR2024-001.pdf',  '{"Invoice Number: INV-TR2024-001 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2024-11-20 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date DevOps Strategy DevOps Roadmap & Report $10000.00 2024-12-20 Total Amount $10000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 41536685 To help us allocate money correctly, please reference your invoice number: INV-TR2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
         "Invoice_Number": "INV-TR2024-001",
         "Vendor": "Trey Research",
         "Vendor_Address": "456 Research Avenue, Redmond",
@@ -469,9 +469,9 @@ VALUES
         "Vendor_Contact_Number": "555-867-5309",
         "SOW_Number": "SOW-2024-038",
         "Invoice_Date": "2024-11-20",
-        "Client": "Woodgrove Bank",
+        "Client": "Invoice Pilot",
         "Client_Contact_Name": "Chris Green",
-        "Client_Contact_Email": "chris.green@woodgrovebank.com",
+        "Client_Contact_Email": "chris.green@invoicepilot.com",
         "Total_Amount": "10000.00",
         "Payment_Account_Name": "Trey Research",
         "Payment_Account_Number": "61809232",
