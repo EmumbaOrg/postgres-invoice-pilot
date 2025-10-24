@@ -24,3 +24,34 @@ else
     Write-Host $errorMessage
     throw $errorMessage
 }
+
+# GenAI Framework Selection
+Write-Host ""
+Write-Host "=== GenAI Framework Selection ===" -ForegroundColor Cyan
+Write-Host "Select GenAI framework for the backend? (enter 1 or 2) [default: 1]"
+Write-Host "1 - AgentFramework"
+Write-Host "2 - LangChain"
+
+$frameworkChoice = Read-Host "Enter your choice"
+if ([string]::IsNullOrWhiteSpace($frameworkChoice)) {
+    $frameworkChoice = "1"  # default
+}
+
+switch ($frameworkChoice) {
+    "1" { 
+        $genaiFramework = "agent-framework"
+        Write-Host "Selected: AgentFramework" -ForegroundColor Green
+    }
+    "2" { 
+        $genaiFramework = "langchain"
+        Write-Host "Selected: LangChain" -ForegroundColor Green
+    }
+    default { 
+        $genaiFramework = "agent-framework"  # fallback to default
+        Write-Host "Invalid choice. Defaulting to: AgentFramework" -ForegroundColor Yellow
+    }
+}
+
+# Set environment variable
+azd env set "GENAI_FRAMEWORK" "$genaiFramework"
+Write-Host "GenAI Framework configured: $genaiFramework" -ForegroundColor Green
