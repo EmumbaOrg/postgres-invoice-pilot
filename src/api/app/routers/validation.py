@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.tools import StructuredTool
-from app.lifespan_manager import get_chat_client, get_db_connection_pool, get_prompt_service
+from app.lifespan_manager import get_genai_provider, get_db_connection_pool, get_prompt_service
+from app.framework_providers.interface import FrameworkProviderBase
 from app.models import InvoiceValidationResult, ListResponse, SowValidationResult
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import timedelta
@@ -10,11 +8,9 @@ from pydantic import parse_obj_as
 import json
 import re
 
-# Initialize the router
 router = APIRouter(
     prefix = "/validation",
     tags = ["Validation"],
-    dependencies = [Depends(get_chat_client)],
     responses = {404: {"description": "Not found"}}
 )
 
@@ -28,47 +24,25 @@ async def list_invoice_validations(id: int, pool = Depends(get_db_connection_poo
 
 @router.post('/invoice/{id}', response_model = str)
 #async def validate_invoice_by_id(request: ValidationRequest, id: int, llm = Depends(get_chat_client)):
-async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt_service = Depends(get_prompt_service)):
+async def validate_invoice_by_id(
+    id: int,
+    genai_provider: FrameworkProviderBase = Depends(get_genai_provider),
+    prompt_service = Depends(get_prompt_service),
+):
     """Generate a chat completion to Validate the Invoice using the Azure OpenAI API."""
-    
-    # Define the system prompt for the validator.
+
     system_prompt = prompt_service.get_prompt("invoice_validation")
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
-    # Provide the validation copilot with a persona using the system prompt.
-    messages = [{ "role": "system", "content": system_prompt }]
+    user_message = f"""validate Invoice with invoice_id = {id}."""
+    await genai_provider.build_agent(system_prompt=system_prompt, tools=[validate_invoice])
+    completion = str(await genai_provider.run(user_message=user_message))
 
-    # Add the current user message to the messages list
-    userMessage = f"""validate Invoice with ID of {id}"""
-    messages.append({"role": "user", "content": userMessage})
-
-    # Create a chat prompt template
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            ("user", "{input}"),
-            MessagesPlaceholder("agent_scratchpad")
-        ]
-    )
-    
-    # Define tools for the agent
-    tools = [
-         StructuredTool.from_function(coroutine=validate_invoice)
-    ]
-    
-    # Create an AI agent
-    agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
-
-    # Invoke the agent to perform a chat completion that provides the validation results.
-    completion = await agent_executor.ainvoke({"input": userMessage})
-    validationResult = completion['output']
-
-    # Check if validationResult contains [PASSED] or [FAILED]
+    # Check if completion contains [PASSED] or [FAILED]
     # This is based on the prompt telling the AI to return either [PASSED] or [FAILED]
     # at the end of the response to indicate if the invoice passed or failed validation.
-    validation_passed = await is_validation_passed(validationResult)
+    validation_passed = await is_validation_passed(completion)
 
     # Write validation result to database
     pool = await get_db_connection_pool()
@@ -76,18 +50,18 @@ async def validate_invoice_by_id(id: int, llm = Depends(get_chat_client), prompt
         await conn.execute('''
         INSERT INTO invoice_validation_results (invoice_id, datestamp, result, validation_passed)
         VALUES ($1, $2, $3, $4);
-        ''', id, datetime.utcnow(), validationResult, validation_passed)
+        ''', id, datetime.utcnow(), completion, validation_passed)
 
-    return validationResult
+    return completion
 
-async def validate_invoice(id: int):
+async def validate_invoice(invoice_id: int):
     """Retrieves an Invoice and it's associated Line Items, SOW, and Milestones."""
 
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
-        invoice_row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', id)
+        invoice_row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', invoice_id)
         if invoice_row is None:
-            raise HTTPException(status_code=404, detail=f'An invoice with an id of {id} was not found.')
+            raise HTTPException(status_code=404, detail=f'An invoice with an id of {invoice_id} was not found.')
         invoice = dict(invoice_row)
         invoice_metadata_dict = json.loads(invoice.get("metadata"))
 
@@ -124,44 +98,23 @@ async def list_sow_validations(id: int, pool = Depends(get_db_connection_pool)):
     return ListResponse(data=validations, total = len(validations), skip = 0, limit = len(validations))
 
 @router.post('/sow/{id}', response_model = str)
-async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_service = Depends(get_prompt_service)):
+async def validate_sow_by_id(
+    id: int,
+    genai_provider: FrameworkProviderBase = Depends(get_genai_provider),
+    prompt_service = Depends(get_prompt_service)
+):
     """Generate a chat completion to Validate the SOW using the Azure OpenAI API."""
 
-    # Define the system prompt for the validator.
     system_prompt = prompt_service.get_prompt("sow_validation")
     # Append the current date to the system prompt to provide context when checking timeliness of deliverables.
     system_prompt += f"\n\nFor context, today is {datetime.now(timezone.utc).strftime('%A, %B %d, %Y')}."
 
-    # Provide the validation copilot with a persona using the system prompt.
-    messages = [{ "role": "system", "content": system_prompt }]
+    user_message = f"""validate SOW with sow_id = {id}"""
+    await genai_provider.build_agent(system_prompt=system_prompt, tools=[validate_sow])
+    completion = str(await genai_provider.run(user_message=user_message))
 
-    # Add the current user message to the messages list
-    userMessage = f"""validate SOW with ID {id}"""
-    messages.append({"role": "user", "content": userMessage})
-
-    # Create a chat prompt template
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            ("user", "{input}"),
-            MessagesPlaceholder("agent_scratchpad")
-        ]
-    )
-
-    tools = [
-         StructuredTool.from_function(coroutine=validate_sow)
-    ]
-    
-    # Create an agent
-    agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
-    #completion = await agent_executor.ainvoke({"input": request.message})
-    completion = await agent_executor.ainvoke({"input": userMessage})
-
-    validationResult = completion['output']
-
-    # Check if validationResult contains [PASSED] or [FAILED]
-    validation_passed = await is_validation_passed(validationResult)
+    # Check if completion contains [PASSED] or [FAILED]
+    validation_passed = await is_validation_passed(completion)
     
     # Write validation result to database
     pool = await get_db_connection_pool()
@@ -169,20 +122,20 @@ async def validate_sow_by_id(id: int, llm = Depends(get_chat_client), prompt_ser
         await conn.execute('''
         INSERT INTO sow_validation_results (sow_id, datestamp, result, validation_passed)
         VALUES ($1, $2, $3, $4);
-        ''', id, datetime.utcnow(), validationResult, validation_passed)
+        ''', id, datetime.utcnow(), completion, validation_passed)
 
-    return validationResult
+    return completion
 
 
 
-async def validate_sow(id: int):
+async def validate_sow(sow_id: int):
     """Retrieves a SOW and it's associated Milestones and Deliverables."""
 
     pool = await get_db_connection_pool()
     async with pool.acquire() as conn:
-        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
+        sow_row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', sow_id)
         if sow_row is None:
-            raise HTTPException(status_code=404, detail=f'A SOW with an id of {id} was not found.')
+            raise HTTPException(status_code=404, detail=f'A SOW with an id of {sow_id} was not found.')
 
         sow_dict = dict(sow_row)
 

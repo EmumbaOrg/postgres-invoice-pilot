@@ -56,6 +56,9 @@ param openAiModelVersion string = '2024-11-20'
 @description('Determines whether to deploy the OpenAI models')
 param deployOpenAIModels bool = true // default to true
 
+@description('GenAI framework to use for the backend')
+param genaiFramework string = 'agent-framework'
+
 param runPostDeployScript bool
 
 param userPortalExists bool
@@ -223,6 +226,22 @@ module apiApp './app/API.bicep' = {
       {
         name: 'ApplicationInsights__ConnectionString'
         value: monitoring.outputs.appInsightsConnectionString
+      }
+      {
+        name: 'GENAI_FRAMEWORK'
+        value: genaiFramework
+      }
+      {
+        name: 'CHAT_DEPLOYMENT_NAME'
+        value: 'completions'
+      }
+      {
+        name: 'EMBEDDING_DEPLOYMENT_NAME'
+        value: 'embeddings'
+      }
+      {
+        name: 'OPENAI_API_VERSION'
+        value: '2024-10-21'
       }
     ]
     secretSettings: []

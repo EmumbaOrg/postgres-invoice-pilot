@@ -1,10 +1,11 @@
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.formrecognizer.aio import DocumentAnalysisClient
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from typing import List
 from datetime import date, datetime
 import re
 import json
+
+from app.framework_providers.interface import FrameworkProviderBase
 
 class TextChunk:
     heading: str
@@ -14,7 +15,6 @@ class TextChunk:
 class DocumentAnalysisResult:
     extracted_text: str
     text_chunks: List[TextChunk]
-
 
 class InvoiceLineItem:
     description: str
@@ -140,25 +140,13 @@ class AzureDocIntelligenceService:
         
         return False
 
-    def semantic_chunking(self, text):
-        """Chunk text into semantically meaningful pieces."""
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,         # Maximum characters per chunk
-            chunk_overlap=50        # Overlap between chunks
-        )
-        return text_splitter.split_text(text)
+    def semantic_chunking(self, text, genai_provider: FrameworkProviderBase):
+        """Chunk text into semantically meaningful pieces using GenAI facade."""
+        return genai_provider.split_text(text, max_chunk_size=500, overlap=50)
 
-
-    async def format_text_to_json(self, full_text:str, llm, prompt):
+    async def format_text_to_json(self, genai_provider: FrameworkProviderBase, full_text: str, system_prompt: str):
         """Use LLM to format data into JSON structure"""
-
-        # Prepare messages for the LLM
-        messages = [
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": full_text}
-        ]
-        
-        response = await llm.ainvoke(messages)
-        json_response = json.loads(response.content)
+        response = await genai_provider.chat(user_message=full_text, system_prompt=system_prompt)
+        json_response = json.loads(response)
 
         return json_response

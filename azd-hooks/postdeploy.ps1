@@ -94,6 +94,17 @@ az postgres flexible-server parameter set `
     --value "age,pg_cron,pg_stat_statements" | Out-Null
 
 # ##############################################################################
+# Restart PostgreSQL server to apply shared_preload_libraries changes
+# ##############################################################################
+Write-Host "Restarting PostgreSQL server to apply shared_preload_libraries changes..."
+az postgres flexible-server restart `
+    --resource-group "${env:AZURE_RESOURCE_GROUP}" `
+    --name "${env:POSTGRESQL_SERVER_NAME}" `
+    --subscription "${env:AZURE_SUBSCRIPTION_ID}" | Out-Null
+
+Write-Host "PostgreSQL server restarted successfully"
+
+# ##############################################################################
 # Get workspace key 
 # ##############################################################################
 

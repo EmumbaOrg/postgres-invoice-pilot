@@ -1,40 +1,30 @@
+from app.framework_providers.interface import FrameworkProviderBase
 from app.functions.chat_functions import ChatFunctions
-from app.lifespan_manager import get_chat_client, get_config_service, get_db_connection_pool, get_embedding_client, get_prompt_service
+from app.lifespan_manager import get_genai_provider, get_config_service, get_db_connection_pool, get_prompt_service
 from app.models import CompletionRequest, CompletionResponse
 from fastapi import APIRouter, Depends
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.tools import StructuredTool
 
-# Initialize the router
+
 router = APIRouter(
     prefix = "/completions",
     tags = ["Completions"],
-    dependencies = [Depends(get_chat_client)],
     responses = {404: {"description": "Not found"}}
 )
 
 @router.post('/chat', response_model=CompletionResponse)
 async def generate_chat_completion(
     request: CompletionRequest,
-    llm = Depends(get_chat_client),
     db_pool = Depends(get_db_connection_pool),
-    embedding_client = Depends(get_embedding_client),
+    genai_provider: FrameworkProviderBase = Depends(get_genai_provider),
     prompt_service = Depends(get_prompt_service),
     app_config = Depends(get_config_service),
 ):
     """Generate a chat completion using the Azure OpenAI API."""
-        
-    # Retrieve the copilot prompt
+
+    messages = []
+    session_id = request.session_id
     system_prompt = prompt_service.get_prompt("copilot")
 
-    # Provide the copilot with a persona using the system prompt.
-    messages = [{ "role": "system", "content": system_prompt }]
-
-    # Get the chat session ID
-    session_id = request.session_id
-
-    # Create a chat session if one does not exist
     if (session_id == None or session_id <= 0):
         # if session_id is not provided or -1, create a new chat session
         # use the user prompt as the name of the session
@@ -42,66 +32,41 @@ async def generate_chat_completion(
             session_id = await create_chat_session(conn, request.message)
 
     # Add the chat history to the messages list for the session
-    # Chat history provides context of previous questions and responses for the copilot.
     async with db_pool.acquire() as conn:
         chat_history = await get_chat_history(conn, session_id)
         for message in chat_history[-request.max_history:]:
             messages.append({"role": message["role"], "content": message["content"]})
-   
 
-    # Create a chat prompt template
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            MessagesPlaceholder("chat_history", optional=True),
-            ("user", "{input}"),
-            MessagesPlaceholder("agent_scratchpad")
-        ]
-    )
-
-    # Get the chat functions
-    cf = ChatFunctions(db_pool, embedding_client, app_config.get_chat_model_deployment())
-
-    # Define tools for the agent to retrieve data from the database
+    cf = ChatFunctions(db_pool, genai_provider, app_config.get_chat_model_deployment())
     tools = [
-        # Hybrid search functions
-        StructuredTool.from_function(coroutine=cf.find_invoice_line_items),
-        StructuredTool.from_function(coroutine=cf.find_invoice_validation_results),
-        StructuredTool.from_function(coroutine=cf.find_milestone_deliverables),
-        StructuredTool.from_function(coroutine=cf.find_sow_chunks_with_semantic_ranking),
-        StructuredTool.from_function(coroutine=cf.find_sow_validation_results),
-        # Get invoice data functions
-        StructuredTool.from_function(coroutine=cf.get_invoice_id),
-        StructuredTool.from_function(coroutine=cf.get_invoice_line_items),
-        StructuredTool.from_function(coroutine=cf.get_invoice_validation_results),
-        StructuredTool.from_function(coroutine=cf.get_invoices),
-        StructuredTool.from_function(coroutine=cf.get_unpaid_invoices_for_vendor),
-        # Get SOW data functions
-        StructuredTool.from_function(coroutine=cf.get_sow_chunks),
-        StructuredTool.from_function(coroutine=cf.get_sow_id),
-        StructuredTool.from_function(coroutine=cf.get_sow_milestones),
-        StructuredTool.from_function(coroutine=cf.get_milestone_deliverables),
-        StructuredTool.from_function(coroutine=cf.get_sow_validation_results),
-        StructuredTool.from_function(coroutine=cf.get_sows),
-        # Get vendor data functions
-        StructuredTool.from_function(coroutine=cf.get_vendors)
+        cf.find_invoice_line_items,
+        cf.find_invoice_validation_results,
+        cf.find_milestone_deliverables,
+        cf.find_sow_chunks_with_semantic_ranking,
+        cf.find_sow_validation_results,
+        cf.get_invoice_id,
+        cf.get_invoice_line_items,
+        cf.get_invoice_validation_results,
+        cf.get_invoices,
+        cf.get_unpaid_invoices_for_vendor,
+        cf.get_sow_chunks,
+        cf.get_sow_id,
+        cf.get_sow_milestones,
+        cf.get_milestone_deliverables,
+        cf.get_sow_validation_results,
+        cf.get_sows,
+        cf.get_vendors,
     ]
-    
-    # Create an agent
-    agent = create_openai_functions_agent(llm=llm, tools=tools, prompt=prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, return_intermediate_steps=True)
-    completion = await agent_executor.ainvoke({"input": request.message, "chat_history": messages})
-    completionOutput = completion['output']
+    genai_provider = await genai_provider.build_agent(system_prompt=system_prompt, tools=tools)
+    completion = await genai_provider.run(user_message=request.message, messages=messages)
 
-    # Write the chat history to the database
     async with db_pool.acquire() as conn:
         await write_chat_history(conn, session_id, "user", request.message)
-        await write_chat_history(conn, session_id, "assistant", completionOutput)
+        await write_chat_history(conn, session_id, "assistant", str(completion))
 
-    # Return the completion output
     return CompletionResponse(
-        session_id = session_id,
-        content = completionOutput
+        session_id = int(session_id),
+        content = str(completion)
     )
 
 @router.get('/sessions')
