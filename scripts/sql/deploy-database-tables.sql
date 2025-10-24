@@ -103,7 +103,7 @@ CREATE OR REPLACE FUNCTION sows_insert_trigger_fn()
 RETURNS trigger AS $$
 BEGIN
   IF NEW.metadata IS NOT NULL THEN
-    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.metadata, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.metadata::text, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
   END IF;
   RETURN NEW;
 END;
@@ -686,42 +686,9 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 
 /* END_ACTIVITY_LOGS */
 
-
-/* Create Embeddings For All Tables With Embedding Column */
-UPDATE deliverables
-SET embedding = azure_openai.create_embeddings('embeddings', description, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE invoices
-SET embedding = azure_openai.create_embeddings('embeddings', content, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE invoice_line_items
-SET embedding = azure_openai.create_embeddings('embeddings', description, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE invoice_validation_results
-SET embedding = azure_openai.create_embeddings('embeddings', result, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE sow_chunks
-SET embedding = azure_openai.create_embeddings('embeddings', content, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE sow_validation_results
-SET embedding = azure_openai.create_embeddings('embeddings', result, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE sows
-SET embedding = azure_openai.create_embeddings('embeddings', result, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-/* End Embedding Creation */
-
-
 /* Create a diskann index by using Cosine distance operator */
 
-CREATE INDEX SOWS_diskann_idx ON sows USING diskann (summary vector_cosine_ops);
+CREATE INDEX SOWS_diskann_idx ON sows USING diskann (embedding vector_cosine_ops);
 CREATE INDEX INVOICES_diskann_idx ON invoices USING diskann (embedding vector_cosine_ops);
 CREATE INDEX deliverables_diskann_idx ON deliverables USING diskann (embedding vector_cosine_ops);
 CREATE INDEX line_items_diskann_idx ON invoice_line_items USING diskann (embedding vector_cosine_ops);
