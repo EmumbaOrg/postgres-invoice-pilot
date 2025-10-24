@@ -5,8 +5,8 @@
     Incorporating your own data into the solution accelerator requires adapting the existing architecture to align with your specific data structures.
     Here are some recommendations:
 
-    **1. Implement Design Patterns and LangChain in Your Solution**
-    To effectively integrate AI capabilities, you need to incorporate design patterns that facilitate seamless interaction between your data and AI models. Utilizing [LangChain](https://python.langchain.com/docs/introduction/) can help in constructing these patterns, enabling efficient data processing and AI orchestration.
+    **1. Review Design Patterns and Framework Provider Architecture**
+        Notice how the solution incorporates design patterns that facilitate seamless interaction between your data and AI models. The implementation utilizes a provider interface that supports both [LangChain](https://python.langchain.com/docs/introduction/) and [AgentFramework](https://learn.microsoft.com/en-us/python/api/agent-framework-core/agent_framework?view=agent-framework-python-latest), enabling flexible AI orchestration. Examine how these patterns construct efficient data processing workflows and consider how the provider abstraction allows for framework-agnostic AI integration.
 
     **2. Customize the `chat_functions.py` file**
     The `chat_functions.py` file serves as a bridge between the user inputs and AI responses. To tailor this to your data:
@@ -15,16 +15,17 @@
     - Map Your Data: Identify how your data schema aligns with the existing functions.
     - Modify Functions: Adjust or rewrite functions to query and process your data appropriately, ensuring that the AI services can accurately interpret and respond based on your dataset.
 
-In this section, you will add an AI copilot to the _Invoice Pilot_ application using Python, the GenAI capabilities of Azure Database for PostgreSQL - Flexible Server, and the Azure AI extension. Using the AI-validated data, the copilot will use RAG to provide insights and answer questions about vendor contract performance and invoicing accuracy, serving as an intelligent assistant for Invoice Pilot's users. Here's what you will accomplish:
+In this section, you will explore how an AI copilot has been integrated into the _Invoice Pilot_ application using Python, the GenAI capabilities of Azure Database for PostgreSQL - Flexible Server, and the Azure AI extension. Using the AI-validated data, the copilot leverages RAG to provide insights and answer questions about vendor contract performance and invoicing accuracy, serving as an intelligent assistant for Invoice Pilot's users. Here's what you will examine:
 
-- [ ] Explore the API codebase
-- [ ] Review the RAG design
-- [ ] Leverage LangChain Orchestration
-- [ ] Implement and test the Chat endpoint
-- [ ] Refine the copilot prompt using standard prompt engineering techniques
-- [ ] Add and test the Copilot Chat UI component
+- [ ] Explore the API codebase and framework provider architecture
+- [ ] Review the RAG design implementation
+- [ ] Understand LangChain & AgentFramework orchestration through the provider interface
+- [ ] Examine the Chat endpoint implementation and testing approach
+- [ ] Analyze how the copilot prompt has been refined using standard prompt engineering techniques
+- [ ] Review the Copilot Chat UI component integration
 
-Following these steps will transform your application into a powerful AI-enhanced platform capable of executing advanced generative AI tasks and providing deeper insights from your data.
+Notice how these implementation steps have transformed the application into a powerful AI-enhanced platform capable of executing advanced generative AI tasks and providing deeper insights from your data through a flexible framework provider system that supports both LangChain and AgentFramework.
+
 
 ## What are copilots?
 
