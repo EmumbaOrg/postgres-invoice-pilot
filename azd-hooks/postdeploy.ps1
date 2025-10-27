@@ -150,21 +150,6 @@ Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 
 #Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 
-# Create triggers and semantic_reranker function.
-$dbSqlPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.sql"
-$dbSql = Get-Content -Path $dbSqlPath -Raw
-$dbTempPathT = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.tmp.sql"
-Set-Content -Path $dbTempPathT -Value $dbSql
-
-az postgres flexible-server execute `
-          --admin-user "$username" `
-          --admin-password "$token" `
-          --name "${env:POSTGRESQL_SERVER_NAME}" `
-          --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
-          --file-path $dbTempPathT
-
-Remove-Item -Path $dbTempPathT -ErrorAction SilentlyContinue
-
 Write-Host "Database Schema Configured"
 
 # Clean up temp file

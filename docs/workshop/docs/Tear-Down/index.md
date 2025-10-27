@@ -7,7 +7,7 @@
 The **[Build Your Own Advanced AI Copilot with Postgres](http://aka.ms/pg-byoac-repo/)** sample is an actively updated project that will reflect the latest features and best practices for code-first development of RAG-based copilots on the Azure AI platform. **[Visit the repo](http://aka.ms/pg-byoac-repo/)** or click the button below, to give us a ⭐️.
 
 <!-- Place this tag where you want the button to render. -->
-<a class="github-button" href="http://aka.ms/pg-byoac-repo/" data-color-scheme="no-preference: light; light: light; dark: dark;" data-size="large" data-show-count="true" aria-label="Star aka.ms/pg-byoac-repo on GitHub"> Give the PostgreSQL Solution Accelerator a Star!</a>
+[Give the PostgreSQL Solution Accelerator a Star!](http://aka.ms/pg-byoac-repo/)
 
 ## Provide Feedback
 

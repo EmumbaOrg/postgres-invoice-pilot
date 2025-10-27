@@ -123,6 +123,7 @@ GIN (Generalized Inverted Index) is a type of indexing in PostgreSQL that is opt
 
 ### Example Usage
 
+<!-- markdownlint-disable MD046 -->
 ```sql
 ALTER TABLE invoices ADD COLUMN metadata JSONB;
 

@@ -16,7 +16,7 @@ The following diagram shows the high-level architecture:
 
 > **Tip — Decoupled Architecture**  
 > Separating the UI and backend services improves maintainability and scalability.  
-
+>
 > - The React + Node.js frontend provides an intuitive, responsive interface for uploading and reviewing documents.  
 > - The FastAPI backend delivers high-performance asynchronous data processing and API orchestration.  
 > - This separation allows independent deployment, better security isolation, and optimized resource allocation across Azure Container Apps and supporting services.

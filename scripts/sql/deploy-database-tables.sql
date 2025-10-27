@@ -99,6 +99,21 @@ CREATE TABLE IF NOT EXISTS sows (
     FOREIGN KEY (vendor_id) REFERENCES vendors (id) ON DELETE CASCADE
 );
 
+CREATE OR REPLACE FUNCTION sows_insert_trigger_fn()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.metadata IS NOT NULL THEN
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.metadata::text, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- setup INSERT TRIGGER to call function
+CREATE TRIGGER sows_insert_trigger
+BEFORE INSERT ON sows
+FOR EACH ROW
+EXECUTE FUNCTION sows_insert_trigger_fn();
+
 -- Insert sow values only if the specific sow number does not exist
 INSERT INTO sows (number, vendor_id, start_date, end_date, budget, document, metadata, summary)
 SELECT 'SOW-2024-073',
@@ -245,6 +260,21 @@ CREATE TABLE IF NOT EXISTS sow_chunks (
     FOREIGN KEY (sow_id) REFERENCES sows (id) ON DELETE CASCADE
 );
 
+CREATE OR REPLACE FUNCTION sow_chunks_insert_trigger_fn()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.content IS NOT NULL THEN
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.content, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- setup INSERT TRIGGER to call function
+CREATE TRIGGER sow_chunks_insert_trigger
+BEFORE INSERT ON sow_chunks
+FOR EACH ROW
+EXECUTE FUNCTION sow_chunks_insert_trigger_fn();
+
 -- Insert starter data for sow_chunks
 INSERT INTO sow_chunks (sow_id, heading, content, page_number)
 VALUES
@@ -262,8 +292,6 @@ VALUES
 (2, 'Payments', 'Payment terms are Net 30. Invoices will be issued upon the completion of each milestone and are payable within 30 days. A penalty of 10% will be applied for late deliveries or payments.', 1),
 (2, 'Compliance', '- Data Security: All data transfers between the Service Provider and Client will use secure, encrypted communication protocols. Data at rest will be encrypted using industry-standard encryption algorithms (e.g., AES-256). - Access Control: Access to the infrastructure and sensitive client information will be granted only to authorized personnel. Multi-factor authentication (MFA) will be enforced for all administrative access. - Audit and Monitoring: Trey Research will maintain comprehensive logs of all access and changes to the infrastructure. Regular audits will be conducted to ensure compliance with security protocols. - Incident Response: In the event of a security incident, the Service Provider will notify the Client within 24 hours. A detailed incident report will be provided within 48 hours, outlining the root cause, impact, and mitigation steps. - Regulatory Compliance: The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of infrastructure.', 2),
 (2, 'Project Deliverables', 'Milestone Name Deliverables Amount Due Date 1 DevOps Strategy & Planning DevOps Roadmap & Report $10,000.00 2024-05-30 2 CI/CD Pipeline Implementation Deployment Pipeline, Version Control Implementation, Branching Strategy $20,000.00 2024-06-28 3 Infrastructure as Code (IaC) Infrastructure as Code Implementation, Containerization, Orchestration Setup $15,000.00 2024-09-15 4 Security, Monitoring & Optimization Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization $15,000.00 2024-12-01 Total $60,000.00 Signatures (Trey Research - Serena Davis) (Invoice Pilot - Sora Kim)', 2);
-
-
 
 CREATE SEQUENCE IF NOT EXISTS sow_chunks_id_seq;
 SELECT setval('sow_chunks_id_seq', COALESCE((SELECT MAX(id) FROM sow_chunks), 1) + 1);
@@ -307,6 +335,21 @@ CREATE TABLE IF NOT EXISTS deliverables (
     FOREIGN KEY (milestone_id) REFERENCES milestones (id) ON DELETE CASCADE
 );
 
+CREATE OR REPLACE FUNCTION deliverables_insert_trigger_fn()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.description IS NOT NULL THEN
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.description, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- setup INSERT TRIGGER to call function
+CREATE TRIGGER deliverables_insert_trigger
+BEFORE INSERT ON deliverables
+FOR EACH ROW
+EXECUTE FUNCTION deliverables_insert_trigger_fn();
+
 -- Insert starter data for deliverables
 INSERT INTO deliverables (milestone_id, description, amount, status, due_date)
 VALUES
@@ -337,6 +380,21 @@ CREATE TABLE IF NOT EXISTS sow_validation_results (
     embedding vector(1536),
     FOREIGN KEY (sow_id) REFERENCES sows (id) ON DELETE CASCADE
 );
+
+CREATE OR REPLACE FUNCTION sow_validation_results_insert_trigger_fn()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.result IS NOT NULL THEN
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.result, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- setup INSERT TRIGGER to call function
+CREATE TRIGGER sow_validation_results_insert_trigger
+BEFORE INSERT ON sow_validation_results
+FOR EACH ROW
+EXECUTE FUNCTION sow_validation_results_insert_trigger_fn();
 
 -- Insert starter data for sow_validation_results
 INSERT INTO sow_validation_results (
@@ -376,6 +434,21 @@ CREATE TABLE IF NOT EXISTS invoices (
     FOREIGN KEY (vendor_id) REFERENCES vendors (id) ON DELETE CASCADE,
     FOREIGN KEY (sow_id) REFERENCES sows (id) ON DELETE CASCADE
 );
+
+CREATE OR REPLACE FUNCTION invoices_insert_trigger_fn()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.content IS NOT NULL THEN
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.content, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- setup INSERT TRIGGER to call function
+CREATE TRIGGER invoices_insert_trigger
+BEFORE INSERT ON invoices
+FOR EACH ROW
+EXECUTE FUNCTION invoices_insert_trigger_fn();
 
 -- Insert starter data for invoices
 INSERT INTO invoices (id, number, vendor_id, sow_id, amount, invoice_date, payment_status, document, content, metadata)
@@ -485,6 +558,8 @@ CREATE SEQUENCE IF NOT EXISTS invoices_id_seq;
 SELECT setval('invoices_id_seq', COALESCE((SELECT MAX(id) FROM invoices), 1) + 1);
 ALTER TABLE invoices ALTER COLUMN id SET DEFAULT nextval('invoices_id_seq');
 
+
+
 -- Invoice Line Items table
 CREATE TABLE IF NOT EXISTS invoice_line_items (
     id BIGSERIAL PRIMARY KEY,
@@ -497,6 +572,21 @@ CREATE TABLE IF NOT EXISTS invoice_line_items (
     due_date DATE NOT NULL,
     FOREIGN KEY (invoice_id) REFERENCES invoices (id) ON DELETE CASCADE
 );
+
+CREATE OR REPLACE FUNCTION invoice_line_items_insert_trigger_fn()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.description IS NOT NULL THEN
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.description, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- setup INSERT TRIGGER to call function
+CREATE TRIGGER invoice_line_items_insert_trigger
+BEFORE INSERT ON invoice_line_items
+FOR EACH ROW
+EXECUTE FUNCTION invoice_line_items_insert_trigger_fn();
 
 -- Insert starter data for invoice_line_items
 INSERT INTO invoice_line_items (invoice_id, milestone_of_line_item, description, amount, status, due_date)
@@ -524,6 +614,21 @@ CREATE TABLE IF NOT EXISTS invoice_validation_results (
     embedding vector(1536),
     FOREIGN KEY (invoice_id) REFERENCES invoices (id) ON DELETE CASCADE
 );
+
+CREATE OR REPLACE FUNCTION invoice_validation_results_insert_trigger_fn()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.result IS NOT NULL THEN
+    NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.result, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- setup INSERT TRIGGER to call function
+CREATE TRIGGER invoice_validation_results_insert_trigger
+BEFORE INSERT ON invoice_validation_results
+FOR EACH ROW
+EXECUTE FUNCTION invoice_validation_results_insert_trigger_fn();
 
 -- Insert starter data for invoice_validation_results
 INSERT INTO invoice_validation_results (
@@ -581,38 +686,10 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 
 /* END_ACTIVITY_LOGS */
 
-
-/* Create Embeddings For All Tables With Embedding Column */
-
-UPDATE deliverables
-SET embedding = azure_openai.create_embeddings('embeddings', description, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE invoices
-SET embedding = azure_openai.create_embeddings('embeddings', content, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE invoice_line_items
-SET embedding = azure_openai.create_embeddings('embeddings', description, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE invoice_validation_results
-SET embedding = azure_openai.create_embeddings('embeddings', result, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE sow_chunks
-SET embedding = azure_openai.create_embeddings('embeddings', content, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-UPDATE sow_validation_results
-SET embedding = azure_openai.create_embeddings('embeddings', result, max_attempts => 5, retry_delay_ms => 500)
-WHERE embedding IS NULL;
-
-/* End Embedding Creation */
-
-
 /* Create a diskann index by using Cosine distance operator */
 
+CREATE INDEX SOWS_diskann_idx ON sows USING diskann (embedding vector_cosine_ops);
+CREATE INDEX INVOICES_diskann_idx ON invoices USING diskann (embedding vector_cosine_ops);
 CREATE INDEX deliverables_diskann_idx ON deliverables USING diskann (embedding vector_cosine_ops);
 CREATE INDEX line_items_diskann_idx ON invoice_line_items USING diskann (embedding vector_cosine_ops);
 CREATE INDEX invoice_validation_results_diskann_idx ON invoice_validation_results USING diskann (embedding vector_cosine_ops);

@@ -44,12 +44,15 @@ Incorporating Generative AI (GenAI) within Azure Database for PostgreSQL - Flexi
 
 In addition, the `pg_diskann` extension enables DiskANN support for efficient vector indexing and searching. DiskANN is a scalable approximate nearest neighbor search algorithm for efficient vector search at any scale. It offers high recall, high queries per second, and low query latency, even for billion-point datasets.
 
-In this section, you will use extensions to enhance your PostgreSQL database with Generative AI and Vector Search capabilities. Here's what you will accomplish:
+Furthermore, the `age` extension enables graph database capabilities within PostgreSQL. AGE allows you to store, query, and analyze graph data using the openCypher query language, making it possible to model complex relationships and perform advanced graph analytics directly in your database.
 
-- [ ] Install the `azure_ai`, `pg_diskann`, and `vector` extensions on your PostgreSQL database
-- [ ] Configure the `azure_ai` extension with the connection details for your Azure AI services
-- [ ] Add vector columns to database tables to allow embeddings to be stored alongside text data
-- [ ] Improve vector query performance with DiskANN
-- [ ] Generate and store embeddings for existing data
+This section provides an overview of the enhancements which are automatically made to the PostgreSQL database during the application setup, enabling Generative AI and Vector Search capabilities:
 
-Following these steps will transform your PostgreSQL database into a powerful AI-enhanced platform capable of executing advanced generative AI tasks and providing deeper insights from your data.
+- The `azure_ai`, `pg_diskann`, and `vector` extensions have been installed and configured on the PostgreSQL database.
+- The `azure_ai` extension is set up with connection details for Azure AI services.
+- Vector columns have been added to relevant database tables, allowing embeddings to be stored alongside text data.
+- DiskANN indexing has been implemented to improve vector query performance.
+- The `age` extension enables graph database functionality, allowing you to store and query graph data using Cypher Queries.
+- Embeddings have been generated and stored for existing data.
+
+With these enhancements, your PostgreSQL database is now a powerful AI-enabled platform, capable of executing advanced generative AI tasks and providing deeper insights from your data.

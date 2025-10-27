@@ -39,6 +39,7 @@ Before running the `azd up` command, you must authenticate your VS Code environm
 
 1. Log into the Azure CLI `az` using the command below.
 
+    <!-- markdownlint-disable MD046 -->
     ```bash  title=""
     az login
     ```
