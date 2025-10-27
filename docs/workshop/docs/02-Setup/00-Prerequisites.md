@@ -22,13 +22,13 @@ To be able to complete this solution accelerator, you will need:
       - You can run small, but high quality model on a Standard DASv4 with 4 vCPUs.
       - You can alternatively run a much larger, and even more accurate model on a Standard DASv4 with 16 vCPUs.
       - Therefore, depending on the model you choose, you need to ensure you have either 4 or 16 cores available to you in your subscription. Detailed instructions are provided in the setup section to verify this in your subscription.
-4. **An appropriate Azure region for your workshop resources**
+5. **An appropriate Azure region for your workshop resources**
     - To ensure you can successfully complete the workshop and deploy the required Azure resources, you must choose a region that supports those resources.
     - Before selecting an Azure region:
       - Review the regional availability guidance for the [gpt-4o](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-chat-completions#standard-models-by-endpoint) and [text-embedding-ada-002](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-embeddings#standard-models-by-endpoint) models in Azure OpenAI.
         - Select a region that **supports the Azure OpenAI `gpt-4o` and `text-embedding-ada-002` models**.
-        - Ensure you have a **at least 10K TPMs of `Standard` capacity available in the region** for both the `gpt-4o` and `text-embedding-ada-002` models. Follow [these instructions](https://learn.microsoft.com/azure/ai-services/openai/how-to/quota?tabs=rest#view-and-request-quota) to check your available quota.
-      
+        - Ensure you have **at least 10K TPMs of `Standard` capacity available in the region** for both the `gpt-4o` and `text-embedding-ada-002` models. Follow [these instructions](https://learn.microsoft.com/azure/ai-services/openai/how-to/quota?tabs=rest#view-and-request-quota) to check your available quota.
+
     You must choose a region that supports **both Azure OpenAI models**, has at least 10K TPM of `Standard` capacity for both models.
 
     !!! danger "Choosing a region that doesn't support both Azure OpenAI models will result in deployment failure when running `azd up`."

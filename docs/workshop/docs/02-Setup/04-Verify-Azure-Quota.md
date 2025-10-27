@@ -50,7 +50,6 @@ In this task, you must verify you have available quota for the target virtual ma
     ![Screenshot of the Request quota dialog with a value of 32 highlighted in the new cores limit box and the submit button highlighted.](../img/azure-ml-request-quota-dialog.png)
 
     !!! example "Quota increase example"
-
         Your **new cores limit** should be increased to ensure (4 or 16) cores are available for a new deployment. For example, if you have zero cores available, your new cores limit should be set to (4 or 16). If your core limit is 100 and you are currently using 90, your new cores limit should be set to (94 or 106).
 
 10. Quota increase requests typically take a few minutes to complete. You will receive notifications in the Azure portal as the request is processed and when it completes.

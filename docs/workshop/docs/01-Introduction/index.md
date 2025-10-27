@@ -32,7 +32,7 @@ This solution guide is designed to help you understand how to enrich existing ap
 
 By following this guide, you will gain a complete understanding of how Invoice Pilot integrates AI throughout its lifecycle — from ingestion and validation to interactive analysis — and how these techniques can be applied to your own workloads.
 
-### You’ll Learn How to:
+### You’ll Learn How to
 
 - **Automate Data Validation**  
   Use Azure AI Services during data ingestion to automatically validate invoices against their associated SOWs.

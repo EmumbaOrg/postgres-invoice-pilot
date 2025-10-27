@@ -171,7 +171,7 @@ def generate_sow_pdf(output_path, vendor_name, vendor_config):
     pdf.ln(10)
     pdf.set_font("Arial", size=10)
     pdf.cell(0, 10, txt=f"________________ ({vendor_config['name']} - {vendor_config['contact_name']})", ln=True)
-    pdf.cell(0, 10, txt="________________ (Woodgrove Bank - Chris Green)", ln=True)
+    pdf.cell(0, 10, txt="________________ (Invoice Pilot - Chris Green)", ln=True)
 
     # Ensure the output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -200,5 +200,5 @@ if __name__ == "__main__":
         raise ValueError(f"Start date not found for vendor '{vendor_name}'")
     
     start_date = datetime.strptime(start_date_str, "%B %d, %Y").strftime("%Y%m%d")
-    output_path = f"../sample_docs/Statement_of_Work_{name}_Woodgrove_Bank_{start_date}.pdf"
+    output_path = f"../sample_docs/Statement_of_Work_{name}_Invoice_Pilot_{start_date}.pdf"
     generate_sow_pdf(output_path, vendor_name, vendor_config)

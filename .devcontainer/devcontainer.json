@@ -25,7 +25,8 @@
     "extensions":
     [
         "ms-python.python",
-        "ms-azuretools.vscode-azurecli"
+        "ms-azuretools.vscode-azurecli",
+        "ms-ossdata.vscode-pgsql"
     ],
     "postCreateCommand": "pwsh -Command ./.devcontainer/post-create-setup.ps1",    
     "remoteUser": "vscode"

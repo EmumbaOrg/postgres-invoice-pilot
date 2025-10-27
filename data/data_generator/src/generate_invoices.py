@@ -171,9 +171,9 @@ if __name__ == "__main__":
         raise ValueError(f"Vendor '{vendor_name}' not found in configuration.")
     
     client_info = {
-        "name": "Woodgrove Bank",
+        "name": "Invoice Pilot",
         "contact_name": "Chris Green",
-        "contact_email": "chris.green@woodgrovebank.com"
+        "contact_email": "chris.green@invoicepilot.com"
     }
 
     # Extract payment terms and penalty from the configuration

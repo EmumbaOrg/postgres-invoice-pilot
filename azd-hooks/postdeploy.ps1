@@ -150,21 +150,6 @@ Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 
 #Remove-Item -Path $dbTempPath -ErrorAction SilentlyContinue
 
-# Create triggers and semantic_reranker function.
-$dbSqlPath = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.sql"
-$dbSql = Get-Content -Path $dbSqlPath -Raw
-$dbTempPathT = "$PSScriptRoot/../scripts/sql/create-functions-and-triggers.tmp.sql"
-Set-Content -Path $dbTempPathT -Value $dbSql
-
-az postgres flexible-server execute `
-          --admin-user "$username" `
-          --admin-password "$token" `
-          --name "${env:POSTGRESQL_SERVER_NAME}" `
-          --database-name "${env:POSTGRESQL_DATABASE_NAME}" `
-          --file-path $dbTempPathT
-
-Remove-Item -Path $dbTempPathT -ErrorAction SilentlyContinue
-
 Write-Host "Database Schema Configured"
 
 # Clean up temp file
@@ -225,40 +210,40 @@ az storage blob upload `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "1/sow/Statement_of_Work_Adatum_Corporation_Woodgrove_Bank_20241101.pdf" `
-    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Adatum_Corporation_Woodgrove_Bank_20241101.pdf"
+    --name "1/sow/Statement_of_Work_Adatum_Corporation_Invoice_Pilot_20241101.pdf" `
+    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Adatum_Corporation_Invoice_Pilot_20241101.pdf"
 
 az storage blob upload `
     --auth-mode login `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "2/sow/Statement_of_Work_Contoso_Ltd_Woodgrove_Bank_20240601.pdf" `
-    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Contoso_Ltd_Woodgrove_Bank_20240601.pdf"
+    --name "2/sow/Statement_of_Work_Contoso_Ltd_Invoice_Pilot_20240601.pdf" `
+    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Contoso_Ltd_Invoice_Pilot_20240601.pdf"
 
 az storage blob upload `
     --auth-mode login `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "3/sow/Statement_of_Work_Lucerne_Publishing_Woodgrove_Bank_20241201.pdf" `
-    --file "./data/sample_docs/Exercise_2_Load_SOW_Invoices/Statement_of_Work_Lucerne_Publishing_Woodgrove_Bank_20241201.pdf"
+    --name "3/sow/Statement_of_Work_Lucerne_Publishing_Invoice_Pilot_20241201.pdf" `
+    --file "./data/sample_docs/Exercise_2_Load_SOW_Invoices/Statement_of_Work_Lucerne_Publishing_Invoice_Pilot_20241201.pdf"
 
 az storage blob upload `
     --auth-mode login `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "4/sow/Statement_of_Work_Trey_Research_Woodgrove_Bank_20241111.pdf" `
-    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Trey_Research_Woodgrove_Bank_20241111.pdf"
+    --name "4/sow/Statement_of_Work_Trey_Research_Invoice_Pilot_20241111.pdf" `
+    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Trey_Research_Invoice_Pilot_20241111.pdf"
 
 az storage blob upload `
     --auth-mode login `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "5/sow/Statement_of_Work_VanArsdel_Ltd_Woodgrove_Bank_20241001.pdf" `
-    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_VanArsdel_Ltd_Woodgrove_Bank_20241001.pdf"
+    --name "5/sow/Statement_of_Work_VanArsdel_Ltd_Invoice_Pilot_20241001.pdf" `
+    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_VanArsdel_Ltd_Invoice_Pilot_20241001.pdf"
 
 az storage blob upload `
     --auth-mode login `
