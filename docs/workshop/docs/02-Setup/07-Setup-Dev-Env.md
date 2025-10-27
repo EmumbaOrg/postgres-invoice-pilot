@@ -1,70 +1,42 @@
-# 2.7 Setup Dev Environment
+# 2.7 Dev Environment Setup Overview
 
-In this step, you will configure your Python development environment in Visual Studio Code. At the end of this step, you should have:
+In this step, you will:
 
-- [X] Created a Python virtual environment
-- [X] Installed the required Python libraries from `requirements.txt`
-- [X] Create and populated a `.env` file in the **Invoice Pilot API** project.
-- [X] Connected to your database using pgAdmin
+- [X] Observe how the dev environment is automatically setup in our application
+- [X] Create and populate a `.env` file
+- [X] Connect to the database using PostgreSQL extension.
 
-## Create a Python virtual environment
+## Automatic Dev Environment Setup
 
-Virtual environments in Python are essential for maintaining a clean and organized development space, allowing individual projects to have their own set of dependencies, isolated from others. This prevents conflicts between different projects and ensures consistency in your development workflow. By using virtual environments, you can manage package versions easily, avoid dependency clashes, and keep your projects running smoothly. It's a best practice that keeps your coding environment stable and dependable, making your development process more efficient and less prone to issues.
+The required dependencies for both the backend and the frontend of the application are automatically installed when the devcontainer is being built.
 
-1. Return to Visual Studio Code, where you have the **PostgreSQL Solution Accelerator: Build your own AI Copilot** project open.
+In `.devcontainer/post-create-setup.ps1` file:
 
-2. In Visual Studio Code, open a new terminal window and change directories to the `src/api` folder of the repo, and create a virtual environment named `.venv` by running the following command at the terminal prompt:
+- The following command installs the backend python dependencies listed in the `src/api/requirements.txt` file.  
 
-    ```bash title=""
-    cd src/api
-    python -m venv .venv 
-    ```
+```bash
+# Install API Python dependencies
+pip3 install -r /workspaces/postgres-sa-byoac/src/api/requirements.txt
+```
 
-    The above command will create a `.venv` folder under the `api` folder, which will provide a dedicated Python environment for the `api` project that can be used throughout this lab.
+- The following installs the packages required for the frontend.  
 
-3. Activate the virtual environment.
+```bash
+# Install Frontend Node.js dependencies
+Write-Host "Installing frontend dependencies..."
+Set-Location /workspaces/postgres-sa-byoac/src/userportal
+npm install
+Write-Host "✅ Frontend dependencies installed"
+```
 
-    !!! note "Select the appropriate command for your OS and shell from the table."
-        | Platform | Shell | Command to activate virtual environment |
-        | -------- | ----- | --------------------------------------- |
-        | POSIX | bash/zsh | `source .venv/bin/activate` |
-        | | fish | `source .venv/bin/activate.fish` |
-        | | csh/tcsh | `source .venv/bin/activate.csh` |
-        | | pwsh | `.venv/bin/Activate.ps1` |
-        | Windows | cmd.exe | `.venv\Scripts\activate.bat` |
-        | | PowerShell | `.venv\Scripts\Activate.ps1` |
-        | macOS | bash/zsh | `source .venv/bin/activate` |
+Hence, you don't have to run any commands manually and the required dependencies are already installed when the devcontainer was built.
 
-4. Execute the command at the terminal prompt to activate your virtual environment.
+## Create .env file
 
-## Install required Python libraries
+To run the application locally, you need to create a `.env` file containing the necessary configuration variables that connect your local environment to your Azure resources.
 
-The `requirements.txt` file in the `src\api` folder contains the set of Python libraries needed to run the Python components of the solution accelerator.
-
-!!! tip "Review required libraries"
-    Open the `src\api\requirements.txt` file in the repo to review the required libraries and the versions that are being used.
-
-1. From the integrated terminal window in VS Code, run the following command to install the required libraries in your virtual environment:
-
-    ```bash title=""
-    pip install -r requirements.txt
-    ```
-
-## Create `.env` file
-
-Configuration values, such as connection string and endpoints, that allow your application to interact with Azure services are hosted in an Azure App Configuration service. To enable your application to retrieve these values, you must provide it with the endpoint of that service. You will use a `.env` file to host the endpoint as an environment variable, which will allow you to run the Invoice Pilot API locally. The `.env` file will be created within the `src\api\app` folder of the project.
-
-1. In VS Code, navigate to the `src\api\app` folder in the **Explorer** panel.
-
-2. Right-click the `app` folder and select **New file...** from the context menu.
-
-3. Enter `.env` as the name of the new file within the VS Code **Explorer** panel.
-
-4. In the `.env` file, add the following as the first line, replacing the `{YOUR_APP_CONFIG_ENDPOINT}` with the endpoint for the App Configuration resource in your deployed resource group.
-
-    ```ini title=""
-    AZURE_APP_CONFIG_ENDPOINT={YOUR_APP_CONFIG_ENDPOINT}
-    ```
+1. Navigate to the `src/api` directory and create a new `.env` file.  
+2. Use `src/api/.env.EXAMPLE` as a template to understand the required configuration variables. Copy these variables to your `.env` file and replace the placeholder values with the actual values from your Azure resource group.
 
     !!! note "Retrieve the endpoint for your App Configuration resource"
         To get the endpoint for your App Configuration resource:  
@@ -73,68 +45,56 @@ Configuration values, such as connection string and endpoints, that allow your a
         3. Copy the **Endpoint** value and paste it into the `.env` file.
             ![Screenshot of the App Configuration Access Settings page, with the Endpoint copy button highlighted.](../img/app-config-access-settings-endpoint.png)
 
-5. Save the `.env` file.
+## Connect to your database using PostgreSQL extension  
 
-## Connect to your database from pgAdmin
+You'll use the integrated VS Code PostgreSQL extension for seamless database management and query execution directly within the development environment.
 
-You will use pgAdmin from your machine to configure various features in the database and execute queries to test those features. The `azd up` deployment script added your Microsoft Entra ID user as the owner of the database, so you will authenticate with Entra ID to. Please follow the steps below to connect to your Azure Database for PostgreSQL - Flexible Server using pgAdmin:
+**Installation**  
 
-1. Navigate to your Azure Database for PostgreSQL - Flexible Server resource in the [Azure portal](https://portal.azure.com/).
+In our setup, this extension already gets installed when the devcontainer is being built. Nonetheless, to install it manually, search for `Postgres` in the extensions sidebar and install the one developed by Microsoft.
 
-2. On the Azure Database for PostgreSQL - Flexible Server page, copy the **Server name** value from the **Essentials** panel on the **Overview** page by selecting the _Copy to clipboard_ button to the right of the value.
+![PostgreSQL extension for VS Code](../img/postgres-extension.png)
 
-    ![Screenshot of the Azure Database for PostgreSQL - Flexible Server Overview blade in the Azure portal, with the Server name highlighted.](../img/azure-database-for-postgresql-server-name.png)
+**Connecting with our Database**  
 
-3. On your development computer, open pgAdmin.
+We'll connect the extension to the database server of our application.
 
-4. In the pgAdmin **Object Explorer**, right-click on **Servers** and in the context menu select **Register >**, then **Server...**.
+1. Click on the PostgreSQL extension
 
-    ![Screenshot of the pgAdmin Servers context menu, with Register > Server highlighted.](../img/pgadmin-register-server.png)
+     ![PostgreSQL extension icon for VS Code](../img/postgres-extension-icon.png)
 
-5. In tab of **Register - Server** dialog, follow these steps:
+2. Select 'add connection' option
 
-    1. On the **General** tab, enter "PostgreSQLSolutionAccelerator" into the **Name** field and clear the **Connect now** option.
+     ![add-connection](../img/add-connection.png)
 
-        ![Screenshot of the Register Server general table with the name and connect now fields highlighted.](../img/pgadmin-register-server-general-tab.png)
+3. Adding connection details.
 
-    2. Select the **Connection** tab and provide your Azure Database for PostgreSQL flexible server instance details for **Hostname/address** and **Username**.
+    ![connection-details](../img/connection-details.png)
 
-        1. Paste the **Server name** value of your Azure Database for PostgreSQL flexible server into the **Host name/address** field.
+    - SERVER NAME  
+    This is the database endpoint present in the overview tab of your PostreSQL database server instance running in your resource group.
+     ![db-server-name](../img/db-server-name.png)
 
-        2. The **Username** value is your Microsoft Entra ID or email.
+    - USER NAME  
+    This is your user name or email address that you use to sign in to azure.
 
-    3. Select **Save**.
+    - PASSWORD  
+    The password is the token that is generated to login to azure. Run the following command then use the generated token as password
 
-    4. Right-click the newly added **PostgreSQLSolutionAccelerator** server in the pgAdmin Object Explorer, and select **Connect Server** in the context menu.
+        ```bash
+        az account get-access-token --resource-type oss-rdbms --output json
+        ```
 
-        ![Screenshot of the server context menu, with Connect Server highlighted.](../img/pgadmin-connect-server.png)
+    - DATABASE NAME  
+    The database name that is used is `contracts`.
 
-    5. In the **Connect to Server** dialog, you will need to provide an access token.
+    - CONNECTION NAME  
+    This can be anything. For now, we'll use `Invoice Pilot DB`.
 
-        !!! note "To Retrieve Your Microsoft Entra ID Access Token"
-            1. In VS Code, open a new integrated terminal.  
-            2. At the integrated terminal prompt, execute the following command to generate and output an access token:  
-                ```bash
-                $token = az account get-access-token --resource-type oss-rdbms --output json | ConvertFrom-Json
-                $token.accessToken
-                ```  
-            3. Copy the output value.  
+4. Connected
+     ![connection-details](../img/db-connected-successfully.png)
 
-                <!-- markdownlint-disable MD046 -->
-                !!! info "The token is a Base64 string. It encodes all the information about the authenticated user and is targeted to the Azure Database for PostgreSQL service."
+The extension is now setup and connected to our database server. This can now be used throughout the guide to interact with the database
 
-    6. Return to pgAdmin and the **Connect to Server** dialog and paste the access token into the password field.
-
-        ![Screenshot of the Connect to Server dialog, with the access token entered into the password box.](../img/pgadmin-connect-to-server.png)
-
-        !!! note "Do not save password!"
-
-            Ensure the **Save Password** box in the _Connect to Server_ dialog is unchecked. Checking this box can cause your login to fail.
-
-    7. Select **OK**.
-
-        !!! warning "Access token expiration"
-
-            If your access token expires during the course of the workshop, you will need to come back and repeat the above steps to reauthenticate.
-
-!!! tip "Leave pgAdmin open as you will be using it throughout the remainder of the workshop."
+!!!tip
+    The token which is used as the password expires after some time and hence the connection to the database is terminated then. In such as a case, run the command to generate the token again and connect with the database using the new token.
