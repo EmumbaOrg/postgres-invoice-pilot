@@ -1,4 +1,4 @@
-# 2.7 Dev Environment Setup Overview
+# 2.8 Dev Environment Setup Overview
 
 In this step, you will:
 
@@ -72,7 +72,7 @@ We'll connect the extension to the database server of our application.
     ![connection-details](../img/connection-details.png)
 
     - SERVER NAME  
-    This is the database endpoint present in the overview tab of your PostreSQL database server instance running in your resource group.
+    This is the database endpoint present in the overview tab of your PostgreSQL database server instance running in your resource group.
      ![db-server-name](../img/db-server-name.png)
 
     - USER NAME  
@@ -92,6 +92,7 @@ We'll connect the extension to the database server of our application.
     This can be anything. For now, we'll use `Invoice Pilot DB`.
 
 4. Connected
+
      ![connection-details](../img/db-connected-successfully.png)
 
 The extension is now setup and connected to our database server. This can now be used throughout the guide to interact with the database

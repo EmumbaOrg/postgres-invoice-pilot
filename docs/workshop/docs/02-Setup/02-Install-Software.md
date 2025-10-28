@@ -1,4 +1,4 @@
-# 2.1 Development Tools Setup
+# 2.2 Development Tools Setup
 
 This workshop uses a `Dev Container` for the development environment setup. Dev Containers are useful tools that help minimize setup and configuration issues that may occur (sometimes known as the "it works on my machine" problem).
 

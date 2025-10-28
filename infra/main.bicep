@@ -6,26 +6,18 @@ param environmentName string
 @minLength(1)
 @description('Primary location for all resources')
 @allowed([
-  'australiaeast'
-  'brazilsouth'
-  'eastus'
-  'eastus2'
-  'francecentral'
-  'germanywestcentral'
-  'italynorth'
-  'japaneast'
-  'koreacentral'
-  'northcentralus'
-  'norwayeast'
-  'southafricanorth'
-  'southcentralus'
-  'swedencentral'
-  'switzerlandnorth'
-  'uaenorth'
-  'uksouth'
-  'westeurope'
-  'westus'
-  'westus3'
+'australiaeast'
+'eastus'
+'eastus2'
+'francecentral'
+'germanywestcentral'
+'italynorth'
+'japaneast'
+'northcentralus'
+'southcentralus'
+'switzerlandnorth'
+'westeurope'
+'westus'
 ])
 @metadata({
   azd: {

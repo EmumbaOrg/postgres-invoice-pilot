@@ -1,4 +1,4 @@
-# 2.8 Review Manual Process
+# 2.9 Review Manual Process
 
 Before beginning the process of integrating AI capabilities into the _Invoice Pilot_ application, let's review the manual process they are currently using to enter data into the system. Keep in mind that a user would need to first read the SOW and Invoice document, before copying and pasting the correct information into the application fields. This manual process can be very time consuming and error-prone.
 
