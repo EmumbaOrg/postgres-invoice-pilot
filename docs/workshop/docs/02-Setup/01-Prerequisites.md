@@ -1,4 +1,4 @@
-# 2.0 Prerequisites
+# 2.1 Prerequisites
 
 Review the details about what you need to do before starting the workshop, what you are expected to know beforehand, and what you can expect to take away after completing it.
 
