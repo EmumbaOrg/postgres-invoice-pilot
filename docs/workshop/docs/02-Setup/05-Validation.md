@@ -1,4 +1,4 @@
-# 2.7 Validate Deployment
+# 2.5 Validate Deployment
 
 !!! success "SETUP IS COMPLETE!"
 
@@ -115,29 +115,5 @@ You will use the Azure AI Foundry portal to verify the `gpt-4o` and `text-embedd
     ![Screenshot of Azure AI Foundry, with the Deployments menu item highlighted and selected. The completions and embeddings model deployments are displayed.](../img/azure-ai-foundry-deployments.png)
 
 4. Verify you see a `completions` deployment for the `gpt-4o` model and an `embeddings` deployment for the `text-embedding-ada-002` model.
-
-## Verify Semantic Ranker Model Deployment (optional)
-
-If you chose to deploy the Azure ML semantic ranker model during setup, you will use the Azure Machine Learning Studio to ensure the semantic ranker model was successfully deployed to an online endpoint.
-
-!!! warning "You only need to do this step if you chose `mini` or `bge` for `deployAMLModel` during the `azd up` deployment. If you selected `none`, skip this step."
-
-1. In the Azure portal, return to the resource group containing your resources and select the **Azure Machine Learning Workspace** resource.
-
-    ![Screenshot of the resources in the resource group, with the Azure Machine Learning Workspace resource highlighted.](../img/azure-portal-rg-aml-workspace.png)
-
-2. From the Azure ML workspace page, select the **Launch studio** button to open Azure Machine Learning Studio in a new browser window.
-
-    ![Screenshot of the Launch studio section of the Azure Machine Learning workspace page with the Launch studio button highlighted with a red box.](../img/azure-ml-workspace-launch-studio.png)
-
-3. Sign into Machine Learning Studio if prompted.
-
-4. In Machine Learning Studio, select **Endpoints** under **Assets** in the left-hand resource menu, then select the endpoint for your (`bge-v2-m3-reranker model` or `msmarco-minilm-deployment-6 model`):
-
-    ![Screenshot of the Endpoints page in Azure Machine Learning Studio, with the Endpoints menu item highlighted and the reranker model endpoint highlighted.](../img/aml-studio-endpoints.png)
-
-5. On your endpoint page, ensure the **Provisioning state** for the (_bgev2m3-v1_ or _msmarco-minilm-deployment-6_) deployment is **Succeeded**.
-
-    ![Screenshot of the semantic ranker model deployment in Azure ML Studio, with the model's provisioning state of Succeeded highlighted.](../img/aml-studio-endpoints-model-deployment-succeeded.png)
 
 !!! tip "Leave the Azure Portal open. You will revisit it later."

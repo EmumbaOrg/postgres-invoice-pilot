@@ -1,4 +1,4 @@
-# 2.2 Development Tools Setup
+# 2.3 Development Tools Setup
 
 This workshop uses a `Dev Container` for the development environment setup. Dev Containers are useful tools that help minimize setup and configuration issues that may occur (sometimes known as the "it works on my machine" problem).
 
@@ -44,23 +44,6 @@ Docker Desktop is an application that allows you to build, share, and run contai
     - [Linux](https://docs.docker.com/desktop/setup/install/linux/)
     - [Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
     - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
-
-2. Configure Docker Desktop to use WSL 2 based engine
-
-    - Open Docker Desktop
-    - Click Settings
-    - Click General
-    - Select `Use the WSL 2 based engine`
-    - Click `Apply & restart`
-
-3. Configure Docker Desktop to use WSL 2 integration
-
-    - Open Docker Desktop
-    - Click Resources
-    - Click WSL integration
-    - Select `Enable integration with my default WSL distro`
-    - Select `Ubuntu`
-    - Click `Apply & restart`
 
 ### Install Visual Studio Code
 
