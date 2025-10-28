@@ -1,6 +1,10 @@
-# 2.9 Review Manual Process
+# 2.8 Review Manual Process
 
 Before beginning the process of integrating AI capabilities into the _Invoice Pilot_ application, let's review the manual process they are currently using to enter data into the system. Keep in mind that a user would need to first read the SOW and Invoice document, before copying and pasting the correct information into the application fields. This manual process can be very time consuming and error-prone.
+
+First, navigate to the Invoice Pilot application frontend using the URL you deployed in section 2.4. Open your browser and go to the application URL to access the Invoice Pilot Portal.
+
+    > **Note:** Use the frontend application URL that was generated when you deployed the application in the previous section.
 
 ## Review SOWs
 
