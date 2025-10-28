@@ -26,7 +26,6 @@ In this section, you will explore how an AI copilot has been integrated into the
 
 Notice how these implementation steps have transformed the application into a powerful AI-enhanced platform capable of executing advanced generative AI tasks and providing deeper insights from your data through a flexible framework provider system that supports both LangChain and AgentFramework.
 
-
 ## What are copilots?
 
 Copilots are advanced AI assistants designed to augment human capabilities and improve productivity by providing intelligent, context-aware support, automating repetitive tasks, and enhancing decision-making processes. For instance, the Invoice Pilot copilot will assist in data analysis, helping users identify patterns and trends in financial datasets.

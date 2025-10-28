@@ -1,4 +1,4 @@
-# 2.4 Verify Azure Quota
+# 2.5 Verify Azure Quota
 
 This solution contains an Azure Developer CLI `azd-template` that provisions the required resources in Azure and deploys the starter app to Azure Container Apps (ACA). The template allows for the infrastructure to be deployed with a single `azd up` command.
 

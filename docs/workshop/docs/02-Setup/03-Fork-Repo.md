@@ -1,4 +1,4 @@
-# 2.2 Fork Repo
+# 2.3 Fork Repo
 
 You must create a copy (known as a fork) of the [PostgreSQL Solution Accelerator: Build your own AI Copilot](http://aka.ms/pg-byoac-repo/) GitHub repo and then clone that onto your local computer so you can work with its contents. After completing this step, you should have:
 
