@@ -29,10 +29,10 @@ As Generative AI (GenAI) becomes increasingly integral to modern enterprises, us
 
 In this section, you will use Semantic Ranking and GraphRAG to enhance the accuracy of responses from the _Invoice Pilot_ copilot. Here's what you will accomplish:
 
-- [ ] Review Semantic Ranking
-- [ ] Use Semantic Ranking to rerank hybrid search results
-- [ ] Review GraphRAG and the Apache AGE extension
-- [ ] Implement the AGE extension to enable graph queries against your PostgreSQL database
+- [x] Review Semantic Ranking
+- [x] Use Semantic Ranking to rerank hybrid search results
+- [x] Review GraphRAG and the Apache AGE extension
+- [x] Implement the AGE extension to enable graph queries against your PostgreSQL database
 
 ## The Accuracy Problem
 
