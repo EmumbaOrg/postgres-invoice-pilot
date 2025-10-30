@@ -17,12 +17,12 @@
 
 In this section, you will explore how an AI copilot has been integrated into the _Invoice Pilot_ application using Python, the GenAI capabilities of Azure Database for PostgreSQL - Flexible Server, and the Azure AI extension. Using the AI-validated data, the copilot leverages RAG to provide insights and answer questions about vendor contract performance and invoicing accuracy, serving as an intelligent assistant for Invoice Pilot's users. Here's what you will examine:
 
-- [ ] Explore the API codebase and framework provider architecture
-- [ ] Review the RAG design implementation
-- [ ] Understand LangChain & AgentFramework orchestration through the provider interface
-- [ ] Examine the Chat endpoint implementation and testing approach
-- [ ] Analyze how the copilot prompt has been refined using standard prompt engineering techniques
-- [ ] Review the Copilot Chat UI component integration
+- [x] Explore the API codebase and framework provider architecture
+- [x] Review the RAG design implementation
+- [x] Understand LangChain & AgentFramework orchestration through the provider interface
+- [x] Examine the Chat endpoint implementation and testing approach
+- [x] Analyze how the copilot prompt has been refined using standard prompt engineering techniques
+- [x] Review the Copilot Chat UI component integration
 
 Notice how these implementation steps have transformed the application into a powerful AI-enhanced platform capable of executing advanced generative AI tasks and providing deeper insights from your data through a flexible framework provider system that supports both LangChain and AgentFramework.
 
