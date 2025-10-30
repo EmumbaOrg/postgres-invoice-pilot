@@ -23,7 +23,7 @@ Once you have completed this workshop, delete the Azure resources you created. Y
 
     !!! danger "Execute the following Azure Developer CLI command to delete resources!"
 
-    ```bash title=""
+    ```bash
     azd down --purge
     ```
 
