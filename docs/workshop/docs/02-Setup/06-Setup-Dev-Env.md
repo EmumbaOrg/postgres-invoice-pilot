@@ -41,11 +41,11 @@ To run the application locally, you need to create a `.env` file containing the 
     ![example .env](../img/example-env.png)
 
     !!! note "Locate Container app environment variables"
-        Navigate to your resource group -> backend container app. Select `Application` from the left navigation menu. Then select `Containers` and go to the `Environment variables` tab.
+        Navigate to your resource group's backend container app. Select **Application** from the left navigation menu. Then select **Containers** and go to the **Environment variables** tab.
         ![container environment variables.](../img/container-env-variables.png)
 
     - **AZURE_APP_CONFIG_ENDPOINT:** The endpoint for the azure app configuration service. Copy this from the container environment variables.
-    - **GENAI_FRAMEWORK:** The AI framework to use for the application. Set this to either `langchain` or `agentframework` based on your preference. Default value is `agent-framework`. This variable is not found in the container environment variables and must be manually added to your `.env` file.
+    - **GENAI_FRAMEWORK:** The AI framework to use for the application. Set this to either `langchain` or `agentframework` based on your preference. Default value is `agentframework`. This variable is not found in the container environment variables and must be manually added to your `.env` file.
     - **CHAT_DEPLOYMENT_NAME:** The name of your Azure OpenAI chat model deployment. Copy this from the container environment variables.
     - **EMBEDDING_DEPLOYMENT_NAME:** The name of your Azure OpenAI embedding model deployment. Copy this from the container environment variables.
     - **OPENAI_API_VERSION:** The API version for Azure OpenAI service calls. Copy this from the container environment variables.
