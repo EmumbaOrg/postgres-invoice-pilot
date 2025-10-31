@@ -17,6 +17,7 @@
                 "type": "debugpy",
                 "request": "launch",
                 "module": "uvicorn",
+                "preLaunchTask": "Install API Dependencies",
                 "cwd": "${workspaceFolder}/src/api",
                 "args": [
                     "app.main:app",
