@@ -4,7 +4,7 @@ A starter solution has been provided, which you will be modifying to add rich AI
 
 ??? warning "Ensure you completed the prerequisites before starting!"
 
-    Before starting, you should review the [prerequisites](./00-Prerequisites.md) for completing the lab.
+    Before starting, you should review the [prerequisites](./01-Prerequisites.md) for completing the lab.
 
 To get started building the custom AI-enabled Financial Services Industry (FSI) application, you need to:
 

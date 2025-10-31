@@ -1,6 +1,6 @@
 # 2.4 Provision and Deploy
 
-You will need a valid Azure subscription, a GitHub account, and access to relevant Azure OpenAI models to complete this lab. Review the [prerequisites](./00-Prerequisites.md) section if you need more details.
+You will need a valid Azure subscription, a GitHub account, and access to relevant Azure OpenAI models to complete this lab. Review the [prerequisites](./01-Prerequisites.md) section if you need more details.
 
 ## Start Docker Desktop
 
@@ -76,3 +76,9 @@ You are now ready to provision your Azure resources and deploy the Invoice Pilot
         - **Enter a value for the `resourceGroupName`**: Enter `rg-postgresql-accelerator`, or a similar name.
 
 2. On successful completion you will see a `SUCCESS: ...` message on the console.
+
+    !!! danger "Resource Provisioning Conflict Error"
+        Occasionally, you might run into this error while deploying. This occurs when Azure tries to modify or deploy a resource that is still in progress and hasn’t reached a terminal provisioning state (such as Succeeded or Failed). It indicates a temporary conflict during deployment and can typically be resolved by waiting a few minutes for the resource to finish provisioning before retrying the operation. If you encounter this, run `azd up` again.
+
+        ![Resource Provisioning Conflict Error.](../img/resource-provisioning-error.png)
+        
