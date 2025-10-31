@@ -22,6 +22,9 @@
         "ghcr.io/azure/azure-dev/azd:latest": {},
         "ghcr.io/rchaganti/vsc-devcontainer-features/azurebicep:1": {}
     },
+    "remoteEnv": {
+        "SKIP_HOST_CA_MOUNT": "true"
+    },
     "extensions":
     [
         "ms-python.python",
