@@ -18,9 +18,6 @@ python3 --version
 # Confirm pip version
 pip3 --version
 
-# Install API Python dependencies
-pip3 install -r /workspaces/postgres-sa-byoac/src/api/requirements.txt
-
 # Confirm Node.js version
 $node_version = node --version
 Write-Host "node version: $node_version"
@@ -28,12 +25,6 @@ Write-Host "node version: $node_version"
 # Confirm npm version
 $npm_version = npm --version
 Write-Host "npm version: $npm_version"
-
-# Install Frontend Node.js dependencies
-Write-Host "Installing frontend dependencies..."
-Set-Location /workspaces/postgres-sa-byoac/src/userportal
-npm install
-Write-Host "✅ Frontend dependencies installed"
 
 # Check if Docker works
 Write-Host "Checking Docker access..."
