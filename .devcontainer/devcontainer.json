@@ -4,6 +4,7 @@
     {
         "dockerfile": "Dockerfile"
     },
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
     "settings":
     {
         "terminal.integrated.defaultProfile.linux": "bash"
