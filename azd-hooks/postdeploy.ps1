@@ -210,7 +210,7 @@ az storage blob upload `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "1/sow/Statement_of_Work_Adatum_Corporation_Invoice_Pilot_20241101.pdf" `
+    --name "1/sows/Statement_of_Work_Adatum_Corporation_Invoice_Pilot_20241101.pdf" `
     --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Adatum_Corporation_Invoice_Pilot_20241101.pdf"
 
 az storage blob upload `
@@ -218,23 +218,7 @@ az storage blob upload `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "2/sow/Statement_of_Work_Contoso_Ltd_Invoice_Pilot_20240601.pdf" `
-    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Contoso_Ltd_Invoice_Pilot_20240601.pdf"
-
-az storage blob upload `
-    --auth-mode login `
-    --overwrite true `
-    --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
-    --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "3/sow/Statement_of_Work_Lucerne_Publishing_Invoice_Pilot_20241201.pdf" `
-    --file "./data/sample_docs/Exercise_2_Load_SOW_Invoices/Statement_of_Work_Lucerne_Publishing_Invoice_Pilot_20241201.pdf"
-
-az storage blob upload `
-    --auth-mode login `
-    --overwrite true `
-    --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
-    --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "4/sow/Statement_of_Work_Trey_Research_Invoice_Pilot_20241111.pdf" `
+    --name "2/sows/Statement_of_Work_Trey_Research_Invoice_Pilot_20241111.pdf" `
     --file "./data/sample_docs/Seeded_Data/Statement_of_Work_Trey_Research_Invoice_Pilot_20241111.pdf"
 
 az storage blob upload `
@@ -242,15 +226,7 @@ az storage blob upload `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "5/sow/Statement_of_Work_VanArsdel_Ltd_Invoice_Pilot_20241001.pdf" `
-    --file "./data/sample_docs/Seeded_Data/Statement_of_Work_VanArsdel_Ltd_Invoice_Pilot_20241001.pdf"
-
-az storage blob upload `
-    --auth-mode login `
-    --overwrite true `
-    --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
-    --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "1/invoice/INV-AC2024-001.pdf" `
+    --name "1/invoices/INV-AC2024-001.pdf" `
     --file "./data/sample_docs/Seeded_Data/INV-AC2024-001.pdf"
 
 az storage blob upload `
@@ -258,7 +234,7 @@ az storage blob upload `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "2/invoice/INV-AC2024-002.pdf" `
+    --name "1/invoices/INV-AC2024-002.pdf" `
     --file "./data/sample_docs/Seeded_Data/INV-AC2024-002.pdf"
 
 az storage blob upload `
@@ -266,7 +242,7 @@ az storage blob upload `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "3/invoice/INV-AC2024-003.pdf" `
+    --name "1/invoices/INV-AC2024-003.pdf" `
     --file "./data/sample_docs/Seeded_Data/INV-AC2024-003.pdf"
 
 az storage blob upload `
@@ -274,7 +250,15 @@ az storage blob upload `
     --overwrite true `
     --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
     --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
-    --name "4/invoice/INV-TR2024-001.pdf" `
+    --name "1/invoices/INV-AC2024-004.pdf" `
+    --file "./data/sample_docs/Seeded_Data/INV-AC2024-004.pdf"    
+
+az storage blob upload `
+    --auth-mode login `
+    --overwrite true `
+    --account-name "${env:AZURE_STORAGE_ACCOUNT_NAME}" `
+    --container-name "${env:AZURE_STORAGE_CONTAINER_NAME}" `
+    --name "2/invoices/INV-TR2024-001.pdf" `
     --file "./data/sample_docs/Seeded_Data/INV-TR2024-001.pdf"
 
 Write-Host "Sample Files Uploaded to Blob Storage"

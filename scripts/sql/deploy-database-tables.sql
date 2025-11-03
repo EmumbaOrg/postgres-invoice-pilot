@@ -16,7 +16,6 @@ SELECT azure_ai.set_setting('azure_cognitive.subscription_key', '${LANGUAGE_KEY}
 
 /* End Azure AI Extension Settings */
 
-
 /* VENDORS */
 
 -- Vendors table
@@ -121,7 +120,7 @@ SELECT 'SOW-2024-073',
        '2024-11-01',
        '2025-12-31',
        43600.00,
-       '1/sow/Statement_of_Work_Adatum_Corporation_Invoice_Pilot_20241101.pdf',
+       '1/sows/Statement_of_Work_Adatum_Corporation_Invoice_Pilot_20241101.pdf',
        '{
   "Project_Name": "Optimization of Azure Resources",
   "Effective_Date": "2024-11-01",
@@ -191,7 +190,7 @@ SELECT 'SOW-2024-038',
        '2024-05-01',
        '2025-08-31',
        60000.00,
-       '2/sow/Statement_of_Work_Trey_Research_Invoice_Pilot_20240501.pdf',
+       '2/sows/Statement_of_Work_Trey_Research_Invoice_Pilot_20241111.pdf',
        '{
   "Project_Name": "DevOps Implementation",
   "Effective_Date": "2024-05-01",
@@ -453,7 +452,7 @@ EXECUTE FUNCTION invoices_insert_trigger_fn();
 -- Insert starter data for invoices
 INSERT INTO invoices (id, number, vendor_id, sow_id, amount, invoice_date, payment_status, document, content, metadata)
 VALUES
-    (1, 'INV-AC2024-001', 1, 1, 15600, '2024-11-08', 'Paid', '1/invoice/INV-AC2024-001.pdf',  '{"Invoice Number: INV-AC2024-001 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-08 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone  Deliverables Amount Due Date Monitoring Monitoring of resources $8600.00 2024-12-08 Cost Management Cost Mangement Implementation $7000.00 2024-12-08 Total Amount $15600.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (1, 'INV-AC2024-001', 1, 1, 15600, '2024-11-08', 'Paid', '1/invoices/INV-AC2024-001.pdf',  '{"Invoice Number: INV-AC2024-001 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-08 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone  Deliverables Amount Due Date Monitoring Monitoring of resources $8600.00 2024-12-08 Cost Management Cost Mangement Implementation $7000.00 2024-12-08 Total Amount $15600.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
   "Invoice_Number": "INV-AC2024-001",
   "Vendor": "Adatum Corporation",
   "Vendor_Address": "789 Goldsmith Road, MainTown City",
@@ -473,7 +472,7 @@ VALUES
     "A penalty of 10% will be applied for late payments."
   ]
 }'),
-    (2, 'INV-AC2024-002', 1, 1, 7000, '2024-11-22', 'Paid', '2/invoice/INV-AC2024-002.pdf', '{"Invoice Number: INV-AC2024-002 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-22 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Resource Scaling Implementation of automated scaling $7000.00 2024-12-22 Total Amount $7000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-002 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (2, 'INV-AC2024-002', 1, 1, 7000, '2024-11-22', 'Paid', '1/invoices/INV-AC2024-002.pdf', '{"Invoice Number: INV-AC2024-002 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-22 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Resource Scaling Implementation of automated scaling $7000.00 2024-12-22 Total Amount $7000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-002 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
         "Invoice_Number": "INV-AC2024-002",
         "Vendor": "Adatum Corporation",
         "Vendor_Address": "789 Goldsmith Road, MainTown City",
@@ -493,7 +492,7 @@ VALUES
             "A penalty of 10% will be applied for late payments."
         ]
     }'),
-    (3, 'INV-AC2024-003', 1, 1, 12500, '2024-11-27', 'In Review', '3/invoice/INV-AC2024-003.pdf',  '{"Invoice Number: INV-AC2024-003 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-27 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Maintenance Practices Maintenance and troubleshooting practices $10500.00 2024-12-27 App Troubleshooting Identify Azure application issues $2000.00 2024-12-27 Total Amount $12500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-003 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (3, 'INV-AC2024-003', 1, 1, 12500, '2024-11-27', 'In Review', '1/invoices/INV-AC2024-003.pdf',  '{"Invoice Number: INV-AC2024-003 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2024-11-27 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date Maintenance Practices Maintenance and troubleshooting practices $10500.00 2024-12-27 App Troubleshooting Identify Azure application issues $2000.00 2024-12-27 Total Amount $12500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-003 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
         "Invoice_Number": "INV-AC2024-003",
         "Vendor": "Adatum Corporation",
         "Vendor_Address": "789 Goldsmith Road, MainTown City",
@@ -513,7 +512,7 @@ VALUES
             "A penalty of 10% will be applied for late payments."
         ]
     }'),
-    (4, 'INV-AC2024-004', 1, 1, 8500, '2025-01-01', 'Pending', '4/invoice/INV-AC2024-004.pdf',  '{"Invoice Number: INV-AC2024-004 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2025-01-01 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date App Troubleshooting Resolution of Azure application issues $3500.00 2025-01-31 App Troubleshooting Implementation of app monitoring 5,000.00 2025-01-31 Total Amount $8500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-004 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (4, 'INV-AC2024-004', 1, 1, 8500, '2025-01-01', 'Pending', '1/invoices/INV-AC2024-004.pdf',  '{"Invoice Number: INV-AC2024-004 Vendor: Adatum Corporation Address: 789 Goldsmith Road, MainTown City Contact Name: Elizabeth Moore Contact Email: elizabeth.moore@adatum.com Contact Number: 123-789-7890 SOW Number: SOW-2024-073 Invoice Date: 2025-01-01 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date App Troubleshooting Resolution of Azure application issues $3500.00 2025-01-31 App Troubleshooting Implementation of app monitoring 5,000.00 2025-01-31 Total Amount $8500.00 If paying by Direct Credit please pay into the following bank account: Account Name: Adatum Corporation Account Number: 99182326 To help us allocate money correctly, please reference your invoice number: INV-AC2024-004 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
         "Invoice_Number": "INV-AC2024-004",
         "Vendor": "Adatum Corporation",
         "Vendor_Address": "789 Goldsmith Road, MainTown City",
@@ -533,7 +532,7 @@ VALUES
             "A penalty of 10% will be applied for late payments."
         ]
     }'),
-    (5, 'INV-TR2024-001', 2, 2, 10000, '2024-11-20', 'Paid', '5/invoice/INV-TR2024-001.pdf',  '{"Invoice Number: INV-TR2024-001 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2024-11-20 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date DevOps Strategy DevOps Roadmap & Report $10000.00 2024-12-20 Total Amount $10000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 41536685 To help us allocate money correctly, please reference your invoice number: INV-TR2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
+    (5, 'INV-TR2024-001', 2, 2, 10000, '2024-11-20', 'Paid', '2/invoices/INV-TR2024-001.pdf',  '{"Invoice Number: INV-TR2024-001 Vendor: Trey Research Address: 456 Research Avenue, Redmond Contact Name: Serena Davis Contact Email: serena.davis@treyresearch.net Contact Number: 555-867-5309 SOW Number: SOW-2024-038 Invoice Date: 2024-11-20 Client: Invoice Pilot Address: 123 Financial Avenue, Woodgrove City Milestone Deliverables Amount Due Date DevOps Strategy DevOps Roadmap & Report $10000.00 2024-12-20 Total Amount $10000.00 If paying by Direct Credit please pay into the following bank account: Account Name: Trey Research Account Number: 41536685 To help us allocate money correctly, please reference your invoice number: INV-TR2024-001 Payment Terms - Payment is due within 30 days of the invoice date. - A penalty of 10% will be applied for late payments."}', '{
         "Invoice_Number": "INV-TR2024-001",
         "Vendor": "Trey Research",
         "Vendor_Address": "456 Research Avenue, Redmond",
