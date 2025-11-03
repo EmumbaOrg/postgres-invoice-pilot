@@ -1,34 +1,75 @@
 # 2.6 Dev Environment Setup Overview
 
-In this step, you will:
+When running the backend and frontend applications locally, certain development environment setup steps are required. In this step, you will:
 
 - [X] Observe how the dev environment is automatically setup in our application
-- [X] Create and populate a `.env` file. [_Required only when running the application locally_]
+- [X] Create and populate a `.env` file.
 
 ## Automatic Dev Environment Setup
 
-The required dependencies for both the backend and the frontend of the application are automatically installed when the devcontainer is being built.
+When running the backend and frontend applications locally, the devcontainer must contain the required dependencies. For both the backend and the frontend, the respective dependencies are installed automatically when the apps are launched from the vscode debugger. You do not need to manually install them.
 
-In `.devcontainer/post-create-setup.ps1` file:
+- In `.vscode/tasks.json` file, the tasks are created to install the backend and frontend dependencies:  
 
-- The following command installs the backend python dependencies listed in the `src/api/requirements.txt` file.  
+    ```json
+    {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Install API Dependencies",
+                "type": "shell",
+                "command": "pip install -r ${workspaceFolder}/src/api/requirements.txt",
+                "problemMatcher": []
+            },
+            {
+                "type": "npm",
+                "script": "install",
+                "options": {
+                    "cwd": "${workspaceFolder}/src/userportal"
+                }
+            }
+        ]
+    }
+    ```
 
-```bash
-# Install API Python dependencies
-pip3 install -r /workspaces/postgres-sa-byoac/src/api/requirements.txt
-```
+- These tasks are then invoked in the `.vscode/launch.json`. Observe the **preLaunchTask** key in both the Portal Debugger and the API Debugger:
 
-- The following installs the packages required for the frontend.  
+    ```json
+    {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Portal Debugger",
+                "type": "node-terminal",
+                "request": "launch",
+                "command": "npm run dev",
+                "preLaunchTask": "npm: install",
+                "cwd": "${workspaceFolder}/src/userportal"
+            },
+            {
+                "name": "API Debugger",
+                "type": "debugpy",
+                "request": "launch",
+                "module": "uvicorn",
+                "preLaunchTask": "Install API Dependencies",
+                "cwd": "${workspaceFolder}/src/api",
+                "args": [
+                    "app.main:app",
+                    "--reload",
+                    "--host", "127.0.0.1",
+                    "--port", "8000"
+                ],
+                "console": "integratedTerminal",
+                "jinja": true,
+                "env": {
+                    "PYTHONPATH": "${workspaceFolder}/usr/bin/python3"
+                }
+            }
+        ]
+    }
+    ```
 
-```bash
-# Install Frontend Node.js dependencies
-Write-Host "Installing frontend dependencies..."
-Set-Location /workspaces/postgres-sa-byoac/src/userportal
-npm install
-Write-Host "✅ Frontend dependencies installed"
-```
-
-Hence, you don't have to run any commands manually and the required dependencies were already installed when the devcontainer was built.
+Therefore, you don't have to run any commands manually as the required dependencies get installed when the application servers are started from the vscode debugger.
 
 ## Create .env file
 
