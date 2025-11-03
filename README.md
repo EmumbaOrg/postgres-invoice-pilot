@@ -185,6 +185,12 @@ The deployment might take several minutes. Progress updates will be displayed in
 
 Once the deployment is complete, `azd` will output the **application URLs** for the deployed services.
 
+  > ⚠️ **Resource Provisioning Conflict Error**  
+  >
+  >Occasionally, you might run into this error while deploying. This occurs when Azure tries to modify or deploy a resource that is still in progress and hasn’t reached a terminal provisioning state (such as Succeeded or Failed). It indicates a temporary conflict during deployment and can typically be resolved by waiting a few minutes for the resource to finish provisioning before retrying the operation. If you encounter this, run `azd up` again.
+  >
+  >![Resource Provisioning Conflict Error.](docs/workshop/docs/img/resource-provisioning-error.png)
+
 ### 🧹 Tear Down
 
 To destroy all the resources that have been created in the steps above, as well as remove any accounts deployed by the solution accelerator, use the following command:
