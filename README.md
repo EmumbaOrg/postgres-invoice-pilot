@@ -188,7 +188,7 @@ Once the deployment is complete, `azd` will output the **application URLs** for 
 
   Occasionally, you might run into this error while deploying. This occurs when Azure tries to modify or deploy a resource that is still in progress and hasn’t reached a terminal provisioning state (such as Succeeded or Failed). It indicates a temporary conflict during deployment and can typically be resolved by waiting a few minutes for the resource to finish provisioning before retrying the operation. If you encounter this, run `azd up` again.
 
-  ![Resource Provisioning Conflict Error.](.docs/workshop/img/resource-provisioning-error.png)  
+  ![Resource Provisioning Conflict Error.](docs/workshop/docs/img/resource-provisioning-error.png)  
 
 ### 🧹 Tear Down
 
