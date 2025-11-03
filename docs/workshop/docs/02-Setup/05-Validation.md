@@ -94,7 +94,7 @@ The `azd up` command included steps to deploy the Invoice Pilot application into
 
 3. In the Invoice Pilot Contract Management Portal, select the **Vendors** page and verify the list of vendors loads correctly.
 
-    ![Screenshot of the Vendors page in the Invoice Pilot Contract Management Portal](../img/invoice-pilot-portal-vendors.png)
+    ![Screenshot of the Vendors page in the Invoice Pilot Contract Management Portal](../img/vendors.png)
 
 ## View Azure OpenAI model deployments in Azure AI Foundry
 
