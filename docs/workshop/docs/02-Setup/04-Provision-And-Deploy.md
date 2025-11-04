@@ -81,4 +81,14 @@ You are now ready to provision your Azure resources and deploy the Invoice Pilot
         Occasionally, you might run into this error while deploying. This occurs when Azure tries to modify or deploy a resource that is still in progress and hasn’t reached a terminal provisioning state (such as Succeeded or Failed). It indicates a temporary conflict during deployment and can typically be resolved by waiting a few minutes for the resource to finish provisioning before retrying the operation. If you encounter this, run `azd up` again.
 
         ![Resource Provisioning Conflict Error.](../img/resource-provisioning-error.png)
+
+    !!! warning "PostgreSQL Firewall and IP Address Access"
+        **During deployment, the system automatically adds your current public IP address to the PostgreSQL firewall** to allow database setup scripts to run. This firewall rule is named `AllowAZDLocalMachine` and **remains active after deployment**.
+        
+        **Important considerations:**
+        
+        - **Database Access from Different Locations**: If you or team members need to access the PostgreSQL database from different locations (home, office, cloud shells), each location's IP will need to be added to the PostgreSQL firewall rules
+        - **Direct Database Connections**: Only machines with whitelisted IP addresses can connect directly to the PostgreSQL server
+        - **Security**: The deployment IP remains permanently allowed unless manually removed
+        - **Management**: You can view and manage firewall rules in the Azure Portal under your PostgreSQL server's "Networking" section
         
