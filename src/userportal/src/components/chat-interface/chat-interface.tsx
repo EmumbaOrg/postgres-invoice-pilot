@@ -25,7 +25,7 @@ export default function ChatInterface() {
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    setMessage(suggestion);
+    navigate("/chats", { state: { initialMessage: suggestion } });
   };
 
   const suggestions = [
