@@ -109,8 +109,8 @@ The following are prerequisites for deploying this solution:
 Clone the repository. Once done, navigate to the repository:
 
 ```sh
-git clone https://github.com/EmumbaOrg/postgres-sa-byoac.git
-cd postgres-sa-byoac
+git clone https://github.com/EmumbaOrg/postgres-invoice-pilot.git
+cd postgres-invoice-pilot
 ```
 
 #### Log in to your Azure account

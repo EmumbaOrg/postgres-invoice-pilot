@@ -6,13 +6,13 @@ To get started, clone the [PostgreSQL Solution Accelerator: Invoice Pilot](http:
 2. Run the following command to clone the repository:
 
     ```bash
-    git clone https://github.com/Azure-Samples/postgres-sa-byoac.git
+    git clone https://github.com/Azure-Samples/postgres-invoice-pilot.git
     ```
 
 3. Navigate into the cloned project directory:
 
     ```bash
-    cd postgres-sa-byoac
+    cd postgres-invoice-pilot
     ```
 
 4. Open the project in Visual Studio Code:

@@ -18,14 +18,14 @@
 
 # Project information .........................................
 site_name: "Build your own advanced AI Copilot with PostgreSQL: Workshop Guide"
-site_url: https://azure-samples.github.io/postgres-sa-byoac/
+site_url: https://azure-samples.github.io/postgres-invoice-pilot/
 site_author: jjfrost
 site_description: >-
   Build custom AI-powered solutions on top of Azure Database for PostgreSQL.
 
 # Repository ..................................................
-repo_name: azure-samples/postgres-sa-byoac
-repo_url: https://github.com/azure-samples/postgres-sa-byoac
+repo_name: azure-samples/postgres-invoice-pilot
+repo_url: https://github.com/azure-samples/postgres-invoice-pilot
 
 # Copyright ...................................................
 copyright: >
@@ -86,10 +86,10 @@ extra:
   generator: false  
   #alternate:
   #  - name: English
-  #    link: https://azure-samples.github.io/postgres-sa-byoac/
+  #    link: https://azure-samples.github.io/postgres-invoice-pilot/
   #    lang: en
   #  - name: Japanese
-  #    link: https://azure-samples.github.io/postgres-sa-byoac/ja/
+  #    link: https://azure-samples.github.io/postgres-invoice-pilot/ja/
   #    lang: ja
 
 # Plugins  ...............................................
