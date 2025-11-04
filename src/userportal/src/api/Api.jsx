@@ -345,7 +345,28 @@ const Api = {
                     }
                 });
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // Try to parse the error response from the backend
+                    let errorMessage = 'Network response was not ok';
+                    try {
+                        const errorData = await response.json();
+                        // Check for duplicate email error (common HTTP status codes: 409 Conflict, 400 Bad Request)
+                        if (response.status === 409 || (errorData.detail && typeof errorData.detail === 'string' && 
+                            (errorData.detail.toLowerCase().includes('email') || 
+                             errorData.detail.toLowerCase().includes('duplicate') ||
+                             errorData.detail.toLowerCase().includes('already exists')))) {
+                            errorMessage = 'This email address is already in use. Please use a different email address.';
+                        } else if (errorData.detail) {
+                            errorMessage = errorData.detail;
+                        } else if (errorData.message) {
+                            errorMessage = errorData.message;
+                        }
+                    } catch (parseError) {
+                        // If we can't parse the error, use the status code
+                        if (response.status === 409) {
+                            errorMessage = 'A vendor with this email already exists. Please use a different email address.';
+                        }
+                    }
+                    throw new Error(errorMessage);
                 }
                 const result = await response.json();
                 return result;
