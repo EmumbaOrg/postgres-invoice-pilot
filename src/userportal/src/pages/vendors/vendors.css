@@ -56,6 +56,70 @@
     color: #292a31;
   }
   
+  /* File list item styles */
+  .file-list-item {
+    overflow: hidden;
+  }
+
+  .file-name-text {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+    max-width: 100%;
+  }
+
+  /* Desktop: truncate long filenames */
+  @media (min-width: 769px) {
+    .file-name-text {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+    }
+  }
+
+  /* Mobile: allow wrapping but limit to reasonable lines */
+  @media (max-width: 768px) {
+    .file-name-text {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.875rem;
+    }
+
+    .file-list-item .btn {
+      padding: 0.25rem 0.5rem !important;
+      font-size: 0.875rem;
+    }
+
+    .file-list-item .fa-file-pdf {
+      font-size: 20px !important;
+    }
+
+    .file-list-item {
+      padding: 0.75rem !important;
+    }
+  }
+
+  /* Extra small devices (mobile phones in portrait) */
+  @media (max-width: 430px) {
+    .file-name-text {
+      font-size: 0.8125rem;
+    }
+
+    .file-list-item .d-flex.gap-2 {
+      gap: 0.25rem !important;
+    }
+
+    .file-list-item .btn {
+      padding: 0.2rem 0.4rem !important;
+    }
+  }
+
   /* Mobile responsive table styles */
   @media (max-width: 768px) {
     .table td, .table th {
