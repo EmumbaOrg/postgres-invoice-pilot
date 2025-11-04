@@ -47,6 +47,13 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
     loadData(skip, limit, sortBy, searchQuery);
   }, [skip, limit, sortBy, searchQuery, reload]);
 
+  // Reset to first page when reload changes (e.g., when search term changes)
+  useEffect(() => {
+    if (skip !== 0) {
+      setSkip(0);
+    }
+  }, [reload]);
+
   const handlePrevious = () => {
     if (skip > 0) {
       setSkip(skip - limit);

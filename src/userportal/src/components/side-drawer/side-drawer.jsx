@@ -108,10 +108,10 @@ const handleSessionSelect = (selectedSessionId) => {
                       ? {
                           background: '#FAFAFA',
                           borderRadius: '4px',
-                          padding: '24px',
-                          marginBottom: '30px'
+                          padding: '16px',
+                          marginBottom: '16px'
                         }
-                      : { marginBottom: '16px' }
+                      : { marginBottom: '12px' }
                   }
                 >
                   {msg.role === 'assistant' && (
@@ -122,8 +122,8 @@ const handleSessionSelect = (selectedSessionId) => {
                       className="position-absolute"
                       style={{
                         color: '#2979FF',
-                        top: '24px',
-                        right: '24px',
+                        top: '8px',
+                        right: '8px',
                         zIndex: 10
                       }}
                     >
@@ -133,7 +133,11 @@ const handleSessionSelect = (selectedSessionId) => {
                   {!error && index === messages.length - 1 && <div ref={messagesEndRef} />}
                   <div
                     className={`alert ${msg.role === 'user' ? 'user-message' : 'chat-response'}`}
-                    style={{ maxWidth: '90%', wordBreak: 'break-word' }}
+                    style={{ 
+                      maxWidth: '90%', 
+                      wordBreak: 'break-word',
+                      paddingRight: msg.role === 'assistant' ? '45px' : undefined
+                    }}
                     role="alert"
                   >
                     <ReactMarkdown>{msg.content}</ReactMarkdown>

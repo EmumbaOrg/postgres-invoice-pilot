@@ -157,8 +157,8 @@ const CopilotChat = () => {
                 style={msg.role === "assistant" ? { 
                   background: "#FAFAFA", 
                   borderRadius: "4px", 
-                  padding: "24px", 
-                  marginBottom: "30px"
+                  padding: "16px", 
+                  marginBottom: "16px"
                 } : {}}
               >
                 {/* Only show copy button for assistant messages */}
@@ -170,8 +170,8 @@ const CopilotChat = () => {
                     className="position-absolute"
                     style={{ 
                       color: "#2979FF", 
-                      top: "24px", 
-                      right: "24px", 
+                      top: "8px", 
+                      right: "8px", 
                       zIndex: 10 
                     }}
                   >
@@ -187,7 +187,10 @@ const CopilotChat = () => {
                 )}
                 <div
                   className={`alert ${msg.role === "user" ? "user-message" : "chat-response"}`}
-                  style={{ maxWidth: "90%" }}
+                  style={{ 
+                    maxWidth: "90%",
+                    paddingRight: msg.role === "assistant" ? '45px' : undefined
+                  }}
                   role="alert"
                 >
                   <ReactMarkdown>{msg.content}</ReactMarkdown>

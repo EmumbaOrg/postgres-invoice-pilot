@@ -559,8 +559,8 @@ const NavigationStepper = () => {
                         >
                           <i className="far fa-file-alt"></i>
                         </div>
-                        <div>
-                          <div className="fw-medium text-dark">{sowFile.name}</div>
+                        <div style={{ textAlign: "left" }}>
+                          <div style={{wordBreak: "break-word" }} className="fw-medium text-dark ">{sowFile.name}</div>
                           <div className="text-muted small">{(sowFile.size / 1024 / 1024).toFixed(2)} MB</div>
                         </div>
                       </div>
