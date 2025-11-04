@@ -17,7 +17,6 @@ const InvoiceList = () => {
   const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  // Debounced search functionality
   const handleSearch = useCallback((debouncedSearchTerm) => {
     setReload((prev) => !prev);
   }, []);
