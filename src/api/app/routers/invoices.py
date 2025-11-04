@@ -128,7 +128,7 @@ async def analyze_invoice(
 
 
         # Get SOW ID for SOW Number in metadata, if it exists
-        sow_id = 0
+        sow_id = None
         if sow_number is not None:
             async with pool.acquire() as conn:
                 sow_id = await conn.fetchval('SELECT id FROM sows WHERE vendor_id = $1 AND number = $2;', vendor_id, sow_number)
