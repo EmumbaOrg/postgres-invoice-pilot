@@ -154,32 +154,32 @@ const VendorView = () => {
   }
 
   const FileListItem = ({ file, type }) => (
-    <div className="d-flex align-items-center justify-content-between p-3" style={{border: "1px solid #EBF2FF", borderRadius: "8px", marginBottom: "10px"}}>
-      <div className="d-flex align-items-center">
-        <div className="me-3">
+    <div className="file-list-item d-flex align-items-center justify-content-between p-3" style={{border: "1px solid #EBF2FF", borderRadius: "8px", marginBottom: "10px"}}>
+      <div className="d-flex align-items-center flex-grow-1 min-w-0 me-2">
+        <div className="me-3 flex-shrink-0">
           <i className="fas fa-file-pdf text-primary" style={{ fontSize: "24px" }}></i>
         </div>
-        <div>
-          <div className="fw-medium text-dark text-truncate" style={{ maxWidth: '320px' }}>{file?.number} {file?.document} </div>
-          <small className="text-muted">
+        <div className="min-w-0 flex-grow-1">
+          <div className="fw-medium text-dark file-name-text">{file?.number} {file?.document} </div>
+          <small className="text-muted d-block text-truncate">
             {file?.start_date || file?.invoice_date}
           </small>
         </div>
       </div>
-      <div className="d-flex gap-2">
-        <Button variant="text-primary" className="btn-link" size="sm" onClick={()=>onPreviewPDFClick(file)}>
+      <div className="d-flex gap-2 flex-shrink-0">
+        <Button variant="text-primary" className="btn-link p-1" size="sm" onClick={()=>onPreviewPDFClick(file)}>
           <i className="fas fa-eye"></i>
           </Button>
         <Button
           variant="text-primary"
-          className="btn-link"
+          className="btn-link p-1"
           size="sm"
           onClick={() => window.open(api.documents.getUrl(file?.document), "_blank", "noopener,noreferrer")}
           aria-label="Download"
         >
           <i className="fas fa-download"></i>
         </Button>
-        <Button variant="text-danger" style={{color:"#0d6efd"}}  size="sm" onClick={()=> {setSowToDelete(file.id); setDeleteItemType(type); setShowDeleteSOWModal(true)}}>
+        <Button variant="text-danger" style={{color:"#0d6efd"}} className="p-1" size="sm" onClick={()=> {setSowToDelete(file.id); setDeleteItemType(type); setShowDeleteSOWModal(true)}}>
           <i className="fas fa-trash-alt"></i>
         </Button>
       </div>

@@ -114,5 +114,9 @@ ul.session-list {
 
 .assistant {
     background-color: red;
+}
 
+/* Ensure proper spacing in assistant messages to prevent copy button overlap */
+.message.assistant .alert.chat-response {
+  padding-right: 45px !important;
 }

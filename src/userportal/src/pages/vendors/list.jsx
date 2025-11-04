@@ -101,21 +101,35 @@ const VendorList = () => {
 
 
   const fetchVendors = async (skip, limit, sortBy, search) => {
-    const response = await api.vendors.list(skip, limit, sortBy, search)
-
-    // Apply frontend search filter on vendor name if debouncedSearchTerm exists
+    // Fetch ALL vendors (limit = -1 means fetch all)
+    const response = await api.vendors.list(0, -1, sortBy, '')
+    
+    // Apply client-side search filter if search term exists
     if (debouncedSearchTerm && response.data) {
       const filteredData = response.data.filter(
-        (vendor) => vendor.name && vendor.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
+        (vendor) => vendor.name && vendor.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
       )
+      
+      // Apply client-side pagination
+      const paginatedData = filteredData.slice(skip, skip + limit)
+      
       return {
-        ...response,
-        data: filteredData,
+        data: paginatedData,
         total: filteredData.length,
+        skip: skip,
+        limit: limit
       }
     }
-
-    return response
+    
+    // No search - apply pagination to all data
+    const paginatedData = response.data.slice(skip, skip + limit)
+    
+    return {
+      data: paginatedData,
+      total: response.data.length,
+      skip: skip,
+      limit: limit
+    }
   }
 
   return (

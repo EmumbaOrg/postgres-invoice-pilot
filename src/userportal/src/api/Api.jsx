@@ -327,8 +327,9 @@ const Api = {
         },
     },
     vendors: {
-        list: async (skip = 0, limit = 10, sortBy = '') => {
-            return await RESTHelper.get(getUrl(`/vendors?skip=${skip}&limit=${limit}&sortby=${sortBy}`));
+        list: async (skip = 0, limit = 10, sortBy = '', search = '') => {
+            const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+            return await RESTHelper.get(getUrl(`/vendors?skip=${skip}&limit=${limit}&sortby=${sortBy}${searchParam}`));
         },
         get: async (id) => {
             return await RESTHelper.get(getUrl(`/vendors/${id}`));
