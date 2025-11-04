@@ -129,6 +129,7 @@ async def analyze_invoice(
 
         # Get SOW ID for SOW Number in metadata, if it exists
         sow_id = None
+        
         if sow_number is not None:
             async with pool.acquire() as conn:
                 sow_id = await conn.fetchval('SELECT id FROM sows WHERE vendor_id = $1 AND number = $2;', vendor_id, sow_number)
@@ -137,7 +138,11 @@ async def analyze_invoice(
                         status_code=400,
                         detail=f'SOW with number "{sow_number}" for vendor {vendor_id} not found.'
                     )
-
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=f'SOW number not found in invoice.'
+            )
 
         # Create invoice in the database
         async with pool.acquire() as conn:
