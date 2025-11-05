@@ -41,5 +41,8 @@ Once deployed, you can explore the following key capabilities:
 4. **Graph-Based Insights**  
    With the Apache AGE (`age`) extension, the database can perform graph queries to reveal relationships between projects, vendors, and contracts.
 
-This solution accelerator serves as a **guide** to understanding how AI-powered data processing, retrieval, and reasoning can be integrated into enterprise systems using Azure’s AI and database ecosystem.  
+5. **Flexible AI Framework Support**  
+   The application supports two popular AI frameworks: **AgentFramework** and **LangChain**. The application can be configured to use either of these frameworks based on your preference. Detailed configuration steps for both deployment and local development are covered later in this guide.
+
+This solution accelerator serves as a **guide** to understanding how AI-powered data processing, retrieval, and reasoning can be integrated into enterprise systems using Azure's AI and database ecosystem.
 By the end of this guide, you’ll have a complete understanding of the architecture, deployment flow, and design principles behind Invoice Pilot—without needing to modify or build any components yourself.
