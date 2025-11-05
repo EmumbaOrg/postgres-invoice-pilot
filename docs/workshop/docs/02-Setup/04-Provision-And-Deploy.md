@@ -74,6 +74,10 @@ You are now ready to provision your Azure resources and deploy the Invoice Pilot
         - **Select an Azure Subscription to use**: Select the Azure subscription you are using for this workshop using the up and down arrow keys.
         - **Select an Azure location to use**: Select the Azure region into which resources should be deployed using the up and down arrow keys.       
         - **Enter a value for the `resourceGroupName`**: Enter `rg-postgresql-accelerator`, or a similar name.
+        - **GenAI Framework Selection**: During deployment, you'll be prompted to select your preferred AI framework:
+            Enter **1** for **AgentFramework** or **2** for **LangChain**.
+            
+            Both frameworks are fully supported by the application architecture.
 
 2. On successful completion you will see a `SUCCESS: ...` message on the console.
 
