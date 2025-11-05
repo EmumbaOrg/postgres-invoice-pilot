@@ -1,6 +1,6 @@
 # Redeploy App to Azure
 
-The workshop began with a _pre-provisioned_ version of the _Invoice Pilot_ application on Azure Container Apps. Now that you have modified elements of the app and tested them out locally, you might want to _redeploy_ the application.
+If you want to redeploy the application, you can do so using the Azure Developer CLI. This is useful when you update the backend or frontend code and need to redeploy your changes to the live application.
 
 Because you used `azd` for provisioning and deployment, this is as simple as calling `azd up` (to push all changes in both infrastructure and application) or running `azd deploy` if you want only to rebuild and deploy the application changes you made in this project.
 
@@ -22,26 +22,29 @@ To deploy the updated app, follow the steps below:
 
 2. Ensure you are at the root of your repository.
 
-3. Execute this command to deploy your application with changes.
+3. Use the following commands to deploy updates to the backend, frontend, or the entire application as needed.
 
-    !!! danger "Execute the following Azure Developer CLI command!"
+    - For deploying only backend changes:  
+        <!-- markdownlint-disable MD046 -->
+        ```bash
+        azd deploy API
+        ```
 
-    <!-- markdownlint-disable MD046 -->
-    ```bash
-    azd deploy
-    ```
+    - For deploying only frontend changes:  
+        <!-- markdownlint-disable MD046 -->
+        ```bash
+        azd deploy UserPortal
+        ```
+
+    - For deploying whole application:  
+        <!-- markdownlint-disable MD046 -->
+        ```bash
+        azd deploy
+        ```
 
 ## Test the Deployed App
 
-1. In the Azure portal, return to the resource group containing your resources and select the **Container app** resource whose name begins with **ca-portal**.
-
-    ![Screenshot of the resources in the resource group, with the ca-portal Container app resource highlighted.](../img/azure-portal-rg-ca-portal.png)
-
-2. In the **Essentials** section of the Portal Container App's **Overview** page, select the **Application Url** to open the deployed Invoice Pilot Portal in a new browser tab.
-
-    ![Screenshot of the API container app page in the Azure portal, with the Application Url highlighted.](../img/azure-portal-portal-container-app.png)
-
-3. In the _Invoice Pilot_, select the **Dashboard** page and use the copilot to ask a few questions and verify that your app changes are live!
+After deployment, open the Azure portal and navigate to your Container App resource. Use the Application URL to access the Invoice Pilot Portal and verify your changes are live by interacting with the dashboard and copilot features.
 
 ---
 
