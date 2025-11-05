@@ -30,7 +30,7 @@ class FrameworkProviderBase(ABC):
         pass
 
     @abstractmethod
-    async def aembed_query(self, text: str) -> str:
+    async def aembed_query(self, text: str) -> list[float]:
         pass
 
     @abstractmethod 
