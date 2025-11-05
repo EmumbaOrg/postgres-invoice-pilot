@@ -18,11 +18,11 @@ class FrameworkProviderBase(ABC):
         pass
 
     @abstractmethod
-    async def build_agent(self, client: Any, system_prompt: str, tools: list[Callable] | None = None) -> 'FrameworkProviderBase':
+    async def build_agent(self, system_prompt: str, tools: list[Callable] | None = None) -> 'FrameworkProviderBase':
         pass
 
     @abstractmethod
-    async def run(self, agent: Any, user_message: str, messages: list[Any] | None = None) -> str:
+    async def run(self, user_message: str, messages: list[Any] | None = None) -> str:
         pass
 
     @abstractmethod
