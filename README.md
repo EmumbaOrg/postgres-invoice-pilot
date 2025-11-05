@@ -39,7 +39,7 @@ The platform also features an **AI Financial Chatbot**, providing real-time insi
    Leverages Azure Document Intelligence to automatically extract and structure text from uploaded PDF documents into machine-readable formats for AI analysis.
 
 2. **Automated Document Validation**
-   An AI-powered workflow built using `LangChain` or Agent Framework agents validates invoices against statements of work, checking compliance, billing accuracy, and payment terms in real time.
+   An AI-powered workflow built using `LangChain` or `Agent Framework` agents validates invoices against statements of work, checking compliance, billing accuracy, and payment terms in real time.
 
 3. **Financial Chatbot**
    A smart assistant that answers questions about vendors, SOWs, and invoices using vector search and semantic understanding to provide contextual financial insights.
