@@ -157,10 +157,10 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
     Once the above command is executed, the `azd` workflow prompts user to select the subscription for deployment and location.
 
-2. Make sure that you have enough Azure OpenAI model quota in the region of deployment. **The `azd` workflow automatically filters and shows the region where the Azure OpenAI quota is available.** The Azure OpenAI quota required for `GlobalStandard` **deployment type** for this solution is listed below. This configuration can be changed from the `main.parameters.json` file in the `infra` directory using the following parameters:
+2. Make sure that you have enough Azure OpenAI model quota in the region of deployment. **The `azd` workflow automatically filters and shows the region where the Azure OpenAI quota is available.** The Azure OpenAI quota required for `GlobalStandard` **deployment type** for this solution is listed below. 
 
-    - **`GlobalStandard` GPT-4o:** 10K TPM - `AZURE_OPENAI_CHAT_DEPLOYMENT_CAPACITY`
-    - **`GlobalStandard` text-embedding-ada-002:** 10K TPM - `AZURE_OPENAI_EMBED_DEPLOYMENT_CAPACITY`
+    - **`GlobalStandard` GPT-4o:** 10K TPM 
+    - **`GlobalStandard` text-embedding-ada-002:** 10K TPM
 
 
     ```sh
