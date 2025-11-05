@@ -11,6 +11,7 @@ Explore how intelligent AI agents handle document extraction, validation, semant
 > <http://aka.ms/pg-byoac-docs/>
 
 ## 🧭 Quick Navigation
+
 - [App Scenario](#app-scenario-ai-powered-financial-document-intelligence)
 - [Architecture Overview](#architecture-overview)
 - [Solution Accelerator Deployment](#-solution-accelerator-deployment)
@@ -23,7 +24,7 @@ Explore how intelligent AI agents handle document extraction, validation, semant
 
 **Invoice Pilot** is an AI-powered financial document validation platform that showcases how advanced PostgreSQL features and AI can deliver intelligent document processing and validation.
 
-Built on **LangChain** and **Azure AI services**, the app leverages:
+Built on **LangChain** or **Agent Framework** and **Azure AI services**, the app leverages:
 
 - **`pg_diskann`** for fast vector search over financial document data
 - **`azure_ai`** for in-database semantic re-ranking and AI operations
@@ -38,7 +39,7 @@ The platform also features an **AI Financial Chatbot**, providing real-time insi
    Leverages Azure Document Intelligence to automatically extract and structure text from uploaded PDF documents into machine-readable formats for AI analysis.
 
 2. **Automated Document Validation**
-   An AI-powered workflow built using `LangChain` agents validates invoices against statements of work, checking compliance, billing accuracy, and payment terms in real time.
+   An AI-powered workflow built using `LangChain` or Agent Framework agents validates invoices against statements of work, checking compliance, billing accuracy, and payment terms in real time.
 
 3. **Financial Chatbot**
    A smart assistant that answers questions about vendors, SOWs, and invoices using vector search and semantic understanding to provide contextual financial insights.
@@ -47,7 +48,7 @@ Using a curated financial dataset (SOWs, invoices, vendor profiles), the platfor
 
 - 📄 **Automated document extraction** from PDFs using Azure Document Intelligence
 - 🔍 **Semantic document search** with vector embeddings
-- ✅ **AI-driven validation** using LangChain agents
+- ✅ **AI-driven validation** using LangChain or Agent Framework agents
 - 🧠 **Financial insights** via chatbot queries
 - 📊 **Compliance monitoring** through automated SOW-invoice matching
 
@@ -148,7 +149,6 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 #### Solution Deployment
 
-
 1. Run the following command to provision the resources:
 
     ```sh
@@ -157,11 +157,18 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
     Once the above command is executed, the `azd` workflow prompts user to select the subscription for deployment and location.
 
-2. Make sure that you have enough Azure OpenAI model quota in the region of deployment. **The `azd` workflow automatically filters and shows the region where the Azure OpenAI quota is available.** The Azure OpenAI quota required for `GlobalStandard` **deployment type** for this solution is listed below. 
+    **Framework Selection**: You'll be prompted to choose your preferred AI framework:
+    - **Option 1**: AgentFramework
+    - **Option 2**: LangChain
+
+    Enter `1` for AgentFramework or `2` for LangChain. This choice sets the `GENAI_FRAMEWORK` environment variable, which determines which AI framework the API backend uses at startup.
+
+    > 💡 **Note**: You can switch between frameworks after deployment by updating the `GENAI_FRAMEWORK` environment variable in the Azure Container App configuration without redeploying the entire solution.
+
+2. Make sure that you have enough Azure OpenAI model quota in the region of deployment. **The `azd` workflow automatically filters and shows the region where the Azure OpenAI quota is available.** The Azure OpenAI quota required for `GlobalStandard` **deployment type** for this solution is listed below.
 
     - **`GlobalStandard` GPT-4o:** 10K TPM 
     - **`GlobalStandard` text-embedding-ada-002:** 10K TPM
-
 
     ```sh
     @metadata({
@@ -217,7 +224,7 @@ The `--purge` flag deletes all the accounts permanently.
 
 ## 🤖 AI-Powered Document Processing Workflow
 
-PostgreSQL Solution Accelerator uses a comprehensive AI-driven workflow built on **LangChain** and **Azure AI services** to process and validate financial documents. The system handles document extraction, validation, and intelligent querying through specialized AI agents.
+PostgreSQL Solution Accelerator uses a comprehensive AI-driven workflow built on **LangChain** or **Agent Framework** and **Azure AI services** to process and validate financial documents. The system handles document extraction, validation, and intelligent querying through specialized AI agents.
 
 ### 🧠 Key AI Agents & Processing Components
 
@@ -234,7 +241,7 @@ The system processes documents through the following stages:
 
 1. **Document Upload & Storage**: Documents are uploaded to Azure Blob Storage, triggering automated processing
 2. **AI Document Extraction**: Azure Document Intelligence extracts text and structure from PDF documents
-3. **Content Structuring**: LangChain agents format extracted content into standardized JSON structures
+3. **Content Structuring**: Agents format extracted content into standardized JSON structures
 4. **Vector Embedding**: Document content is converted to vector embeddings using Azure OpenAI
 5. **Database Storage**: Structured data and embeddings are stored in PostgreSQL with specialized extensions
 6. **Validation Processing**: AI agents validate documents against business rules and cross-reference with related documents
@@ -311,7 +318,6 @@ This walkthrough showcases how the solution delivers comprehensive, AI-powered f
 
 > 💡 You can follow similar steps in the invoices management tab to configure the invoice validation pipeline and view its validation results. The process and interface patterns are consistent across both payment and invoice validation workflows.
 
-
 ## 🧠 Chatbot Features
 
 PostgreSQL Solution Accelerator includes a powerful **Financial AI Chatbot** that interprets queries about vendors, SOWs, and invoices, providing intelligent insights into financial document relationships and compliance.
@@ -328,7 +334,7 @@ The chatbot is equipped with comprehensive knowledge about:
 ### 🤖 Accessing the Financial AI Chatbot
 
 1. **Dashboard Chat Interface**
-   
+
    From the main dashboard, you can quickly start a conversation with the AI Financial Assistant in two ways:
    - Type your question in the "Search using AI" field and click the send button to navigate to the full chat interface
    - Click the "Ask AI" button in the top-right corner to open a convenient side drawer for quick queries without leaving the current page
