@@ -29,9 +29,9 @@ export default function ChatInterface() {
   };
 
   const suggestions = [
-    "Top vendors in 2025",
-    "List of unpaid invoices",
-    "List of pending invoices",
+    "List all vendors",
+    "List all the pending invoices",
+    "Show SOWs pertaining to optimization",
   ];
 
   return (

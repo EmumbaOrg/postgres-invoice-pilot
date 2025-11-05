@@ -174,7 +174,7 @@ const Shell = ({onLogout}) => {
               <i className="fa-solid fa-wand-magic-sparkles"></i>
               <span>Ask AI</span>
             </a>
-            <a
+            {/* <a
               className="nav-link text-primary fw-bold px-3 py-2 transition-all"
               href="#"
               onClick={(e) => {
@@ -184,7 +184,7 @@ const Shell = ({onLogout}) => {
             >
               <i className="fas fa-sign-out-alt me-2"></i>
               Sign out
-            </a>
+            </a> */}
           </div>
         </div>
       </div>
