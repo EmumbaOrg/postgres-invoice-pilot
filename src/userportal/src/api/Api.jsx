@@ -327,9 +327,8 @@ const Api = {
         },
     },
     vendors: {
-        list: async (skip = 0, limit = 10, sortBy = '', search = '') => {
-            const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
-            return await RESTHelper.get(getUrl(`/vendors?skip=${skip}&limit=${limit}&sortby=${sortBy}${searchParam}`));
+        list: async (skip = 0, limit = 10, sortBy = '') => {
+            return await RESTHelper.get(getUrl(`/vendors?skip=${skip}&limit=${limit}&sortby=${sortBy}`));
         },
         get: async (id) => {
             return await RESTHelper.get(getUrl(`/vendors/${id}`));
@@ -345,7 +344,14 @@ const Api = {
                     }
                 });
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // Check if it's a conflict error (duplicate email)
+                    if (response.status === 409) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error('A vendor with this email already exists. Please use a different email address.');
+                    }
+                    // For other errors, try to get the error message from response
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Failed to create vendor. Please try again.');
                 }
                 const result = await response.json();
                 return result;
