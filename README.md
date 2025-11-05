@@ -23,12 +23,12 @@ Explore how intelligent AI agents handle document extraction, validation, semant
 
 **Invoice Pilot** is an AI-powered financial document validation platform that showcases how advanced PostgreSQL features and AI can deliver intelligent document processing and validation.
 
-Built on **LangChain** and **Azure AI services**, the app leverages:
+Built on **Azure AI services** and both **Agentframework** and **LangChain**, the app leverages:
 
 - **`pg_diskann`** for fast vector search over financial document data
 - **`azure_ai`** for in-database semantic re-ranking and AI operations
-- **Apache AGE** to model document relationships as knowledge graphs
-- **Azure Document Intelligence** for structured document extraction
+- **`Apache AGE`** to model document relationships as knowledge graphs
+- **`Azure Document Intelligence`** for structured document extraction
 
 The platform also features an **AI Financial Chatbot**, providing real-time insights into vendor performance, SOW compliance, and invoice validation—helping financial teams understand document accuracy and vendor relationships.
 
@@ -38,7 +38,7 @@ The platform also features an **AI Financial Chatbot**, providing real-time insi
    Leverages Azure Document Intelligence to automatically extract and structure text from uploaded PDF documents into machine-readable formats for AI analysis.
 
 2. **Automated Document Validation**
-   An AI-powered workflow built using `LangChain` agents validates invoices against statements of work, checking compliance, billing accuracy, and payment terms in real time.
+   An AI-powered workflow built using AI agents validates invoices against statements of work, checking compliance, billing accuracy, and payment terms in real time.
 
 3. **Financial Chatbot**
    A smart assistant that answers questions about vendors, SOWs, and invoices using vector search and semantic understanding to provide contextual financial insights.
@@ -47,7 +47,7 @@ Using a curated financial dataset (SOWs, invoices, vendor profiles), the platfor
 
 - 📄 **Automated document extraction** from PDFs using Azure Document Intelligence
 - 🔍 **Semantic document search** with vector embeddings
-- ✅ **AI-driven validation** using LangChain agents
+- ✅ **AI-driven validation** using AI agents
 - 🧠 **Financial insights** via chatbot queries
 - 📊 **Compliance monitoring** through automated SOW-invoice matching
 
@@ -162,7 +162,6 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
     - **`GlobalStandard` GPT-4o:** 10K TPM - `AZURE_OPENAI_CHAT_DEPLOYMENT_CAPACITY`
     - **`GlobalStandard` text-embedding-ada-002:** 10K TPM - `AZURE_OPENAI_EMBED_DEPLOYMENT_CAPACITY`
 
-
     ```sh
     @metadata({
       azd: {
@@ -180,6 +179,10 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
     - Azure Flexible Server for PostgreSQL SKU [we recommend avoiding burstable instances as they might result in "Illegal Instruction" error in certain regions for vector queries]
     - Azure Container Apps quota
     - azd env name
+
+4. `GenAI Framework Selection`: During deployment, you'll be prompted to select your preferred AI framework:
+      Enter **1** for **AgentFramework** or **2** for **LangChain**.
+      Both frameworks are fully supported by the application architecture.
 
 The deployment might take several minutes. Progress updates will be displayed in the terminal and can also be tracked via the Azure Portal.
 
@@ -217,7 +220,7 @@ The `--purge` flag deletes all the accounts permanently.
 
 ## 🤖 AI-Powered Document Processing Workflow
 
-PostgreSQL Solution Accelerator uses a comprehensive AI-driven workflow built on **LangChain** and **Azure AI services** to process and validate financial documents. The system handles document extraction, validation, and intelligent querying through specialized AI agents.
+PostgreSQL Solution Accelerator uses a comprehensive AI-driven workflow built on **Agentframework/LangChain** and **Azure AI services** to process and validate financial documents. The system handles document extraction, validation, and intelligent querying through specialized AI agents.
 
 ### 🧠 Key AI Agents & Processing Components
 
@@ -234,7 +237,7 @@ The system processes documents through the following stages:
 
 1. **Document Upload & Storage**: Documents are uploaded to Azure Blob Storage, triggering automated processing
 2. **AI Document Extraction**: Azure Document Intelligence extracts text and structure from PDF documents
-3. **Content Structuring**: LangChain agents format extracted content into standardized JSON structures
+3. **Content Structuring**: AI agents format extracted content into standardized JSON structures
 4. **Vector Embedding**: Document content is converted to vector embeddings using Azure OpenAI
 5. **Database Storage**: Structured data and embeddings are stored in PostgreSQL with specialized extensions
 6. **Validation Processing**: AI agents validate documents against business rules and cross-reference with related documents
