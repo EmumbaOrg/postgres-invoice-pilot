@@ -1,6 +1,6 @@
 # 🏦 PostgreSQL Solution Accelerator: Invoice Pilot
 
-Invoice Pilot is an **AI-driven financial document validation platform** that showcases how **advanced PostgreSQL features**, powered by [LangChain](https://www.langchain.com/) and Azure AI services, can drive **intelligent document processing and validation** using unstructured financial data like invoices and statements of work (SOWs). This demo runs fully on Azure, and can be deployed quickly using the **Azure Developer CLI**.
+Invoice Pilot is an **AI-driven financial document validation platform** that showcases how **advanced PostgreSQL features**, powered by [LangChain](https://www.langchain.com/) OR [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) and Azure AI services, can drive **intelligent document processing and validation** using unstructured financial data like invoices and statements of work (SOWs). This demo runs fully on Azure, and can be deployed quickly using the **Azure Developer CLI**.
 
 Explore how intelligent AI agents handle document extraction, validation, semantic search, and financial insights with PostgreSQL's advanced vector capabilities and Azure AI integration.
 
