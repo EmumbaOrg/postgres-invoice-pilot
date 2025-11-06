@@ -3,7 +3,6 @@ pwsh --version
 
 # Install Azure CLI extensions
 # az config set extension.use_dynamic_install=yes_without_prompt
-az extension add --name ml
 az extension add --name "rdbms-connect"
 
 # Upgrade Azure CLI just in case
