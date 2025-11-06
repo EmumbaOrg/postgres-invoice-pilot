@@ -88,7 +88,7 @@ You are now ready to provision your Azure resources and deploy the Invoice Pilot
 
     !!! warning "PostgreSQL Firewall and IP Address Access"
         **During deployment, the system automatically adds your current public IP address to the PostgreSQL firewall** to allow database setup scripts to run. This firewall rule is named `AllowAZDLocalMachine` and **remains active after deployment**.
-        
+
         **Important considerations:**
         
         - **Database Access from Different Locations**: If you or team members need to access the PostgreSQL database from different locations (home, office, cloud shells), each location's IP will need to be added to the PostgreSQL firewall rules
