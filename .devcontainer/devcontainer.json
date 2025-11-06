@@ -10,21 +10,24 @@
     },
     "features":
     {
-        "ghcr.io/devcontainers/features/docker-in-docker:2":
-        {
-            "version": "latest",
-            "moby": true
-        },
-        "ghcr.io/devcontainers/features/azure-cli:1": {
-            "installBicep": "true",
-            "extensions": ["rdbms-connect", "ml"]
-        },
-        "ghcr.io/azure/azure-dev/azd:latest": {},
-        "ghcr.io/rchaganti/vsc-devcontainer-features/azurebicep:1": {}
+      "ghcr.io/devcontainers/features/docker-in-docker:2": {
+        "version": "latest",
+        "moby": true
+      },
+      "ghcr.io/devcontainers/features/azure-cli:1": {
+        "installBicep": "true",
+        "extensions": ["rdbms-connect", "ml"]
+      },
+      "ghcr.io/azure/azure-dev/azd:latest": {},
+      "ghcr.io/rchaganti/vsc-devcontainer-features/azurebicep:1": {},
+      "ghcr.io/devcontainers/features/powershell:1": {
+        "version": "latest"
+      }
     },
     "extensions":
     [
         "ms-python.python",
+        "ms-python.debugger",
         "ms-azuretools.vscode-azurecli",
         "ms-ossdata.vscode-pgsql"
     ],
