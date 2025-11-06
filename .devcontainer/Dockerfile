@@ -15,13 +15,6 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     unzip \    
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Microsoft repo and Powershell
-RUN wget -q https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb && \
-    dpkg -i packages-microsoft-prod.deb && \
-    apt-get update && \
-    apt-get install -y powershell && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Install python3.11 and pip
 RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
     apt-get install -y python3.11 python3.11-venv python3.11-dev python3-pip && \

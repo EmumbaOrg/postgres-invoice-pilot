@@ -17,7 +17,6 @@ class DatabaseService:
 
         self.azure_token_lock = asyncio.Lock()
         self.azure_token = None
-        self.azure_token_created = None
 
     async def close(self):
         """Close the connection pool."""
@@ -50,16 +49,21 @@ class DatabaseService:
     
     async def __is_azure_token_expired(self):
         """return true/false if the Azure Token has expired yet"""
-        if self.azure_token is None or self.azure_token_created is None:
+        if self.azure_token is None:
             return True
         # check if Entra Token has expired
-        return self.azure_token.expires_on < time.time()
+        # add a small buffer so we refresh a bit before exact expiry
+        return self.azure_token.expires_on <= time.time() + 60
                 
     async def __get_azure_entra_token(self):
-        """Get the Azure Token generated to be used for authentication to the database"""
-        if self.azure_token is None or self.azure_token_created is None or await self.__is_azure_token_expired():
+        if self.azure_token is None or await self.__is_azure_token_expired():
             async with self.azure_token_lock:
-                self.azure_token = await self.credential.get_token("https://ossrdbms-aad.database.windows.net/.default")
+                # double-check inside the lock
+                if self.azure_token is None or await self.__is_azure_token_expired():
+                    print("🔄 Refreshing Azure DB token...")
+                    self.azure_token = await self.credential.get_token(
+                        "https://ossrdbms-aad.database.windows.net/.default"
+                    )
         return self.azure_token
 
     async def __get_username(self, token):
