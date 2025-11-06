@@ -29,17 +29,6 @@ RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update && \
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get install -y nodejs
 
-# # Install Azure CLI
-# RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-
-# # Install Azure Developer CLI (azd)
-# RUN curl -fsSL https://aka.ms/install-azd.sh | bash
-
-# Install PowerShell 7 (already installed above)
-
-# Install Azure ML extension
-# RUN az extension add -n ml
-
 # Set default shell to bash
 SHELL ["/bin/bash", "-c"]
 
