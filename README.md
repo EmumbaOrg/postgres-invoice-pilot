@@ -349,6 +349,13 @@ The chatbot is equipped with comprehensive knowledge about:
 
    ![Full chat interface with history panel](docs/workshop/docs/img/chat-interface-full.png)
 
+  Query: `Which vendors provide software engineering services?`
+
+  ![Chatbot example 1](docs/workshop/docs/img/chatbot_example_1.png)
+
+  Query: `Which vendors provide software engineering services?`
+
+  ![Chatbot example 2](docs/workshop/docs/img/chatbot_example_2.png)
 
 ### 🔍 Try These Chatbot Queries
 
