@@ -27,12 +27,11 @@
 
 As Generative AI (GenAI) becomes increasingly integral to modern enterprises, users' trust in these applications is paramount and heavily reliant on the accuracy of their responses. The productivity loss from incorrect answers and the consequent erosion of user trust are issues that cannot be overlooked. For many organizations, the decision to deploy GenAI apps hinges on their ability to elevate the accuracy of the app's responses to an acceptable level.
 
-In this section, you will use Semantic Ranking and GraphRAG to enhance the accuracy of responses from the _Invoice Pilot_ copilot. Here's what you will accomplish:
+In this section, you will observe how Semantic Ranking and GraphRAG are used to enhance the accuracy of responses from the _Invoice Pilot_ copilot. Here's what you will review:
 
 - [x] Review Semantic Ranking
 - [x] Use Semantic Ranking to rerank hybrid search results
 - [x] Review GraphRAG and the Apache AGE extension
-- [x] Implement the AGE extension to enable graph queries against your PostgreSQL database
 
 ## The Accuracy Problem
 
