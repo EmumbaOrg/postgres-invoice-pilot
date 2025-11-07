@@ -4,7 +4,8 @@ Before beginning the process of integrating AI capabilities into the _Invoice Pi
 
 First, navigate to the Invoice Pilot application frontend using the URL you deployed in section 2.4. Open your browser and go to the application URL to access the Invoice Pilot Portal.
 
-    > **Note:** Use the frontend application URL that was generated when you deployed the application in the previous section.
+!!!info "**Note**"
+    Use the frontend application URL that was generated when you deployed the application in the previous section.
 
 ## Review SOWs
 
