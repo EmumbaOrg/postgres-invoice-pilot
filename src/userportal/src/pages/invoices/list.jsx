@@ -7,6 +7,7 @@ import StatusChip from '../../components/status-chip/status-chip';
 import InvoiceCreate from './create';
 import SearchInput from '../../components/SearchInput';
 import { useDebouncedSearch } from '../../hooks/useDebounce';
+import PdfPreviewModal from '../../components/pdf-preview-modal/pdf-preview-modal';
 
 const InvoiceList = () => {
   const [error, setError] = useState(null);
@@ -16,12 +17,27 @@ const InvoiceList = () => {
   const [reload, setReload] = useState(false);
   const [showCreateInvoiceModal, setShowCreateInvoiceModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [selectedDocumentUrl, setSelectedDocumentUrl] = useState(null);
   
   const handleSearch = useCallback((debouncedSearchTerm) => {
     setReload((prev) => !prev);
   }, []);
   
   const { searchTerm, debouncedSearchTerm, handleSearchChange, clearSearch } = useDebouncedSearch('', handleSearch, 500);
+
+  const handleViewDocument = useCallback((documentName) => {
+    if (!documentName) return;
+
+    const url = api.documents.getUrl(documentName);
+    setSelectedDocumentUrl(url);
+    setShowPdfModal(true);
+  }, [api]);
+
+  const handleClosePdfModal = useCallback(() => {
+    setShowPdfModal(false);
+    setSelectedDocumentUrl(null);
+  }, []);
 
   const handleDelete = async () => {
     if (!sowToDelete) return;
@@ -83,6 +99,10 @@ const InvoiceList = () => {
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
             <Dropdown.Menu align="end">
+              <Dropdown.Item onClick={() => handleViewDocument(row.original.document)} disabled={!row.original.document} className="d-flex align-items-center gap-1">
+                <i className="fas fa-eye me-2" style={{ color: 'var(--bs-primary)' }}></i>
+                View
+              </Dropdown.Item>
               <Dropdown.Item href={`${api.documents.getUrl(row.original.document)}`} target="_blank" rel="noopener noreferrer" className="d-flex align-items-center gap-1">
                 <i className="fas fa-download me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 Download
@@ -100,7 +120,7 @@ const InvoiceList = () => {
         ),
       },
     ],
-    []
+    [handleViewDocument]
   );
 
   const fetchInvoices = async (skip, limit, sortBy, search) => {
@@ -158,6 +178,11 @@ const InvoiceList = () => {
           show={showCreateInvoiceModal}
           onHide={() => setShowCreateInvoiceModal(false)}
         />
+      <PdfPreviewModal
+        show={showPdfModal}
+        handleClose={handleClosePdfModal}
+        fileUrl={selectedDocumentUrl}
+      />
     </div>
   );
 };

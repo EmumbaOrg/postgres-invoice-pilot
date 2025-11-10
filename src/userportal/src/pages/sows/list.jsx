@@ -7,6 +7,7 @@ import SearchInput from '../../components/SearchInput';
 import api from '../../api/Api';
 import SOWCreateModal from './create';
 import { useDebouncedSearch } from '../../hooks/useDebounce';
+import PdfPreviewModal from '../../components/pdf-preview-modal/pdf-preview-modal';
 
 const SOWList = () => {
   const [error, setError] = useState(null);
@@ -16,6 +17,8 @@ const SOWList = () => {
   const [reload, setReload] = useState(false);
   const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [selectedDocumentUrl, setSelectedDocumentUrl] = useState(null);
   
   // Debounced search functionality
   const handleSearch = useCallback((debouncedSearchTerm) => {
@@ -23,6 +26,19 @@ const SOWList = () => {
   }, []);
   
   const { searchTerm, debouncedSearchTerm, handleSearchChange, clearSearch } = useDebouncedSearch('', handleSearch, 500);
+
+  const handleViewDocument = useCallback((documentName) => {
+    if (!documentName) return;
+
+    const url = api.documents.getUrl(documentName);
+    setSelectedDocumentUrl(url);
+    setShowPdfModal(true);
+  }, [api]);
+
+  const handleClosePdfModal = useCallback(() => {
+    setShowPdfModal(false);
+    setSelectedDocumentUrl(null);
+  }, []);
 
   const handleDelete = async () => {
     if (!sowToDelete) return;
@@ -90,6 +106,10 @@ const SOWList = () => {
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
             <Dropdown.Menu align="end">
+              <Dropdown.Item className="d-flex align-items-center gap-1" onClick={() => handleViewDocument(row.original.document)} disabled={!row.original.document}>
+                <i className="fas fa-eye me-2" style={{ color: 'var(--bs-primary)' }}></i>
+                View
+              </Dropdown.Item>
               <Dropdown.Item className="d-flex align-items-center gap-1" href={`${api.documents.getUrl(row.original.document)}`} target="_blank" rel="noopener noreferrer">
                 <i className="fas fa-download me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 Download
@@ -109,7 +129,7 @@ const SOWList = () => {
          
       },
     ],
-    []
+    [handleViewDocument]
   );
 
   const fetchSOWs = async (skip, limit, sortBy, search) => {
@@ -167,6 +187,11 @@ const SOWList = () => {
         show={showCreateSOWModal} 
         onHide={() => setShowCreateSOWModal(false)} 
         
+      />
+      <PdfPreviewModal
+        show={showPdfModal}
+        handleClose={handleClosePdfModal}
+        fileUrl={selectedDocumentUrl}
       />
     </div>
   );
