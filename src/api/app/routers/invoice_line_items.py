@@ -43,6 +43,29 @@ async def list_invoice_line_items(invoice_id: int = -1, skip: int = 0, limit: in
 
     return ListResponse[InvoiceLineItem](data=items, total = total, skip = skip, limit = limit)
 
+@router.get("/milestones/{invoice_id}", response_model=list[str])
+async def get_milestones_for_invoice(invoice_id: int, pool = Depends(get_db_connection_pool)):
+    """Retrieves all milestone names from the SOW associated with this invoice."""
+    async with pool.acquire() as conn:
+        # Get all milestone names from the invoice's SOW
+        rows = await conn.fetch('''
+            SELECT m.name 
+            FROM milestones m
+            INNER JOIN invoices i ON i.sow_id = m.sow_id
+            WHERE i.id = $1
+            ORDER BY m.name;
+        ''', invoice_id)
+        
+        if not rows:
+            invoice_exists = await conn.fetchval('SELECT EXISTS(SELECT 1 FROM invoices WHERE id = $1);', invoice_id)
+            if not invoice_exists:
+                raise HTTPException(status_code=404, detail=f'Invoice with id {invoice_id} not found.')
+            return []
+        
+        milestone_names = [row['name'] for row in rows]
+    
+    return milestone_names
+
 @router.get("/{id}", response_model=InvoiceLineItem)
 async def get_by_id(id: int, pool = Depends(get_db_connection_pool)):
     """Retrieves a invoice_line_item by ID from the database."""
