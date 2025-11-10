@@ -27,9 +27,9 @@ To be able to complete this solution accelerator, you will need:
     - Before selecting an Azure region:
       - Review the regional availability guidance for the [gpt-4o](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-chat-completions#standard-models-by-endpoint) and [text-embedding-ada-002](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-embeddings#standard-models-by-endpoint) models in Azure OpenAI.
         - Select a region that **supports the Azure OpenAI `gpt-4o` and `text-embedding-ada-002` models**.
-        - Ensure you have **at least 10K TPMs of `Standard` capacity available in the region** for both the `gpt-4o` and `text-embedding-ada-002` models. Follow [these instructions](https://learn.microsoft.com/azure/ai-services/openai/how-to/quota?tabs=rest#view-and-request-quota) to check your available quota.
+        - Ensure you have **at least 25K TPMs of `Standard` capacity available in the region** for  `gpt-4o` and 10K TPMs of `text-embedding-ada-002` models. Follow [these instructions](https://learn.microsoft.com/azure/ai-services/openai/how-to/quota?tabs=rest#view-and-request-quota) to check your available quota.
 
-    You must choose a region that supports **both Azure OpenAI models**, has at least 10K TPM of `Standard` capacity for both models.
+    You must choose a region that supports **both Azure OpenAI models**, has at least 25K TPM of `Standard` capacity for  `gpt-4o` and 10k for `text-embedding-ada-002` model.
 
     !!! danger "Choosing a region that doesn't support both Azure OpenAI models will result in deployment failure when running `azd up`."
 
