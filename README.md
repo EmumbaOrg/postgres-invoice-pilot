@@ -159,7 +159,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 2. Make sure that you have enough Azure OpenAI model quota in the region of deployment. **The `azd` workflow automatically filters and shows the region where the Azure OpenAI quota is available.** The Azure OpenAI quota required for `GlobalStandard` **deployment type** for this solution is listed below. 
 
-    - **`GlobalStandard` GPT-4o:** 10K TPM 
+    - **`GlobalStandard` GPT-4o:** 25K TPM 
     - **`GlobalStandard` text-embedding-ada-002:** 10K TPM
 
     ```sh
@@ -167,7 +167,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
       azd: {
         type: 'location'
         usageName : [
-          'OpenAI.GlobalStandard.gpt-4o, 10'
+          'OpenAI.GlobalStandard.gpt-4o, 25'
           'OpenAI.Standard.text-embedding-ada-002, 10'
         ]
       }

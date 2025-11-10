@@ -23,7 +23,7 @@ param environmentName string
   azd: {
     type: 'location'
     usageName : [
-      'OpenAI.Standard.gpt-4o, 10'
+      'OpenAI.Standard.gpt-4o, 25'
       'OpenAI.Standard.text-embedding-ada-002, 10'
     ]
   }
@@ -298,7 +298,7 @@ module openAi './shared/openai.bicep' = if (deployOpenAi) {
         name: 'completions'
         sku: {
           name: 'Standard'
-          capacity: 10
+          capacity: 25
         }
         model: {
           name: 'gpt-4o'
