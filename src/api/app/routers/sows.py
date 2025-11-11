@@ -5,8 +5,9 @@ from app.lifespan_manager import (
     get_activity_log_service,
     get_genai_provider,
     get_prompt_service,
+    get_age_graph_service
 )
-from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult
+from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult, SowGraphData
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from datetime import datetime, timedelta
 from pydantic import parse_obj_as
@@ -81,7 +82,8 @@ async def analyze_sow(
     doc_intelligence_service = Depends(get_azure_doc_intelligence_service),
     genai_provider = Depends(get_genai_provider),
     prompt_service = Depends(get_prompt_service),
-    activity_service = Depends(get_activity_log_service)
+    activity_service = Depends(get_activity_log_service),
+    age_graph_service = Depends(get_age_graph_service)
 ):
     """Analyze a SOW document and create a new SOW in the database."""
     try:
@@ -139,7 +141,7 @@ async def analyze_sow(
             async with pool.acquire() as conn:
                 sow_id = await conn.fetchval('SELECT id FROM sows WHERE vendor_id = $1 AND number = $2;', vendor_id, sow_number)
                
-        # Create SOW in the database
+        # Create SOW in the database and age graph
         async with pool.acquire() as conn:
             if sow_id is None:
                 # Create new SOW
@@ -152,6 +154,21 @@ async def analyze_sow(
                     RETURNING *;
                 ''', sow_number, start_date, end_date, budget, documentName, json.dumps(metadata), full_text, vendor_id)
                 sow_id = sow_row['id']
+
+                print("\nCreating SOW in AGE graph...\n")
+                # Add SOW vertex to the Age graph
+                await age_graph_service.add_sow(
+                    conn=conn,
+                    sow_data = SowGraphData(
+                        id=sow_id,
+                        number=sow_number,
+                        vendor_id=vendor_id,
+                        start_date=start_date,
+                        end_date=end_date,
+                        budget=budget
+                        )                        
+                )
+
             else:
                 # Update existing SOW with new document
                 sow_row = await conn.fetchrow('''

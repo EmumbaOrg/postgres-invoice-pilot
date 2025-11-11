@@ -6,7 +6,8 @@ from app.services import (
     DatabaseService,
     PromptService,
     StorageService,
-    ActivityLogService
+    ActivityLogService,
+    AgeGraphService,
 )
 from azure.identity.aio import DefaultAzureCredential
 from azure.core.credentials import AzureKeyCredential
@@ -32,6 +33,8 @@ prompt_service = None
 activity_log_service = None
 # Create a global GenAI provider
 genai_provider = None
+#create a global AgeGraphService
+age_graph_service = None
 
 @asynccontextmanager
 async def lifespan(app):
@@ -45,6 +48,7 @@ async def lifespan(app):
     global prompt_service
     global activity_log_service
     global genai_provider
+    global age_graph_service
 
     # Create an async Microsoft Entra ID RBAC credential
     credential = DefaultAzureCredential()
@@ -81,6 +85,9 @@ async def lifespan(app):
     # Create a prompt service
     prompt_service = PromptService()
 
+    # Create an AgeGraphService
+    age_graph_service = AgeGraphService()
+
     yield
 
     # Close the database connection
@@ -116,3 +123,6 @@ async def get_activity_log_service():
 
 async def get_genai_provider() -> FrameworkProviderBase:
     return genai_provider
+
+async def get_age_graph_service():
+    return age_graph_service
