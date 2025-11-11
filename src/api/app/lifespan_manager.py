@@ -86,6 +86,12 @@ async def lifespan(app):
     # Close the database connection
     await db.close()
 
+    # Close the storage service
+    await storage_service.close()
+
+    # Close the document intelligence service
+    await doc_intelligence_service.close()
+
     # Close the ConfigService
     await config_service.close()
 

@@ -2,52 +2,63 @@ from azure.identity.aio import DefaultAzureCredential
 from azure.storage.blob.aio import BlobServiceClient
 from azure.storage.blob import ContentSettings
 from fastapi import UploadFile
+import asyncio
 
 class StorageService:
     def __init__(self, credential: DefaultAzureCredential, storage_account_name: str, container_name: str):
         self.credential = credential
         self.storage_account_name = storage_account_name
         self.container_name = container_name
+        self._blob_service_client = None
+        self._client_lock = asyncio.Lock()
 
-    async def __get_blob_service_client(self):
+    async def close(self):
+        """Close the blob service client."""
+        if self._blob_service_client:
+            await self._blob_service_client.close()
+            self._blob_service_client = None
+
+    async def _get_blob_service_client(self):
         """
         Retrieves a blob service client.
         """
-        account_blob_endpoint = f"https://{self.storage_account_name}.blob.core.windows.net/"
-        return BlobServiceClient(account_url=account_blob_endpoint, credential=self.credential)
+        if self._blob_service_client is None:
+            async with self._client_lock:
+                # Double-check pattern to avoid race conditions
+                if self._blob_service_client is None:
+                    account_blob_endpoint = f"https://{self.storage_account_name}.blob.core.windows.net/"
+                    self._blob_service_client = BlobServiceClient(
+                        account_url=account_blob_endpoint, 
+                        credential=self.credential
+                    )
+        return self._blob_service_client
 
     async def get_container_client(self, container_name: str):
         """
         Retrieves a container client.
+        Note: The returned client shares the same connection as the service client.
         """
-        blob_service_client = await self.__get_blob_service_client()
-        result = blob_service_client.get_container_client(container_name)
-        await blob_service_client.close()
-        return result
+        blob_service_client = await self._get_blob_service_client()
+        return blob_service_client.get_container_client(container_name)
 
     async def get_blob_client(self, container: str, blob: str):
         """
         Retrieves a blob client.
+        Note: The returned client shares the same connection as the service client.
         """
-        blob_service_client = await self.__get_blob_service_client()
-        result = blob_service_client.get_blob_client(container=container, blob=blob)
-        await blob_service_client.close()
-        return result
+        blob_service_client = await self._get_blob_service_client()
+        return blob_service_client.get_blob_client(container=container, blob=blob)
 
     async def download_blob(self, blobName: str):
         """
         Downloads a blob from Azure Blob Storage.
         """
-        blob_service_client = await self.__get_blob_service_client()
-
+        blob_service_client = await self._get_blob_service_client()
         result = None
-        
         blob_client = blob_service_client.get_blob_client(container=self.container_name, blob=blobName)
         if await blob_client.exists():
             stream = await blob_client.download_blob()
             result = await stream.readall()
-        
-        await blob_service_client.close()
 
         return result
 
@@ -57,18 +68,16 @@ class StorageService:
         """
         Saves a file to Azure Blob Storage.
         """
-        blob_service_client = await self.__get_blob_service_client()
+        blob_service_client = await self._get_blob_service_client()
         
         blob_client = blob_service_client.get_blob_client(container=self.container_name, blob=blobName)
 
         content_settings = ContentSettings(
-                content_type=file.content_type,
-                content_disposition=f'attachment; filename="{file.filename}"'
-            )
+            content_type=file.content_type,
+            content_disposition=f'attachment; filename="{file.filename}"'
+        )
 
         await blob_client.upload_blob(file.file.read(), overwrite=True, content_settings=content_settings)
-
-        await blob_service_client.close()
 
         return blobName
 
@@ -96,8 +105,7 @@ class StorageService:
         """
         Deletes a document from Azure Blob Storage.
         """
-        blob_service_client = await self.__get_blob_service_client()
+        blob_service_client = await self._get_blob_service_client()
         blob_client = blob_service_client.get_blob_client(container=self.container_name, blob=blobName)
         if await blob_client.exists():
             await blob_client.delete_blob()
-        await blob_service_client.close()
