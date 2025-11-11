@@ -183,6 +183,19 @@ async def analyze_sow(
                     RETURNING *;
                 ''', start_date, end_date, budget, documentName, json.dumps(metadata), full_text, sow_id)
 
+                # update SOW vertex in the Age graph
+                await age_graph_service.update_sow(
+                    conn=conn,
+                    sow_data = SowGraphData(
+                        id=sow_id,
+                        number=sow_number,
+                        vendor_id=vendor_id,
+                        start_date=start_date,
+                        end_date=end_date,
+                        budget=budget
+                        )
+                )
+
             # Insert milestones and deliverables into the database
             try:
                 milestone_ids = {}
@@ -271,7 +284,7 @@ async def analyze_sow(
 
 
 @router.put("/{sow_id}", response_model=Sow)
-async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service)):
+async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), age_graph_service = Depends(get_age_graph_service)):
     """Updates a SOW in the database."""
     async with pool.acquire() as conn:
         sow = await get_by_id(sow_id, pool)
@@ -292,10 +305,24 @@ async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_con
             WHERE id = $6
             RETURNING *;''',
             sow.number, sow.start_date, sow.end_date, sow.budget, sow.vendor_id, sow_id)
+        
         if row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {sow_id} was not found.')
         updated_sow = parse_obj_as(Sow, dict(row))
     
+        # update SOW vertex in the Age graph
+        await age_graph_service.update_sow(
+            conn=conn,
+            sow_data = SowGraphData(
+                id=updated_sow.id,
+                number=updated_sow.number,
+                vendor_id=updated_sow.vendor_id,
+                start_date=updated_sow.start_date,
+                end_date=updated_sow.end_date,
+                budget=updated_sow.budget
+                )
+        )
+
     # Log the activity
     await activity_service.log_activity(
         action="updated",
@@ -307,7 +334,7 @@ async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_con
     return updated_sow
 
 @router.delete("/{id}", response_model=Sow)
-async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_service = Depends(get_activity_log_service)):
+async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_service = Depends(get_activity_log_service), age_graph_service = Depends(get_age_graph_service)):
     """Deletes a SOW from the database."""   
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
@@ -320,7 +347,13 @@ async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_se
 
         # Delete the SOW
         await conn.execute('DELETE FROM sows WHERE id = $1;', id)
-    
+
+        # delete SOW vertex from the Age graph
+        await age_graph_service.delete_sow(
+            conn=conn,
+            sow_id = sow.id
+        )    
+
     # Log the activity
     await activity_service.log_activity(
         action="deleted",
