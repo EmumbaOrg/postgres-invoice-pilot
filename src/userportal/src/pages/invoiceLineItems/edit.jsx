@@ -11,11 +11,11 @@ const InvoiceLineItemEdit = () => {
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
     const [status, setStatus] = useState('');
+    const [statusOptions, setStatusOptions] = useState([]);
     const [dueDate, setDueDate] = useState('');
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     
-    const [statuses, setStatuses] = useState([]);
     const [invoices, setInvoices] = useState([]);
     const [milestones, setMilestones] = useState([]);
     const [milestone, setMilestone] = useState('');
@@ -35,7 +35,8 @@ const InvoiceLineItemEdit = () => {
         const fetchStatuses = async () => {
         try {
             const data = await api.statuses.list();
-            setStatuses(data);
+            const options = (data || []).map((s) => ({ value: s.name, label: s.name }));
+            setStatusOptions(options);
         } catch (err) {
             setError('Failed to load statuses');
         }
@@ -171,8 +172,8 @@ const InvoiceLineItemEdit = () => {
             <Form.Group className="mb-3">
                 <Form.Label>Status</Form.Label>
                 <SelectFormField
-                  options={statuses.map(s => ({ value: s.id, label: s.name }))}
-                  value={statuses.find(s => s.id == status) ? { value: status, label: (statuses.find(s => s.id == status) || {}).name } : null}
+                  options={statusOptions}
+                  value={status ? { value: status, label: status } : null}
                   onChange={(opt) => setStatus(opt?.value || '')}
                   placeholder="Select Status"
                   isSearchable
