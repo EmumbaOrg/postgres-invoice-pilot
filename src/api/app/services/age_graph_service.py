@@ -76,14 +76,14 @@ class AgeGraphService:
             print(f"Error deleting vendor vertex from graph: {e}")
             return False
         
-     async def update_vendor(self, conn, vendor_data: VendorGraphData) -> bool:
+    async def update_vendor(self, conn, vendor_data: VendorGraphData) -> bool:
         """
         Update a vendor vertex in the Apache AGE graph.
-        
+
         Args:
             conn: Database connection
             vendor_data: VendorGraphData schema with updated vendor information
-        
+
         Returns:
             bool: True if successful, False otherwise
         """
@@ -112,13 +112,12 @@ class AgeGraphService:
             sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
             await self._execute_graph_query(conn, sql)
             
-            print(f"Updated vendor vertex with id {vendor_data.id}")
             return True
             
         except Exception as e:
             print(f"Error updating vendor vertex in graph: {e}")
             return False   
-    
+
     # ==================== SOW OPERATIONS ====================
     
     async def add_sow(self, conn, sow_data: SowGraphData) -> bool:
@@ -181,7 +180,6 @@ class AgeGraphService:
             bool: True if successful, False otherwise
         """
         try:
-            print(f"\nUpdating SOW in AGE graph...\n")
             # Convert date objects to strings for AGE compatibility
             start_date = sow_data.start_date.isoformat()
             end_date = sow_data.end_date.isoformat()
@@ -202,7 +200,6 @@ class AgeGraphService:
             sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
             await self._execute_graph_query(conn, sql)
             
-            print(f"\nUpdated SOW vertex with id {sow_data.id}\n")
             return True
             
         except Exception as e:
@@ -290,7 +287,6 @@ class AgeGraphService:
             sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
             await self._execute_graph_query(conn, sql)
             
-            print(f"Updated has_invoices relationship for invoice id {invoice_data.id}")
             return True
             
         except Exception as e:
