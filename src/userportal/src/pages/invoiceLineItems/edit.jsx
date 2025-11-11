@@ -11,12 +11,14 @@ const InvoiceLineItemEdit = () => {
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
     const [status, setStatus] = useState('');
+    const [statusOptions, setStatusOptions] = useState([]);
     const [dueDate, setDueDate] = useState('');
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     
-    const [statuses, setStatuses] = useState([]);
     const [invoices, setInvoices] = useState([]);
+    const [milestones, setMilestones] = useState([]);
+    const [milestone, setMilestone] = useState('');
     
     useEffect(() => {
         // Fetch data when component mounts
@@ -33,7 +35,8 @@ const InvoiceLineItemEdit = () => {
         const fetchStatuses = async () => {
         try {
             const data = await api.statuses.list();
-            setStatuses(data);
+            const options = (data || []).map((s) => ({ value: s.name, label: s.name }));
+            setStatusOptions(options);
         } catch (err) {
             setError('Failed to load statuses');
         }
@@ -50,20 +53,55 @@ const InvoiceLineItemEdit = () => {
         };
         fetchInvoices();
     }, [id]);
+
+    useEffect(() => {
+        const fetchMilestones = async () => {
+            if (!invoiceId) {
+                setMilestones([]);
+                return;
+            }
+            try {
+                const data = await api.invoiceLineItems.getMilestones(invoiceId);
+                setMilestones(data || []);
+            } catch (err) {
+                if (err?.status === 404) {
+                    setMilestones([]);
+                    return;
+                }
+                setError('Failed to load milestones');
+            }
+        };
+        fetchMilestones();
+    }, [invoiceId]);
     
     const updateDisplay = (data) => {
         setInvoiceId(data.invoice_id);
         setDescription(data.description);
         setAmount(data.amount);
         setStatus(data.status);
-        setDueDate(data.due_date);
+        setDueDate(data.due_date || '');
+        setMilestone(data.milestone_of_line_item || '');
+    };
+
+    const handleInvoiceChange = (opt) => {
+        const selectedInvoiceId = opt?.value || '';
+        setInvoiceId(selectedInvoiceId);
+        setMilestones([]);
+        setMilestone('');
+        setError((prev) => (prev === 'Please select a milestone' ? null : prev));
     };
     
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!milestone) {
+            setError('Please select a milestone');
+            setSuccess(null);
+            return;
+        }
         try {
         var data = {
             invoice_id: invoiceId,
+            milestone_of_line_item: milestone,
             description: description,
             amount: amount,
             status: status,
@@ -88,11 +126,25 @@ const InvoiceLineItemEdit = () => {
         {success && <div className="alert alert-success">{success}</div>}
         <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
+                <Form.Label>Milestone</Form.Label>
+                <SelectFormField
+                  options={milestones.map(name => ({ value: name, label: name }))}
+                  value={milestone ? { value: milestone, label: milestone } : null}
+                  onChange={(opt) => {
+                    const value = opt?.value || '';
+                    setMilestone(value);
+                    setError((prev) => (prev === 'Please select a milestone' ? null : prev));
+                  }}
+                  placeholder="Select Milestone"
+                  isSearchable
+                />
+            </Form.Group>
+            <Form.Group className="mb-3">
                 <Form.Label>Invoice</Form.Label>
                 <SelectFormField
                   options={invoices.map(i => ({ value: i.id, label: i.number }))}
                   value={invoices.find(i => i.id == invoiceId) ? { value: invoiceId, label: (invoices.find(i => i.id == invoiceId) || {}).number } : null}
-                  onChange={(opt) => setInvoiceId(opt?.value || '')}
+                  onChange={handleInvoiceChange}
                   placeholder="Select Invoice"
                   isSearchable
                 />
@@ -120,8 +172,8 @@ const InvoiceLineItemEdit = () => {
             <Form.Group className="mb-3">
                 <Form.Label>Status</Form.Label>
                 <SelectFormField
-                  options={statuses.map(s => ({ value: s.id, label: s.name }))}
-                  value={statuses.find(s => s.id == status) ? { value: status, label: (statuses.find(s => s.id == status) || {}).name } : null}
+                  options={statusOptions}
+                  value={status ? { value: status, label: status } : null}
                   onChange={(opt) => setStatus(opt?.value || '')}
                   placeholder="Select Status"
                   isSearchable

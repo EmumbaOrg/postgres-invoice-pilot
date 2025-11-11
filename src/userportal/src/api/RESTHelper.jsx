@@ -8,7 +8,16 @@ const RESTHelper = {
                 }
             });
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                const error = new Error('Network response was not ok');
+                error.status = response.status;
+                error.statusText = response.statusText;
+                try {
+                    const errorBody = await response.json();
+                    error.body = errorBody;
+                } catch (parseError) {
+                    // Ignore body parse errors
+                }
+                throw error;
             }
             const returnData = await response.json();
             return returnData;
