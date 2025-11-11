@@ -123,8 +123,8 @@ async def update(id: int, item: InvoiceLineItemEdit, pool = Depends(get_db_conne
     async with pool.acquire() as conn:
         await conn.execute('''
             UPDATE invoice_line_items
-            SET invoice_id = $1, description = $2, amount = $3, status = $4, due_date = $5
-            WHERE id = $6, milestone_of_line_item = $7;
+            SET invoice_id = $1, description = $2, amount = $3, status = $4, due_date = $5, milestone_of_line_item = $7
+            WHERE id = $6;
         ''', item.invoice_id, item.description, item.amount, item.status, item.due_date, id, item.milestone_of_line_item)
         row = await conn.fetchrow('SELECT * FROM invoice_line_items WHERE id = $1;', id)
         milestone = parse_obj_as(InvoiceLineItem, dict(row))
