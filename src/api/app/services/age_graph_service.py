@@ -75,6 +75,49 @@ class AgeGraphService:
         except Exception as e:
             print(f"Error deleting vendor vertex from graph: {e}")
             return False
+        
+     async def update_vendor(self, conn, vendor_data: VendorGraphData) -> bool:
+        """
+        Update a vendor vertex in the Apache AGE graph.
+        
+        Args:
+            conn: Database connection
+            vendor_data: VendorGraphData schema with updated vendor information
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Escape single quotes in string values
+            name = vendor_data.name.replace("'", "''")
+            address = vendor_data.address.replace("'", "''")
+            contact_name = vendor_data.contact_name.replace("'", "''")
+            contact_email = vendor_data.contact_email.replace("'", "''")
+            contact_phone = vendor_data.contact_phone.replace("'", "''")
+            website = vendor_data.website.replace("'", "''")
+            vendor_type = vendor_data.type.replace("'", "''")
+            
+            cypher_body = f"""
+                MATCH (v:vendor {{id: {vendor_data.id}}})
+                SET v.name = '{name}',
+                    v.address = '{address}',
+                    v.contact_name = '{contact_name}',
+                    v.contact_email = '{contact_email}',
+                    v.contact_phone = '{contact_phone}',
+                    v.website = '{website}',
+                    v.type = '{vendor_type}'
+                RETURN v
+            """
+            
+            sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
+            await self._execute_graph_query(conn, sql)
+            
+            print(f"Updated vendor vertex with id {vendor_data.id}")
+            return True
+            
+        except Exception as e:
+            print(f"Error updating vendor vertex in graph: {e}")
+            return False   
     
     # ==================== SOW OPERATIONS ====================
     
@@ -126,6 +169,46 @@ class AgeGraphService:
             print(f"Error deleting SOW vertex from graph: {e}")
             return False
     
+    async def update_sow(self, conn, sow_data: SowGraphData) -> bool:
+        """
+        Update a SOW vertex in the Apache AGE graph.
+        
+        Args:
+            conn: Database connection
+            sow_data: SowGraphData schema with updated SOW information
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            print(f"\nUpdating SOW in AGE graph...\n")
+            # Convert date objects to strings for AGE compatibility
+            start_date = sow_data.start_date.isoformat()
+            end_date = sow_data.end_date.isoformat()
+            
+            # Escape single quotes in string values
+            number = sow_data.number.replace("'", "''")
+            
+            cypher_body = f"""
+                MATCH (s:sow {{id: {sow_data.id}}})
+                SET s.number = '{number}',
+                    s.vendor_id = {sow_data.vendor_id},
+                    s.start_date = '{start_date}',
+                    s.end_date = '{end_date}',
+                    s.budget = {float(sow_data.budget)}
+                RETURN s
+            """
+            
+            sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
+            await self._execute_graph_query(conn, sql)
+            
+            print(f"\nUpdated SOW vertex with id {sow_data.id}\n")
+            return True
+            
+        except Exception as e:
+            print(f"Error updating SOW vertex in graph: {e}")
+            return False
+
     # ==================== INVOICE OPERATIONS ====================
     
     async def add_invoice(self, conn, invoice_data: InvoiceGraphData) -> bool:
@@ -175,3 +258,41 @@ class AgeGraphService:
         except Exception as e:
             print(f"Error deleting invoice relationship from graph: {e}")
             return False
+        
+    async def update_invoice(self, conn, invoice_data: InvoiceGraphData) -> bool:
+        """
+        Update an invoice (has_invoices relationship) in the Apache AGE graph.
+        
+        Args:
+            conn: Database connection
+            invoice_data: InvoiceGraphData schema with updated invoice information
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Convert date objects to strings for AGE compatibility
+            invoice_date = invoice_data.invoice_date.isoformat()
+            
+            # Escape single quotes in string values
+            number = invoice_data.number.replace("'", "''")
+            payment_status = invoice_data.payment_status.replace("'", "''")
+            
+            cypher_body = f"""
+                MATCH ()-[r:has_invoices {{id: {invoice_data.id}}}]->()
+                SET r.number = '{number}',
+                    r.amount = {float(invoice_data.amount)},
+                    r.invoice_date = '{invoice_date}',
+                    r.payment_status = '{payment_status}'
+                RETURN r
+            """
+            
+            sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
+            await self._execute_graph_query(conn, sql)
+            
+            print(f"Updated has_invoices relationship for invoice id {invoice_data.id}")
+            return True
+            
+        except Exception as e:
+            print(f"Error updating invoice relationship in graph: {e}")
+            return False    
