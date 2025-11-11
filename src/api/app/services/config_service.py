@@ -4,6 +4,9 @@ from azure.keyvault.secrets.aio import SecretClient
 from azure.core.exceptions import ResourceNotFoundError
 import os
 import json
+import asyncio
+from typing import Dict
+from urllib.parse import urlparse
 
 # Usage example:
 # appConfig = AppConfig(os.getenv("AZURE_KEY_VAULT_NAME"))
@@ -19,9 +22,35 @@ class ConfigService:
             self.app_config_endpoint = os.getenv("AZURE_APP_CONFIG_ENDPOINT")
         
         self.client = AzureAppConfigurationClient(self.app_config_endpoint, credential=self.credential)
+        
+        # Cache for Key Vault clients to avoid creating them repeatedly
+        self._keyvault_clients: Dict[str, SecretClient] = {}
+        self._client_lock = asyncio.Lock()
 
     async def close(self):
-        await self.client.close()
+        """Close all clients and clean up resources."""
+        if self.client:
+            await self.client.close()
+            
+        # Close all cached Key Vault clients
+        for vault_client in self._keyvault_clients.values():
+            if vault_client:
+                await vault_client.close()
+        self._keyvault_clients.clear()
+
+    async def _get_keyvault_client(self, vault_url: str) -> SecretClient:
+        """
+        Get or create a cached Key Vault client for the specified vault URL.
+        """
+        if vault_url not in self._keyvault_clients:
+            async with self._client_lock:
+                # Double-check pattern to avoid race conditions
+                if vault_url not in self._keyvault_clients:
+                    self._keyvault_clients[vault_url] = SecretClient(
+                        vault_url=vault_url, 
+                        credential=self.credential
+                    )
+        return self._keyvault_clients[vault_url]
 
     async def __get_setting(self, key: str) -> str:
         try:
@@ -31,16 +60,23 @@ class ConfigService:
 
             if setting.content_type == "application/vnd.microsoft.appconfig.keyvaultref+json;charset=utf-8":
                 # Load value from Key Vault
-                key_vault_reference_json = json.loads(value)
-                key_vault_url = key_vault_reference_json["uri"]
-                key_vault_client = SecretClient(vault_url=f"https://{key_vault_url.split('/')[2]}", credential=self.credential)
-                secret_name = key_vault_url.split('/')[-1]
-                secret = await key_vault_client.get_secret(secret_name)
-                value = secret.value
-                await key_vault_client.close()
+                try:
+                    key_vault_reference_json = json.loads(value)
+                    key_vault_url = key_vault_reference_json["uri"]
+                    key_vault_client = SecretClient(vault_url=f"https://{key_vault_url.split('/')[2]}", credential=self.credential)
+                    secret_name = key_vault_url.split('/')[-1]
+                    secret = await key_vault_client.get_secret(secret_name)
+                    value = secret.value
+                except (json.JSONDecodeError, KeyError, ValueError) as e:
+                    print(f"Failed to parse Key Vault reference for setting '{key}': {e}")
+                    raise Exception(f"Invalid Key Vault reference format for setting '{key}'")
+                except Exception as e:
+                    print(f"Failed to retrieve Key Vault secret for setting '{key}': {e}")
+                    raise Exception(f"Failed to retrieve Key Vault secret for setting '{key}': {e}")
 
             return value
         except ResourceNotFoundError:
+            print(f"Setting '{key}' not found in Azure App Configuration")
             raise Exception(f"Setting '{key}' not found in Azure App Configuration.")
 
     async def get_openai_endpoint(self) -> str:
