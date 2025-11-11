@@ -1,9 +1,10 @@
 import RESTHelper from './RESTHelper';
 
-const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://localhost:8000';
+const APIUrl = (import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://localhost:8000').replace(/\/+$/, '');
 
 const getUrl = (url) => {
-    return `${APIUrl}${url}`;
+    const normalizedPath = url.startsWith('/') ? url : `/${url}`;
+    return `${APIUrl}${normalizedPath}`;
 };
 
 /* *************** */
@@ -186,6 +187,12 @@ const Api = {
         },
         get: async (id) => {
             return await RESTHelper.get(getUrl(`/invoice_line_items/${id}`));
+        },
+        getMilestones: async (invoiceId) => {
+            if (!invoiceId) {
+                return [];
+            }
+            return await RESTHelper.get(getUrl(`/invoice_line_items/milestones/${invoiceId}`));
         },
         create: async (data) => {
             console.info('Creating invoice line item');
