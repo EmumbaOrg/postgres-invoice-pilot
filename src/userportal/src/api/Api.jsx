@@ -1,6 +1,6 @@
 import RESTHelper from './RESTHelper';
 
-const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://localhost:8000';
+const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://localhost:8000/';
 
 const getUrl = (url) => {
     return `${APIUrl}${url}`;
@@ -12,31 +12,31 @@ const getUrl = (url) => {
 
 const Api = {
     getStatus: async () => {
-        return await RESTHelper.get(getUrl(`/status`));
+        return await RESTHelper.get(getUrl(`status`));
     },
     completions: {
         chat: async (session_id, message) => {
-            return await RESTHelper.post(getUrl(`/completions/chat`), {
+            return await RESTHelper.post(getUrl(`completions/chat`), {
                 session_id,
                 message
             });
         },
         getHistory: async (session_id) => {
-            return await RESTHelper.get(getUrl(`/completions/history/${session_id}`));
+            return await RESTHelper.get(getUrl(`completions/history/${session_id}`));
         },
         getSessions: async() => {
-            return await RESTHelper.get(getUrl(`/completions/sessions`));
+            return await RESTHelper.get(getUrl(`completions/sessions`));
         },
         deleteSession: async(session_id) => {
-            return await RESTHelper.delete(getUrl(`/completions/sessions/${session_id}`));
+            return await RESTHelper.delete(getUrl(`completions/sessions/${session_id}`));
         }
     },
     deliverables: {
         list: async (milestoneId = -1, skip = 0, limit = 10, sortBy = '') => {
-            return await RESTHelper.get(getUrl(`/deliverables?milestone_id=${milestoneId}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
+            return await RESTHelper.get(getUrl(`deliverables/?milestone_id=${milestoneId}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
         },
         get: async (id) => {
-            return await RESTHelper.get(getUrl(`/deliverables/${id}`));
+            return await RESTHelper.get(getUrl(`deliverables/${id}`));
         },
         create: async (id, data) => {       
             console.info('Creating deliverable:');
@@ -49,7 +49,7 @@ const Api = {
             }
         
             try {
-                const response = await fetch(getUrl(`/deliverables`), {
+                const response = await fetch(getUrl(`deliverables/`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -64,21 +64,21 @@ const Api = {
             }
         },
         update: async (id, data) => {
-            return await RESTHelper.update(getUrl(`/deliverables/${id}`), data);
+            return await RESTHelper.update(getUrl(`deliverables/${id}`), data);
         },
         delete: async (id) => {
-            return await RESTHelper.delete(getUrl(`/deliverables/${id}`));
+            return await RESTHelper.delete(getUrl(`deliverables/${id}`));
         }
     },
     documents: {
         list: async () => {
-            return await RESTHelper.get(getUrl(`/documents`));
+            return await RESTHelper.get(getUrl(`documents`));
         },
         getUrl: (blobName) => {
-            return getUrl(`/documents/${blobName}`);
+            return getUrl(`documents/${blobName}`);
         },
         get: async (createdAt) =>{
-            return await RESTHelper.get(getUrl(`/documents?sort_by=${createdAt}`));
+            return await RESTHelper.get(getUrl(`documents/?sort_by=${createdAt}`));
         },
         upload: async (file) => {
             if (!file) return;
@@ -89,7 +89,7 @@ const Api = {
             formData.append('file', file);
         
             try {
-                const response = await fetch(getUrl(`/documents`), {
+                const response = await fetch(getUrl(`documents`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -104,7 +104,7 @@ const Api = {
         },
         delete: async (blobName) => {
             try {
-                const response = await fetch(getUrl(`/documents/${blobName}`), {
+                const response = await fetch(getUrl(`documents/${blobName}`), {
                     method: 'DELETE',
                 });
                 if (!response.ok) {
@@ -119,15 +119,15 @@ const Api = {
     },
     activities: {
         getRecent: async (limit = 3) => {
-            return await RESTHelper.get(getUrl(`/activity_logs?limit=${limit}`));
+            return await RESTHelper.get(getUrl(`activity_logs/?limit=${limit}`));
         },
     },
     invoices: {
         list: async (vendor_id = -1, skip = 0, limit = 10, sortBy = '') => {
-            return await RESTHelper.get(getUrl(`/invoices?vendor_id=${vendor_id}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
+            return await RESTHelper.get(getUrl(`invoices/?vendor_id=${vendor_id}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
         },
         get: async (id) => {
-            return await RESTHelper.get(getUrl(`/invoices/${id}`));
+            return await RESTHelper.get(getUrl(`invoices/${id}`));
         },
         analyze: async (file, data) => {
             if (!file) return;
@@ -141,7 +141,7 @@ const Api = {
             }
 
             try {
-                const response = await fetch(getUrl(`/invoices/`), {
+                const response = await fetch(getUrl(`invoices/`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -161,7 +161,7 @@ const Api = {
             console.info('Validating invoice:', id);
             
             try {
-                const response = await fetch(getUrl(`/validation/invoice/${id}`), {
+                const response = await fetch(getUrl(`validation/invoice/${id}`), {
                     method: 'POST',
                 });
                 if (!response.ok) {
@@ -174,18 +174,18 @@ const Api = {
             }
         },                
         update: async (id, data) => {
-            return await RESTHelper.update(getUrl(`/invoices/${id}`), data);
+            return await RESTHelper.update(getUrl(`invoices/${id}`), data);
         },
         delete: async (id) => {
-            return await RESTHelper.delete(getUrl(`/invoices/${id}`));
+            return await RESTHelper.delete(getUrl(`invoices/${id}`));
         }
     },
     invoiceLineItems: {
         list: async (invoiceId = -1, skip = 0, limit = 10, sortBy = '') => {
-            return await RESTHelper.get(getUrl(`/invoice_line_items?invoice_id=${invoiceId}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
+            return await RESTHelper.get(getUrl(`invoice_line_items/?invoice_id=${invoiceId}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
         },
         get: async (id) => {
-            return await RESTHelper.get(getUrl(`/invoice_line_items/${id}`));
+            return await RESTHelper.get(getUrl(`invoice_line_items/${id}`));
         },
         create: async (data) => {
             console.info('Creating invoice line item');
@@ -196,7 +196,7 @@ const Api = {
             }
         
             try {
-                const response = await fetch(getUrl(`/invoice_line_items`), {
+                const response = await fetch(getUrl(`invoice_line_items`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -211,18 +211,18 @@ const Api = {
             }
         },
         update: async (id, data) => {
-            return await RESTHelper.update(getUrl(`/invoice_line_items/${id}`), data);
-        },
+            return await RESTHelper.update(getUrl(`invoice_line_items/${id}`), data);
+        },  
         delete: async (id) => {
-            return await RESTHelper.delete(getUrl(`/invoice_line_items/${id}`));
+            return await RESTHelper.delete(getUrl(`invoice_line_items/${id}`));
         }
     },
     milestones: {
         list: async (sowId = -1, skip = 0, limit = 10, sortBy = '') => {
-            return await RESTHelper.get(getUrl(`/milestones?sow_id=${sowId}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
+            return await RESTHelper.get(getUrl(`milestones/?sow_id=${sowId}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
         },
         get: async (id) => {
-            return await RESTHelper.get(getUrl(`/milestones/${id}`));
+            return await RESTHelper.get(getUrl(`milestones/${id}`));
         },
         create: async (data) => {
             console.info('Creating milestone');
@@ -233,7 +233,7 @@ const Api = {
             }
         
             try {
-                const response = await fetch(getUrl(`/milestones`), {
+                const response = await fetch(getUrl(`milestones`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -248,18 +248,18 @@ const Api = {
             }
         },
         update: async (id, data) => {
-            return await RESTHelper.update(getUrl(`/milestones/${id}`), data);
+            return await RESTHelper.update(getUrl(`milestones/${id}`), data);
         },
         delete: async (id) => {
-            return await RESTHelper.delete(getUrl(`/milestones/${id}`));
+            return await RESTHelper.delete(getUrl(`milestones/${id}`));
         }
     },
     sows: {
         list: async (vendor_id = -1, skip = 0, limit = 10, sortBy = '') => {
-            return await RESTHelper.get(getUrl(`/sows?vendor_id=${vendor_id}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
+            return await RESTHelper.get(getUrl(`sows/?vendor_id=${vendor_id}&skip=${skip}&limit=${limit}&sortby=${sortBy}`));
         },
         get: async (id) => {
-            return await RESTHelper.get(getUrl(`/sows/${id}`));
+            return await RESTHelper.get(getUrl(`sows/${id}`));
         },
         analyze: async(file, data) => {
             if (!file) return;
@@ -273,7 +273,7 @@ const Api = {
             }
 
             try {
-                const response = await fetch(getUrl(`/sows/`), {
+                const response = await fetch(getUrl(`sows/`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -291,7 +291,7 @@ const Api = {
             console.info('Validating SOW:', id);
         
             try {
-                const response = await fetch(getUrl(`/validation/sow/${id}`), {
+                const response = await fetch(getUrl(`validation/sow/${id}`), {
                     method: 'POST',
                 });
                 if (!response.ok) {
@@ -304,39 +304,39 @@ const Api = {
             }
         },
         update: async (id, data) => {
-            return await RESTHelper.update(getUrl(`/sows/${id}`), data);
+            return await RESTHelper.update(getUrl(`sows/${id}`), data);
         },
         delete: async (id) => {
-            return await RESTHelper.delete(getUrl(`/sows/${id}`));
+            return await RESTHelper.delete(getUrl(`sows/${id}`));
         },
         getChunks: async (id) => {
-            return await RESTHelper.get(getUrl(`/sows/${id}/chunks`));
+            return await RESTHelper.get(getUrl(`sows/${id}/chunks`));
         }
     },
     statuses: {
         list: async () => {
-            return await RESTHelper.get(getUrl(`/statuses`));
+            return await RESTHelper.get(getUrl(`statuses`));
         }
     },
     validationResults: {
         invoice: async (id) => {
-            return await RESTHelper.get(getUrl(`/validation/invoice/${id}`));
+            return await RESTHelper.get(getUrl(`validation/invoice/${id}`));
         },
         sow: async (id) => {
-            return await RESTHelper.get(getUrl(`/validation/sow/${id}`));
+            return await RESTHelper.get(getUrl(`validation/sow/${id}`));
         },
     },
     vendors: {
         list: async (skip = 0, limit = 10, sortBy = '') => {
-            return await RESTHelper.get(getUrl(`/vendors?skip=${skip}&limit=${limit}&sortby=${sortBy}`));
+            return await RESTHelper.get(getUrl(`vendors/?skip=${skip}&limit=${limit}&sortby=${sortBy}`));
         },
         get: async (id) => {
-            return await RESTHelper.get(getUrl(`/vendors/${id}`));
+            return await RESTHelper.get(getUrl(`vendors/${id}`));
         },
         create: async (data) => {
         
             try {
-                const response = await fetch(getUrl(`/vendors`), {
+                const response = await fetch(getUrl(`vendors/`), {
                     method: 'POST',
                     body: JSON.stringify(data),
                     headers: {
@@ -361,7 +361,7 @@ const Api = {
             }
         },
         delete: async (id) => {
-            return await RESTHelper.delete(getUrl(`/vendors/${id}`));
+            return await RESTHelper.delete(getUrl(`vendors/${id}`));
         }
     }
 };
