@@ -155,7 +155,6 @@ async def analyze_sow(
                 ''', sow_number, start_date, end_date, budget, documentName, json.dumps(metadata), full_text, vendor_id)
                 sow_id = sow_row['id']
 
-                print("\nCreating SOW in AGE graph...\n")
                 # Add SOW vertex to the Age graph
                 await age_graph_service.add_sow(
                     conn=conn,
@@ -349,7 +348,7 @@ async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_se
         await conn.execute('DELETE FROM sows WHERE id = $1;', id)
 
         # delete SOW vertex from the Age graph
-        await age_graph_service.delete_sow(
+        await age_graph_service.delete_sow_with_cascade(
             conn=conn,
             sow_id = sow.id
         )    

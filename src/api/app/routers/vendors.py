@@ -1,5 +1,5 @@
-from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_activity_log_service
-from app.models import Vendor, VendorEdit, ListResponse
+from app.lifespan_manager import get_db_connection_pool, get_storage_service, get_activity_log_service, get_age_graph_service
+from app.models import Vendor, VendorEdit, ListResponse, VendorGraphData
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import parse_obj_as
 
@@ -34,7 +34,7 @@ async def list_vendors(skip: int = 0, limit: int = 10, sortby: str = None, pool 
 
 
 @router.post('/', response_model=Vendor, status_code=status.HTTP_201_CREATED)
-async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service)):
+async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), age_graph_service = Depends(get_age_graph_service)):
     """Adds a new vendor to the database."""
     
     async with pool.acquire() as conn:   
@@ -57,6 +57,21 @@ async def add_vendor(vendor: VendorEdit, pool = Depends(get_db_connection_pool),
 
         if row is None:
             raise HTTPException(status_code=500, detail='Failed to add vendor.')
+
+        # add vendor vertex to AGE graph
+        await age_graph_service.add_vendor(
+            conn=conn,
+            vendor_data = VendorGraphData(
+                id=row['id'],
+                name=row['name'],
+                address=row['address'],
+                contact_name=row['contact_name'],
+                contact_email=row['contact_email'],
+                contact_phone=row['contact_phone'],
+                website=row['website'],
+                type=row['type']
+            )
+        )
 
         # Log the activity
         await activity_service.log_activity(
@@ -90,7 +105,7 @@ async def get_by_type(type: str, pool = Depends(get_db_connection_pool)):
     return vendors
 
 @router.delete('/{id:int}', status_code=204)
-async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), storage_service = Depends(get_storage_service)
+async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), storage_service = Depends(get_storage_service), age_graph_service = Depends(get_age_graph_service)
 ):
     """ Deletes a vendor and all its associated records """
 
@@ -108,6 +123,12 @@ async def delete_vendor(id: int, pool = Depends(get_db_connection_pool), activit
         if result == 'DELETE 0':
             raise HTTPException(status_code=404, detail='Vendor not found.')
         
+        # delete vendor vertex from the Age graph
+        await age_graph_service.delete_vendor_with_cascade(
+            conn=conn,
+            vendor_id = id
+        )
+
         # delete associated SOW and INVOICE files from blob storage
         for doc in sow_docs + invoice_docs:
             if doc['document']:

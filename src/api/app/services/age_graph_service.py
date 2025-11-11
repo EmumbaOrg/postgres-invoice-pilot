@@ -38,7 +38,7 @@ class AgeGraphService:
             
             cypher_body = f"""
                 CREATE (v:vendor {{
-                    id: {vendor_data.id},
+                    id: '{vendor_data.id}',
                     name: '{name}',
                     address: '{address}',
                     contact_name: '{contact_name}',
@@ -59,64 +59,40 @@ class AgeGraphService:
             print(f"Error adding vendor vertex to graph: {e}")
             return False
     
-    async def delete_vendor(self, conn, vendor_id: int) -> bool:
-        """Delete a vendor vertex and all its relationships from the Apache AGE graph."""
+    async def delete_vendor_with_cascade(self, conn, vendor_id: int) -> bool:
+        """Delete a vendor and all its associated SOWs and invoices (cascade behavior)."""
+        
         try:
-            cypher_body = f"""
-                MATCH (v:vendor {{id: {vendor_id}}})
+            # Delete all invoices associated with this vendor's SOWs
+            delete_invoices_cypher = f"""
+                MATCH (v:vendor {{id: '{vendor_id}'}})-[r:has_invoices]->()
+                DELETE r
+            """
+            
+            # Delete all SOWs associated with this vendor
+            delete_sows_cypher = f"""
+                MATCH (v:vendor {{id: '{vendor_id}'}})
+                MATCH (s:sow {{vendor_id: '{vendor_id}'}})
+                DETACH DELETE s
+            """
+            
+            # Delete the vendor itself
+            delete_vendor_cypher = f"""
+                MATCH (v:vendor {{id: '{vendor_id}'}})
                 DETACH DELETE v
             """
             
-            sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
-            await self._execute_graph_query(conn, sql)
+            # Execute all deletions in order
+            await self._execute_graph_query(conn, f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${delete_invoices_cypher}$$) AS (result agtype);""")
+            await self._execute_graph_query(conn, f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${delete_sows_cypher}$$) AS (result agtype);""")
+            await self._execute_graph_query(conn, f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${delete_vendor_cypher}$$) AS (result agtype);""")
             
             return True
             
         except Exception as e:
-            print(f"Error deleting vendor vertex from graph: {e}")
+            print(f"Error cascading delete vendor from graph: {e}")
             return False
-        
-    async def update_vendor(self, conn, vendor_data: VendorGraphData) -> bool:
-        """
-        Update a vendor vertex in the Apache AGE graph.
-
-        Args:
-            conn: Database connection
-            vendor_data: VendorGraphData schema with updated vendor information
-
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        try:
-            # Escape single quotes in string values
-            name = vendor_data.name.replace("'", "''")
-            address = vendor_data.address.replace("'", "''")
-            contact_name = vendor_data.contact_name.replace("'", "''")
-            contact_email = vendor_data.contact_email.replace("'", "''")
-            contact_phone = vendor_data.contact_phone.replace("'", "''")
-            website = vendor_data.website.replace("'", "''")
-            vendor_type = vendor_data.type.replace("'", "''")
-            
-            cypher_body = f"""
-                MATCH (v:vendor {{id: {vendor_data.id}}})
-                SET v.name = '{name}',
-                    v.address = '{address}',
-                    v.contact_name = '{contact_name}',
-                    v.contact_email = '{contact_email}',
-                    v.contact_phone = '{contact_phone}',
-                    v.website = '{website}',
-                    v.type = '{vendor_type}'
-                RETURN v
-            """
-            
-            sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
-            await self._execute_graph_query(conn, sql)
-            
-            return True
-            
-        except Exception as e:
-            print(f"Error updating vendor vertex in graph: {e}")
-            return False   
+           
 
     # ==================== SOW OPERATIONS ====================
     
@@ -132,7 +108,7 @@ class AgeGraphService:
             
             cypher_body = f"""
                 CREATE (s:sow {{
-                    id: {sow_data.id},
+                    id: '{sow_data.id}',
                     number: '{number}',
                     vendor_id: {sow_data.vendor_id},
                     start_date: '{start_date}',
@@ -141,7 +117,7 @@ class AgeGraphService:
                 }})
                 RETURN s
             """
-            
+
             sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
             await self._execute_graph_query(conn, sql)
             
@@ -151,21 +127,29 @@ class AgeGraphService:
             print(f"Error adding SOW vertex to graph: {e}")
             return False
     
-    async def delete_sow(self, conn, sow_id: int) -> bool:
-        """Delete a SOW vertex and all its relationships from the Apache AGE graph."""
+    async def delete_sow_with_cascade(self, conn, sow_id: int) -> bool:
+        """Delete a SOW and all its associated invoices (cascade behavior)."""
         try:
-            cypher_body = f"""
-                MATCH (s:sow {{id: {sow_id}}})
+            # Delete all invoices associated with this SOW
+            delete_invoices_cypher = f"""
+                MATCH ()-[r:has_invoices]->(s:sow {{id: '{sow_id}'}})
+                DELETE r
+            """
+            
+            # Delete the SOW itself
+            delete_sow_cypher = f"""
+                MATCH (s:sow {{id: '{sow_id}'}})
                 DETACH DELETE s
             """
             
-            sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
-            await self._execute_graph_query(conn, sql)
+            # Execute deletions in order
+            await self._execute_graph_query(conn, f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${delete_invoices_cypher}$$) AS (result agtype);""")
+            await self._execute_graph_query(conn, f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${delete_sow_cypher}$$) AS (result agtype);""")
             
             return True
             
         except Exception as e:
-            print(f"Error deleting SOW vertex from graph: {e}")
+            print(f"Error cascading delete SOW from graph: {e}")
             return False
     
     async def update_sow(self, conn, sow_data: SowGraphData) -> bool:
@@ -188,7 +172,7 @@ class AgeGraphService:
             number = sow_data.number.replace("'", "''")
             
             cypher_body = f"""
-                MATCH (s:sow {{id: {sow_data.id}}})
+                MATCH (s:sow {{id: '{sow_data.id}'}})
                 SET s.number = '{number}',
                     s.vendor_id = {sow_data.vendor_id},
                     s.start_date = '{start_date}',
@@ -219,9 +203,9 @@ class AgeGraphService:
             payment_status = invoice_data.payment_status.replace("'", "''")
             
             cypher_body = f"""
-                MATCH (v:vendor {{id: {invoice_data.vendor_id}}}), (s:sow {{id: {invoice_data.sow_id}}})
+                MATCH (v:vendor {{id: '{invoice_data.vendor_id}'}}), (s:sow {{id: '{invoice_data.sow_id}'}})
                 CREATE (v)-[r:has_invoices {{
-                    id: {invoice_data.id},
+                    id: '{invoice_data.id}',
                     number: '{number}',
                     amount: {float(invoice_data.amount)},
                     invoice_date: '{invoice_date}',
@@ -276,14 +260,14 @@ class AgeGraphService:
             payment_status = invoice_data.payment_status.replace("'", "''")
             
             cypher_body = f"""
-                MATCH ()-[r:has_invoices {{id: {invoice_data.id}}}]->()
+                MATCH ()-[r:has_invoices {{id: '{invoice_data.id}'}}]->()
                 SET r.number = '{number}',
                     r.amount = {float(invoice_data.amount)},
                     r.invoice_date = '{invoice_date}',
                     r.payment_status = '{payment_status}'
                 RETURN r
             """
-            
+            print(f"\nUpdating Invoice with data: {cypher_body} \n")
             sql = f"""SELECT * FROM ag_catalog.cypher('{self.graph_name}', $${cypher_body}$$) AS (result agtype);"""
             await self._execute_graph_query(conn, sql)
             
