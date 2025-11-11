@@ -82,7 +82,7 @@ class LangchainProvider(FrameworkProviderBase):
         response = await self._chat_client.ainvoke(messages)
         return response.content
     
-    async def aembed_query(self, text: str) -> str:
+    async def aembed_query(self, text: str) -> list[float]:
         embeddings = await self._embedding_client.aembed_query(text)
         return embeddings
 
