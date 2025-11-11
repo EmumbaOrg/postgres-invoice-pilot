@@ -136,7 +136,7 @@ async def analyze_invoice(
                 if sow_id is None:
                     raise HTTPException(
                         status_code=400,
-                        detail=f'Unable to process invoice: The Statement of Work (SOW) number "{sow_number}" referenced in this invoice could not be found in the system. Please ensure the SOW exists before uploading this invoice.'
+                        detail=f'Unable to process invoice: The Statement of Work (SOW) number "{sow_number}" referenced in this invoice could not be found.'
                     )
         else:
             raise HTTPException(
