@@ -66,12 +66,6 @@ const NavigationStepper = () => {
     fetchVendors();
   }, []);
 
-  // Auto-upload SOW when both file and vendorId are available
-  useEffect(() => {
-    if (sowFile && vendorId && !sowId && !loading && !showAnalysisModal) {
-      uploadSOW();
-    }
-  }, [sowFile, vendorId, sowId, loading, showAnalysisModal]);
 
   // Auto-upload Invoice when both file and vendorId are available
   useEffect(() => {
@@ -196,9 +190,9 @@ const NavigationStepper = () => {
     return isLoading;
   };
 
-  const uploadSOW = async () => {
+  const uploadSOW = async (file) => {
     // Check if SOW file was selected
-    if (sowFile && vendorId) {
+    if (file && vendorId) {
       let newSowId = 0;
 
       try {
@@ -207,20 +201,16 @@ const NavigationStepper = () => {
         setShowAnalysisModal(true);
         setLoading('Analyzing document. This might take a few seconds...');
 
-        const result = await api.sows.analyze(sowFile, { vendor_id: vendorId });
+        const result = await api.sows.analyze(file, { vendor_id: vendorId });
         if (result.hasError) {
-          setError(result.message);
           setErrorDetail(result.error);
-          setShowAnalysisModal(false);
-          setLoading(null);
           throw new Error(result.message);
         }
 
         setSowId(result.sow.id);
         newSowId = result.sow.id;
       } catch (err) {
-        setError('Error analyzing document');
-        setErrorDetail(null);
+        setError(err.message);
         setShowAnalysisModal(false);
         setLoading(null);
         throw err;
@@ -520,11 +510,8 @@ const NavigationStepper = () => {
                       input.onchange = (e) => {
                         const file = (e.target).files?.[0];
                         if (file) {
+                          uploadSOW(file);
                           setSowFile(file);
-                          setError(null);
-                          setErrorDetail(null);
-                          setLoading(null);
-                          setSuccess(null);
                           setValidations([]);
                         }
                       };
@@ -549,8 +536,8 @@ const NavigationStepper = () => {
                         <div 
                           className="me-3 d-flex align-items-center justify-content-center"
                           style={{
-                            width: '40px',
-                            height: '40px',
+                            width: '30px',
+                            height: '30px',
                             backgroundColor: '#2979ff',
                             borderRadius: '8px',
                             color: 'white',
@@ -561,7 +548,7 @@ const NavigationStepper = () => {
                         </div>
                         <div style={{ textAlign: "left" }}>
                           <div style={{wordBreak: "break-word" }} className="fw-medium text-dark ">{sowFile.name}</div>
-                          <div className="text-muted small">{(sowFile.size / 1024 / 1024).toFixed(2)} MB</div>
+                          {/* <div className="text-muted small">{(sowFile.size / 1024 / 1024).toFixed(2)} MB</div> */}
                         </div>
                       </div>
                       <Button
@@ -734,8 +721,8 @@ const NavigationStepper = () => {
                         <div 
                           className="me-3 d-flex align-items-center justify-content-center"
                           style={{
-                            width: '40px',
-                            height: '40px',
+                            width: '30px',
+                            height: '30px',
                             backgroundColor: '#2979ff',
                             borderRadius: '8px',
                             color: 'white',
@@ -746,7 +733,7 @@ const NavigationStepper = () => {
                         </div>
                         <div>
                           <div className="fw-medium text-dark">{invoiceFile.name}</div>
-                          <div className="text-muted small">{(invoiceFile.size / 1024 / 1024).toFixed(2)} MB</div>
+                          {/* <div className="text-muted small">{(invoiceFile.size / 1024 / 1024).toFixed(2)} MB</div> */}
                         </div>
                       </div>
                       <Button
