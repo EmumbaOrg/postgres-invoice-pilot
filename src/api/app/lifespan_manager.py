@@ -33,7 +33,7 @@ prompt_service = None
 activity_log_service = None
 # Create a global GenAI provider
 genai_provider = None
-#create a global AgeGraphService
+#create a global AgeGraphRepository
 graph_repository = None
 
 @asynccontextmanager
