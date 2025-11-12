@@ -192,7 +192,7 @@ const Api = {
             if (!invoiceId) {
                 return [];
             }
-            return await RESTHelper.get(getUrl(`/invoice_line_items/milestones/${invoiceId}`));
+            return await RESTHelper.get(getUrl(`invoice_line_items/milestones/${invoiceId}`));
         },
         create: async (data) => {
             console.info('Creating invoice line item');
