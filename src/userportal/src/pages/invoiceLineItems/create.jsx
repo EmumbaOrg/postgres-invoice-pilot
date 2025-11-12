@@ -15,6 +15,8 @@ const InvoiceLineItemCreate = () => {
   const [success, setSuccess] = useState(null);
 
   const [statuses, setStatuses] = useState([]);
+  const [milestones, setMilestones] = useState([]);
+  const [milestone, setMilestone] = useState('');
     
   useEffect(() => {
     // Fetch data when component mounts
@@ -27,13 +29,37 @@ const InvoiceLineItemCreate = () => {
       }
     }
     fetchStatuses();
-  }, []);
+
+    const fetchMilestones = async () => {
+      if (!invoiceId) {
+        setMilestones([]);
+        return;
+      }
+      try {
+        const data = await api.invoiceLineItems.getMilestones(invoiceId);
+        setMilestones(data || []);
+      } catch (err) {
+        if (err?.status === 404) {
+          setMilestones([]);
+          return;
+        }
+        setError('Failed to load milestones');
+      }
+    };
+    fetchMilestones();
+  }, [invoiceId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!milestone) {
+      setError('Please select a milestone');
+      setSuccess(null);
+      return;
+    }
     try {
       var data = {
         invoice_id: invoiceId,
+        milestone_of_line_item: milestone,
         description: description,
         amount: amount,
         status: status,
@@ -58,6 +84,20 @@ const InvoiceLineItemCreate = () => {
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
       <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Milestone</Form.Label>
+            <SelectFormField
+              options={milestones.map(name => ({ value: name, label: name }))}
+              value={milestone ? { value: milestone, label: milestone } : null}
+              onChange={(opt) => {
+                const value = opt?.value || '';
+                setMilestone(value);
+                setError((prev) => (prev === 'Please select a milestone' ? null : prev));
+              }}
+              placeholder="Select Milestone"
+              isSearchable
+            />
+          </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Description</Form.Label>
             <Form.Control

@@ -150,7 +150,7 @@ const Api = {
                  const errorData = await response.json(); // Parse error message
                  const errorMessage = errorData?.detail || 'Something went wrong';
                  throw new Error(errorMessage);
-  }
+                }
                 const result = await response.json();
                 return result;
             } catch (error) {
@@ -187,6 +187,18 @@ const Api = {
         },
         get: async (id) => {
             return await RESTHelper.get(getUrl(`invoice_line_items/${id}`));
+        },
+        getMilestones: async (invoiceId) => {
+            if (!invoiceId) {
+                return [];
+            }
+            return await RESTHelper.get(getUrl(`/invoice_line_items/milestones/${invoiceId}`));
+        },
+        getMilestones: async (invoiceId) => {
+            if (!invoiceId) {
+                return [];
+            }
+            return await RESTHelper.get(getUrl(`/invoice_line_items/milestones/${invoiceId}`));
         },
         create: async (data) => {
             console.info('Creating invoice line item');

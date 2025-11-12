@@ -133,7 +133,6 @@ const InvoiceEdit = () => {
   const fetchInvoiceLineItems = async () => {
     try {
       const result = await api.invoiceLineItems.list(id, 0, -1); // No pagination limit
-      setReloadInvoiceLineItems(false);
       return result;
     } catch (err) {
       console.error(err);
@@ -233,10 +232,28 @@ const InvoiceEdit = () => {
   };
 
   const handleDeleteInvoiceLineItem = async () => {
+    if (!invoiceLineItemToDelete) {
+      return;
+    }
+
     try {
       await api.invoiceLineItems.delete(invoiceLineItemToDelete);
-      setReloadInvoiceLineItems(true);
       setShowDeleteInvoiceLineItemModal(false);
+      setInvoiceLineItemToDelete(null);
+
+      const refreshed = await fetchInvoiceLineItems();
+      if (refreshed) {
+        setInitialInvoiceLineItems(refreshed.data || []);
+        setInitialInvoiceLineItemsMeta({
+          total: refreshed.total || 0,
+          skip: refreshed.skip || 0,
+          limit: refreshed.limit || 10,
+        });
+      }
+
+      setReloadInvoiceLineItems((prev) => !prev);
+      setSuccess('Invoice Line Item deleted successfully!');
+      setError(null);
     } catch (err) {
       console.error(err);
       setError('Failed to delete Invoice Line Item');

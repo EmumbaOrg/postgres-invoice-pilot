@@ -79,6 +79,8 @@ You are now ready to provision your Azure resources and deploy the Invoice Pilot
             
             Both frameworks are fully supported by the application architecture.
 
+            🔧 *This setting can later be changed from the Azure Container App’s environment variable* **`GENAI_FRAMEWORK`**, *using the values* `langchain` *or* `agent-framework`.
+
 2. On successful completion you will see a `SUCCESS: ...` message on the console.
 
     !!! danger "Resource Provisioning Conflict Error"

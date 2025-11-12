@@ -40,10 +40,15 @@ class AgentFrameworkProvider(FrameworkProviderBase):
 
     async def build_agent(self, system_prompt: str, tools: list[Callable] | None = None) -> 'AgentFrameworkProvider':
         await self.init_chat_client()
+        
+        # Set tool_choice based on whether tools are provided
+        tool_choice = "required" if tools else "none"
+        
         self._agent = AFChatAgent(
             chat_client=self._chat_client, 
             instructions=system_prompt,
             tools=tools,
+            tool_choice=tool_choice,
             temperature=self.azure_config.get("temperature", 0.0),
         )
         return self
@@ -63,7 +68,7 @@ class AgentFrameworkProvider(FrameworkProviderBase):
         response = await agent.run(messages)
         return str(response)
 
-    async def aembed_query(self, text: str):
+    async def aembed_query(self, text: str) -> list[float]:
         embeddings = await self._embedding_client.aembed_query(text)
         return embeddings
 
