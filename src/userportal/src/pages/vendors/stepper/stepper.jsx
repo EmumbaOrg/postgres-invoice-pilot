@@ -733,7 +733,6 @@ const NavigationStepper = () => {
                         </div>
                         <div>
                           <div className="fw-medium text-dark">{invoiceFile.name}</div>
-                          {/* <div className="text-muted small">{(invoiceFile.size / 1024 / 1024).toFixed(2)} MB</div> */}
                         </div>
                       </div>
                       <Button
