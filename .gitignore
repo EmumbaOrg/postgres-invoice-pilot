@@ -8,4 +8,6 @@ src/api/run-local.sh
 graph_data/
 
 *.tmp.sql
+.env
 src/userportal/.env
+src/userportal/.env.local
