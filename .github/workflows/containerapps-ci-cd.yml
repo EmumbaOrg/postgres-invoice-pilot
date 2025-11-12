@@ -135,7 +135,7 @@ jobs:
           COMMIT_ID=$(git rev-parse --short "$GITHUB_SHA")
           echo "IMAGE_TAG=$COMMIT_ID" >> $GITHUB_ENV
           cd  src/userportal
-          echo 'VITE_SERVICE_API_ENDPOINT_URL="https://ca-api-m3ohtmntl37aq.wittyisland-e1286043.eastus.azurecontainerapps.io/"' >> .env.local
+          echo 'VITE_SERVICE_API_ENDPOINT_URL="https://ca-api-m5c5n3zhjwzbg.purplemushroom-43d2d751.westus.azurecontainerapps.io/"' >> .env.local
           docker build \
             -f DOCKERFILE \
             -t ${{ vars.REGISTRY_LOGIN_SERVER }}/react-app/userportal-byoacdev:$COMMIT_ID \
