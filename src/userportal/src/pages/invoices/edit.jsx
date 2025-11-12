@@ -65,9 +65,9 @@ const InvoiceEdit = () => {
     const loadAll = async () => {
       setIsLoading(true);
       try {
-        const invoicePromise = api.invoices.get(id);
-        const statusesPromise = api.statuses.list();
-        const vendorsPromise = api.vendors.list(0, -1);
+        const invoicePromise = await api.invoices.get(id);
+        const statusesPromise = await  api.statuses.list();
+        const vendorsPromise = await api.vendors.list(0, -1);
 
         const [invoiceData, statusesData, vendorsData] = await Promise.all([
           invoicePromise,
