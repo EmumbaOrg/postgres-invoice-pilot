@@ -24,5 +24,5 @@
   "theme_color": "#7952b3",
   "background_color": "#ffffff",
   "categories": ["business", "finance", "productivity"],
-  "orientation": "portrait-primary"
+  "orientation": "any"
 }
