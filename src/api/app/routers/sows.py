@@ -5,8 +5,9 @@ from app.lifespan_manager import (
     get_activity_log_service,
     get_genai_provider,
     get_prompt_service,
+    get_graph_repository
 )
-from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult
+from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult, SowGraphData
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from datetime import datetime, timedelta
 from pydantic import parse_obj_as
@@ -81,7 +82,8 @@ async def analyze_sow(
     doc_intelligence_service = Depends(get_azure_doc_intelligence_service),
     genai_provider = Depends(get_genai_provider),
     prompt_service = Depends(get_prompt_service),
-    activity_service = Depends(get_activity_log_service)
+    activity_service = Depends(get_activity_log_service),
+    age_graph_repository = Depends(get_graph_repository)
 ):
     """Analyze a SOW document and create a new SOW in the database."""
     try:
@@ -139,7 +141,7 @@ async def analyze_sow(
             async with pool.acquire() as conn:
                 sow_id = await conn.fetchval('SELECT id FROM sows WHERE vendor_id = $1 AND number = $2;', vendor_id, sow_number)
                
-        # Create SOW in the database
+        # Create SOW in the database and age graph
         async with pool.acquire() as conn:
             if sow_id is None:
                 # Create new SOW
@@ -152,6 +154,20 @@ async def analyze_sow(
                     RETURNING *;
                 ''', sow_number, start_date, end_date, budget, documentName, json.dumps(metadata), full_text, vendor_id)
                 sow_id = sow_row['id']
+
+                # Add SOW vertex to the Age graph
+                await age_graph_repository.add_sow(
+                    conn=conn,
+                    sow_data = SowGraphData(
+                        id=sow_id,
+                        number=sow_number,
+                        vendor_id=vendor_id,
+                        start_date=start_date,
+                        end_date=end_date,
+                        budget=budget
+                        )                        
+                )
+
             else:
                 # Update existing SOW with new document
                 sow_row = await conn.fetchrow('''
@@ -165,6 +181,19 @@ async def analyze_sow(
                     WHERE id = $7
                     RETURNING *;
                 ''', start_date, end_date, budget, documentName, json.dumps(metadata), full_text, sow_id)
+
+                # update SOW vertex in the Age graph
+                await age_graph_repository.update_sow(
+                    conn=conn,
+                    sow_data = SowGraphData(
+                        id=sow_id,
+                        number=sow_number,
+                        vendor_id=vendor_id,
+                        start_date=start_date,
+                        end_date=end_date,
+                        budget=budget
+                        )
+                )
 
             # Insert milestones and deliverables into the database
             try:
@@ -254,7 +283,7 @@ async def analyze_sow(
 
 
 @router.put("/{sow_id}", response_model=Sow)
-async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service)):
+async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), age_graph_repository = Depends(get_graph_repository)):
     """Updates a SOW in the database."""
     async with pool.acquire() as conn:
         sow = await get_by_id(sow_id, pool)
@@ -275,10 +304,24 @@ async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_con
             WHERE id = $6
             RETURNING *;''',
             sow.number, sow.start_date, sow.end_date, sow.budget, sow.vendor_id, sow_id)
+        
         if row is None:
             raise HTTPException(status_code=404, detail=f'A SOW with an id of {sow_id} was not found.')
         updated_sow = parse_obj_as(Sow, dict(row))
     
+        # update SOW vertex in the Age graph
+        await age_graph_repository.update_sow(
+            conn=conn,
+            sow_data = SowGraphData(
+                id=updated_sow.id,
+                number=updated_sow.number,
+                vendor_id=updated_sow.vendor_id,
+                start_date=updated_sow.start_date,
+                end_date=updated_sow.end_date,
+                budget=updated_sow.budget
+                )
+        )
+
     # Log the activity
     await activity_service.log_activity(
         action="updated",
@@ -290,7 +333,7 @@ async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_con
     return updated_sow
 
 @router.delete("/{id}", response_model=Sow)
-async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_service = Depends(get_activity_log_service)):
+async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_service = Depends(get_activity_log_service), age_graph_repository = Depends(get_graph_repository)):
     """Deletes a SOW from the database."""   
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
@@ -303,7 +346,13 @@ async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_se
 
         # Delete the SOW
         await conn.execute('DELETE FROM sows WHERE id = $1;', id)
-    
+
+        # delete SOW vertex from the Age graph
+        await age_graph_repository.delete_sow_with_cascade(
+            conn=conn,
+            sow_id = sow.id
+        )    
+
     # Log the activity
     await activity_service.log_activity(
         action="deleted",

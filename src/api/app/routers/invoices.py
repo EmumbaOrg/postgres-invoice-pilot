@@ -5,8 +5,9 @@ from app.lifespan_manager import (
     get_activity_log_service,
     get_genai_provider,
     get_prompt_service,
+    get_graph_repository
 )
-from app.models import Invoice, InvoiceEdit, ListResponse, InvoiceAnalyzeResult
+from app.models import Invoice, InvoiceEdit, ListResponse, InvoiceAnalyzeResult, InvoiceGraphData
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from datetime import datetime
 from pydantic import parse_obj_as
@@ -73,7 +74,8 @@ async def analyze_invoice(
     doc_intelligence_service = Depends(get_azure_doc_intelligence_service),
     activity_log_service = Depends(get_activity_log_service),
     genai_provider = Depends(get_genai_provider),
-    prompt_service = Depends(get_prompt_service)
+    prompt_service = Depends(get_prompt_service),
+    age_graph_repository = Depends(get_graph_repository)
     ):
     """Analyze an Invoice document and create a new invoice in the database."""
     try:
@@ -154,6 +156,21 @@ async def analyze_invoice(
                     $1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9
                 ) RETURNING *;
                 ''', vendor_id, sow_id, invoice_number, amount, invoice_date, payment_status, documentName, json.dumps(metadata), full_text) 
+
+                # add invoice to AGE graph
+                await age_graph_repository.add_invoice(
+                    conn=conn,
+                    invoice_data=InvoiceGraphData(
+                        id = row['id'],
+                        vendor_id = vendor_id,
+                        sow_id = sow_id,
+                        number = invoice_number,
+                        amount = amount,
+                        invoice_date = invoice_date,
+                        payment_status = payment_status
+                    )
+                )
+            
             else:
                 # Update existing Invoice with new document
                 row = await conn.fetchrow('''
@@ -169,6 +186,20 @@ async def analyze_invoice(
                 WHERE id = $9
                 RETURNING *;
                 ''', sow_id, invoice_number, amount, invoice_date, payment_status, documentName, json.dumps(metadata), full_text, invoice_id)
+
+                # update invoice vertex in AGE graph
+                await age_graph_repository.update_invoice(
+                    conn=conn,
+                    invoice_data=InvoiceGraphData(
+                        id = row['id'],
+                        vendor_id = vendor_id,
+                        sow_id = sow_id,
+                        number = invoice_number,
+                        amount = amount,
+                        invoice_date = invoice_date,
+                        payment_status = payment_status
+                    )
+                )
 
             if row is None:
                 raise HTTPException(status_code=500, detail=f'An error occurred while creating the Invoice.')
@@ -209,7 +240,7 @@ async def analyze_invoice(
 
 
 @router.put("/{invoice_id}", response_model=Invoice)
-async def update_invoice(invoice_id: int, invoice_update: InvoiceEdit, pool = Depends(get_db_connection_pool), activity_log_service = Depends(get_activity_log_service)):
+async def update_invoice(invoice_id: int, invoice_update: InvoiceEdit, pool = Depends(get_db_connection_pool), activity_log_service = Depends(get_activity_log_service), age_graph_repository = Depends(get_graph_repository)):
     """Updates an invoice in the database."""
 
     invoice = await get_by_id(invoice_id, pool)
@@ -232,7 +263,22 @@ async def update_invoice(invoice_id: int, invoice_update: InvoiceEdit, pool = De
         ''', invoice.number, invoice.amount, invoice.invoice_date, invoice.payment_status, invoice.vendor_id, invoice.sow_id, invoice_id)
         
         updated_invoice = parse_obj_as(Invoice, dict(row))
-    
+
+        # update invoice vertex in AGE graph
+        await age_graph_repository.update_invoice(
+            conn=conn,
+            invoice_data=InvoiceGraphData(
+                id = updated_invoice.id,
+                vendor_id = updated_invoice.vendor_id,
+                sow_id = updated_invoice.sow_id,
+                number = updated_invoice.number,
+                amount = updated_invoice.amount,
+                invoice_date = updated_invoice.invoice_date,
+                payment_status = updated_invoice.payment_status
+            )
+        )
+
+
     # log activity
     await activity_log_service.log_activity(
         action="updated",
@@ -244,7 +290,7 @@ async def update_invoice(invoice_id: int, invoice_update: InvoiceEdit, pool = De
     return updated_invoice
 
 @router.delete("/{invoice_id}", response_model=Invoice)
-async def delete_invoice(invoice_id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_log_service = Depends(get_activity_log_service)):
+async def delete_invoice(invoice_id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_log_service = Depends(get_activity_log_service), age_graph_repository = Depends(get_graph_repository)):
     """Deletes an invoice from the database."""
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM invoices WHERE id = $1;', invoice_id)
@@ -258,6 +304,11 @@ async def delete_invoice(invoice_id: int, pool = Depends(get_db_connection_pool)
         # Delete invoice from the database
         await conn.execute('DELETE FROM invoices WHERE id = $1;', invoice_id)
 
+        # delete invoice vertex from the Age graph
+        await age_graph_repository.delete_invoice(
+            conn=conn,
+            invoice_id = invoice.id
+        )
 
     # Log the activity
     await activity_log_service.log_activity(
