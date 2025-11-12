@@ -5,7 +5,7 @@ from app.lifespan_manager import (
     get_activity_log_service,
     get_genai_provider,
     get_prompt_service,
-    get_age_graph_service
+    get_graph_repository
 )
 from app.models import Sow, SowEdit, SowChunk, ListResponse, SowAnalyzeResult, SowGraphData
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
@@ -83,7 +83,7 @@ async def analyze_sow(
     genai_provider = Depends(get_genai_provider),
     prompt_service = Depends(get_prompt_service),
     activity_service = Depends(get_activity_log_service),
-    age_graph_service = Depends(get_age_graph_service)
+    age_graph_repository = Depends(get_graph_repository)
 ):
     """Analyze a SOW document and create a new SOW in the database."""
     try:
@@ -156,7 +156,7 @@ async def analyze_sow(
                 sow_id = sow_row['id']
 
                 # Add SOW vertex to the Age graph
-                await age_graph_service.add_sow(
+                await age_graph_repository.add_sow(
                     conn=conn,
                     sow_data = SowGraphData(
                         id=sow_id,
@@ -183,7 +183,7 @@ async def analyze_sow(
                 ''', start_date, end_date, budget, documentName, json.dumps(metadata), full_text, sow_id)
 
                 # update SOW vertex in the Age graph
-                await age_graph_service.update_sow(
+                await age_graph_repository.update_sow(
                     conn=conn,
                     sow_data = SowGraphData(
                         id=sow_id,
@@ -283,7 +283,7 @@ async def analyze_sow(
 
 
 @router.put("/{sow_id}", response_model=Sow)
-async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), age_graph_service = Depends(get_age_graph_service)):
+async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_connection_pool), activity_service = Depends(get_activity_log_service), age_graph_repository = Depends(get_graph_repository)):
     """Updates a SOW in the database."""
     async with pool.acquire() as conn:
         sow = await get_by_id(sow_id, pool)
@@ -310,7 +310,7 @@ async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_con
         updated_sow = parse_obj_as(Sow, dict(row))
     
         # update SOW vertex in the Age graph
-        await age_graph_service.update_sow(
+        await age_graph_repository.update_sow(
             conn=conn,
             sow_data = SowGraphData(
                 id=updated_sow.id,
@@ -333,7 +333,7 @@ async def update_sow(sow_id: int, sow_update: SowEdit, pool = Depends(get_db_con
     return updated_sow
 
 @router.delete("/{id}", response_model=Sow)
-async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_service = Depends(get_activity_log_service), age_graph_service = Depends(get_age_graph_service)):
+async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_service = Depends(get_storage_service), activity_service = Depends(get_activity_log_service), age_graph_repository = Depends(get_graph_repository)):
     """Deletes a SOW from the database."""   
     async with pool.acquire() as conn:
         row = await conn.fetchrow('SELECT * FROM sows WHERE id = $1;', id)
@@ -348,7 +348,7 @@ async def delete_sow(id: int, pool = Depends(get_db_connection_pool), storage_se
         await conn.execute('DELETE FROM sows WHERE id = $1;', id)
 
         # delete SOW vertex from the Age graph
-        await age_graph_service.delete_sow_with_cascade(
+        await age_graph_repository.delete_sow_with_cascade(
             conn=conn,
             sow_id = sow.id
         )    

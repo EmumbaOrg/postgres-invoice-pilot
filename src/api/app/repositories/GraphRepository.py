@@ -1,6 +1,6 @@
 from app.models.age_graph import VendorGraphData, SowGraphData, InvoiceGraphData
 
-class AgeGraphService:
+class GraphRepository:
     """Service for managing Apache AGE graph operations to keep vendor_graph synchronized with public schema."""
     
     def __init__(self):
@@ -227,7 +227,7 @@ class AgeGraphService:
         """Delete an invoice (has_invoices relationship) from the Apache AGE graph."""
         try:
             cypher_body = f"""
-                MATCH ()-[r:has_invoices {{id: {invoice_id}}}]->()
+                MATCH ()-[r:has_invoices {{id: '{invoice_id}'}}]->()
                 DELETE r
             """
             
