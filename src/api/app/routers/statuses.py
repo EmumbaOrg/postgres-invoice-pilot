@@ -14,7 +14,7 @@ router = APIRouter(
 @router.get("/", response_model=list[Status])
 async def list_statuses(pool = Depends(get_db_connection_pool)):
     """Retrieves a list of statuses from the database."""
-    async with pool as conn:
+    async with pool.acquire() as conn:
         rows = await conn.fetch('SELECT * FROM status ORDER BY id')
         statuses = parse_obj_as(list[Status], [dict(row) for row in rows])
     return statuses
