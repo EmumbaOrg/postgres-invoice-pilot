@@ -1,7 +1,7 @@
 from app.models.age_graph import VendorGraphData, SowGraphData, InvoiceGraphData
 
 class GraphRepository:
-    """Service for managing Apache AGE graph operations to keep vendor_graph synchronized with public schema."""
+    """Repository for managing Apache AGE graph operations to keep vendor_graph synchronized with public schema."""
     
     def __init__(self):
         self.graph_name = 'vendor_graph'
