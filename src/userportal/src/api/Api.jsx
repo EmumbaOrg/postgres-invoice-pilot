@@ -1,5 +1,6 @@
 import RESTHelper from './RESTHelper';
 
+//the env variable in .env must always contain a trailing slash
 const APIUrl = import.meta.env.VITE_SERVICE_API_ENDPOINT_URL || 'http://localhost:8000/';
 
 const getUrl = (url) => {
@@ -72,7 +73,7 @@ const Api = {
     },
     documents: {
         list: async () => {
-            return await RESTHelper.get(getUrl(`documents`));
+            return await RESTHelper.get(getUrl(`documents/`));
         },
         getUrl: (blobName) => {
             return getUrl(`documents/${blobName}`);
@@ -89,7 +90,7 @@ const Api = {
             formData.append('file', file);
         
             try {
-                const response = await fetch(getUrl(`documents`), {
+                const response = await fetch(getUrl(`documents/`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -196,7 +197,7 @@ const Api = {
             }
         
             try {
-                const response = await fetch(getUrl(`invoice_line_items`), {
+                const response = await fetch(getUrl(`invoice_line_items/`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -233,7 +234,7 @@ const Api = {
             }
         
             try {
-                const response = await fetch(getUrl(`milestones`), {
+                const response = await fetch(getUrl(`milestones/`), {
                     method: 'POST',
                     body: formData,
                 });
@@ -315,7 +316,7 @@ const Api = {
     },
     statuses: {
         list: async () => {
-            return await RESTHelper.get(getUrl(`statuses`));
+            return await RESTHelper.get(getUrl(`statuses/`));
         }
     },
     validationResults: {
