@@ -314,5 +314,5 @@ try {
 # ##############################################################################
 
 Write-Host "***"
-Write-Host "Deployment Completed! Please read the docs at https://aka.ms/pg-byoac-docs for next steps."
+Write-Host "Deployment Completed! Please read the docs at https://aka.ms/pg-invoice-pilot-docs for next steps."
 Write-Host "***"

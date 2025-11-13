@@ -1,6 +1,6 @@
 # 2.2 Clone the Repository
 
-To get started, clone the [PostgreSQL Solution Accelerator: Invoice Pilot](http://aka.ms/pg-byoac-repo/) repository directly onto your local machine.
+To get started, clone the [PostgreSQL Solution Accelerator: Invoice Pilot](http://aka.ms/pg-invoice-pilot-repo/) repository directly onto your local machine.
 
 1. Open a terminal and navigate to the directory where you want to download the repo.
 2. Run the following command to clone the repository:
