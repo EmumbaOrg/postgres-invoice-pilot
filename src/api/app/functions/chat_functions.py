@@ -53,7 +53,7 @@ class ChatFunctions:
         """
         query = f"SELECT id FROM invoices WHERE number = '{number}';"
         row = await self.__execute_scalar_query(query)
-        return row['id'] or None
+        return row['id'] if row else None
 
     async def get_invoice_line_items(self, invoice_id: int):
         """
@@ -136,7 +136,7 @@ class ChatFunctions:
         """
         query = f"SELECT id FROM sows WHERE number = '{number}';"
         row = await self.__execute_scalar_query(query)
-        return row.get('id', None)
+        return row.get('id', None) if row else None
 
     async def get_sow_chunks(self, sow_id: int):
         """
