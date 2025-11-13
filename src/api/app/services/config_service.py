@@ -5,8 +5,7 @@ from azure.core.exceptions import ResourceNotFoundError
 import os
 import json
 import asyncio
-from typing import Dict
-from urllib.parse import urlparse
+from typing import Dict, Optional
 
 # Usage example:
 # appConfig = AppConfig(os.getenv("AZURE_KEY_VAULT_NAME"))
@@ -21,22 +20,43 @@ class ConfigService:
         if self.app_config_endpoint is None:
             self.app_config_endpoint = os.getenv("AZURE_APP_CONFIG_ENDPOINT")
         
-        self.client = AzureAppConfigurationClient(self.app_config_endpoint, credential=self.credential)
+        self.client: Optional[AzureAppConfigurationClient] = None
         
         # Cache for Key Vault clients to avoid creating them repeatedly
         self._keyvault_clients: Dict[str, SecretClient] = {}
         self._client_lock = asyncio.Lock()
+        self._is_initialized = False
+
+    async def _initialize(self):
+        """Initialize the App Configuration client if not already done."""
+        if not self._is_initialized:
+            async with self._client_lock:
+                if not self._is_initialized:
+                    self.client = AzureAppConfigurationClient(
+                        self.app_config_endpoint, 
+                        credential=self.credential,
+                    )
+                    self._is_initialized = True
 
     async def close(self):
         """Close all clients and clean up resources."""
-        if self.client:
-            await self.client.close()
-            
-        # Close all cached Key Vault clients
+        # Close all cached Key Vault clients first
         for vault_client in self._keyvault_clients.values():
             if vault_client:
-                await vault_client.close()
+                try:
+                    await vault_client.close()
+                except Exception:
+                    pass  # Ignore errors during cleanup
         self._keyvault_clients.clear()
+        
+        if self.client:
+            try:
+                await self.client.close()
+            except Exception:
+                pass  # Ignore errors during cleanup
+            self.client = None
+            
+        self._is_initialized = False
 
     async def _get_keyvault_client(self, vault_url: str) -> SecretClient:
         """
@@ -48,11 +68,14 @@ class ConfigService:
                 if vault_url not in self._keyvault_clients:
                     self._keyvault_clients[vault_url] = SecretClient(
                         vault_url=vault_url, 
-                        credential=self.credential
+                        credential=self.credential,
                     )
         return self._keyvault_clients[vault_url]
 
     async def __get_setting(self, key: str) -> str:
+        # Ensure the client is initialized
+        await self._initialize()
+        
         try:
             setting = await self.client.get_configuration_setting(key=key)
             
@@ -63,7 +86,8 @@ class ConfigService:
                 try:
                     key_vault_reference_json = json.loads(value)
                     key_vault_url = key_vault_reference_json["uri"]
-                    key_vault_client = SecretClient(vault_url=f"https://{key_vault_url.split('/')[2]}", credential=self.credential)
+                    vault_base_url = f"https://{key_vault_url.split('/')[2]}"
+                    key_vault_client = await self._get_keyvault_client(vault_base_url)
                     secret_name = key_vault_url.split('/')[-1]
                     secret = await key_vault_client.get_secret(secret_name)
                     value = secret.value

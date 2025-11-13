@@ -90,6 +90,7 @@ async def lifespan(app):
 
     yield
 
+    # Clean up resources in reverse order
     # Close the database connection
     await db.close()
 
@@ -99,7 +100,7 @@ async def lifespan(app):
     # Close the document intelligence service
     await doc_intelligence_service.close()
 
-    # Close the ConfigService
+    # Close the config service and its connections
     await config_service.close()
 
     # Close the async Microsoft Entra ID RBAC credential
