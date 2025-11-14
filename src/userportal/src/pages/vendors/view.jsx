@@ -198,7 +198,7 @@ const VendorView = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h2 mb-0 fw-bold text-dark">{name || "Adatum Corporation"}</h1>
         <div className="d-flex gap-2">
-          <Button variant="outline-danger" onClick={() => { setVendorToDelete(id); setShowDeleteVendorModal(true); }}>Delete</Button>
+          <Button variant="danger" onClick={() => { setVendorToDelete(id); setShowDeleteVendorModal(true); }}>Delete</Button>
           <Button variant="primary" onClick={() => setShowCreateSOWModal(true)}>Add new SOW</Button>
         </div>
       </div>
