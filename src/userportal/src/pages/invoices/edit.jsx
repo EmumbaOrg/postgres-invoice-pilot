@@ -498,33 +498,35 @@ const InvoiceEdit = () => {
           </Button>
         </div>
     
-        <table className="table">
-          <thead>
-            <tr role="row">
-              <th colspan="1" role="columnheader">Status</th>
-              <th colspan="1" role="columnheader">Timestamp</th>
-              <th colspan="1" role="columnheader">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {validations.length === 0 && (
-              <tr>
-                <td colspan="3">No validations found</td>
-                </tr>
-                )}
-            {validations.map((validation) => (
-              <tr key={validation.id}>
-                <td>{validation.validation_passed ? <span className='status-chip-success'> Passed</span> : <span className='status-chip-error'> Failed</span>}</td>
-                <td>{validation.datestamp}</td>
-                <td>
-                  <div style={{ height: '12em', overflowY: 'scroll', padding: '12px' }}>
-                    <ReactMarkdown>{validation.result}</ReactMarkdown>
-                  </div>
-                </td>
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table className="table">
+            <thead>
+              <tr role="row">
+                <th colspan="1" role="columnheader">Status</th>
+                <th colspan="1" role="columnheader">Timestamp</th>
+                <th colspan="1" role="columnheader">Description</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {validations.length === 0 && (
+                <tr>
+                  <td colspan="3">No validations found</td>
+                  </tr>
+                  )}
+              {validations.map((validation) => (
+                <tr key={validation.id}>
+                  <td>{validation.validation_passed ? <span className='status-chip-success'> Passed</span> : <span className='status-chip-error'> Failed</span>}</td>
+                  <td>{validation.datestamp}</td>
+                  <td>
+                    <div style={{ height: '12em', overflowY: 'scroll', padding: '12px' }}>
+                      <ReactMarkdown>{validation.result}</ReactMarkdown>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         </>
       )}
     

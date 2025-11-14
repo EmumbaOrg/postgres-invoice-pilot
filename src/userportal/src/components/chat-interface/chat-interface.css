@@ -115,6 +115,12 @@ margin: 0;
     .suggestion-pill {
       font-size: 0.875rem !important;
     }
+
+    /* Match activity container spacing on mobile */
+    .search-title-container {
+      padding-left: 40px !important;
+      padding-right: 40px !important;
+    }
   }
   
   /* Smaller dimensions for mobile screens 768px and below */
