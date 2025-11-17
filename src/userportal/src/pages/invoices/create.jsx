@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Form, Button, Spinner, Alert, Modal } from "react-bootstrap";
-import api from "../../api/Api";
 import { formatFileSize } from "../../utils/common-functions";
 import SelectFormField from "../../components/SelectFormField";
+import { useAllVendors } from "../../hooks/useVendors";
+import { useAnalyzeInvoice, useValidateInvoice } from "../../hooks/useInvoices";
 
 const InvoiceCreate = ({ show, onHide, vendorId }) => {
   const [invoiceId, setInvoiceId] = useState(0);
@@ -11,26 +12,18 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
   const [error, setError] = useState(null);
   const [errorDetail, setErrorDetail] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [showUpload, setShowUpload] = useState(true);
   const [dragActive, setDragActive] = useState(false);
-  const [vendors, setVendors] = useState([]);
 
-  useEffect(() => {
-    const fetchVendors = async () => {
-      try {
-        const data = await api.vendors.list(0, -1); // No pagination limit
-        setVendors(data.data);
-      } catch (err) {
-        console.error(err);
-        setError("Error fetching Vendors");
-        setErrorDetail(null);
-        setSuccess(null);
-      }
-    };
+  // Fetch vendors using React Query
+  const { data: vendorsData, isLoading: loadingVendors } = useAllVendors();
+  const vendors = vendorsData?.data || [];
 
-    fetchVendors();
-  }, []);
+  // Mutations
+  const analyzeInvoiceMutation = useAnalyzeInvoice();
+  const validateInvoiceMutation = useValidateInvoice();
+
+  const isAnalyzing = analyzeInvoiceMutation.isPending || validateInvoiceMutation.isPending;
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -71,15 +64,15 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
 
     setShowUpload(false);
 
-    var newInvoiceId = 0;
+    let newInvoiceId = 0;
     try {
       setError(null);
       setErrorDetail(null);
 
-      setLoading("Analyzing document with AI...");
-
-      const result = await api.invoices.analyze(file, {
-        vendor_id: invoiceVendorId,
+      // Analyze invoice
+      const result = await analyzeInvoiceMutation.mutateAsync({
+        file,
+        data: { vendor_id: invoiceVendorId },
       });
 
       if (result.hasError) {
@@ -87,7 +80,6 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
         setErrorDetail(result.error);
         setShowUpload(true);
         setSuccess(null);
-        setLoading(null);
         return false;
       }
 
@@ -98,13 +90,12 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
       setError(err.message || "Error analyzing the document");
       setErrorDetail(null);
       setSuccess(null);
-      setLoading(null);
       return false;
     }
 
     try {
-      setLoading("Validating document with AI...");
-      await api.invoices.validate(newInvoiceId);
+      // Validate invoice
+      await validateInvoiceMutation.mutateAsync(newInvoiceId);
     } catch (err) {
       console.error(err);
       // still continue on, since the Invoice is already created in the database
@@ -123,7 +114,6 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
     setError(null);
     setErrorDetail(null);
     setSuccess(null);
-    setLoading(null);
     setShowUpload(true);
     setDragActive(false);
     // Reset file input
@@ -208,6 +198,7 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
                 onChange={(option) => setInvoiceVendorId(option?.value || "")}
                 placeholder="Select vendor name"
                 isSearchable
+                isLoading={loadingVendors}
               />
             </Form.Group>
 
@@ -333,7 +324,7 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
                 variant="primary"
                 className="px-4"
                 style={{ backgroundColor: "#2979ff", borderColor: "#2979ff" }}
-                disabled={!file || !invoiceVendorId}
+                disabled={!file || !invoiceVendorId || isAnalyzing}
               >
                 <i className="fas fa-search me-2"></i>
                 Analyze Document
@@ -342,7 +333,7 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
           </Form>
         )}
 
-        {loading && (
+        {isAnalyzing && (
           <Alert variant="light" className="text-center py-4">
             <Spinner
               animation="border"
@@ -350,9 +341,13 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
               className="me-3"
               variant="primary"
             >
-              <span className="visually-hidden">{loading}</span>
+              <span className="visually-hidden">Processing...</span>
             </Spinner>
-            <div className="fw-medium">{loading}</div>
+            <div className="fw-medium">
+              {analyzeInvoiceMutation.isPending 
+                ? "Analyzing document with AI..." 
+                : "Validating document with AI..."}
+            </div>
           </Alert>
         )}
       </Modal.Body>

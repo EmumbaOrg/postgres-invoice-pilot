@@ -1,24 +1,37 @@
-import React, { useState, useCallback } from 'react';
-import { Button, Alert, Dropdown} from 'react-bootstrap';
+import React, { useState, useCallback, useMemo } from 'react';
+import { Button, Alert, Dropdown } from 'react-bootstrap';
 
 import ConfirmModal from '../../components/ConfirmModal'; 
 import PagedTable from '../../components/PagedTable';
 import SearchInput from '../../components/SearchInput';
-import api from '../../api/Api';
 import SOWCreateModal from './create';
 import { useDebouncedSearch } from '../../hooks/useDebounce';
 import PdfPreviewModal from '../../components/pdf-preview-modal/pdf-preview-modal';
+import { useSOWs, useDeleteSOW } from '../../hooks/useSOWs';
+import { getDocumentUrl } from '../../hooks/useDocuments';
 
 const SOWList = () => {
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sowToDelete, setSowToDelete] = useState(null);
   const [reload, setReload] = useState(false);
   const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [selectedDocumentUrl, setSelectedDocumentUrl] = useState(null);
+  
+  // Fetch SOWs using React Query
+  const { data: sowsData, isLoading, error: fetchError } = useSOWs({ 
+    vendorId: -1, 
+    skip: 0, 
+    limit: -1, 
+    sortBy: '' 
+  });
+  
+  // Delete mutation
+  const deleteMutation = useDeleteSOW();
+  
+  // Success/error state for UI feedback
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   
   // Debounced search functionality
   const handleSearch = useCallback((debouncedSearchTerm) => {
@@ -30,10 +43,10 @@ const SOWList = () => {
   const handleViewDocument = useCallback((documentName) => {
     if (!documentName) return;
 
-    const url = api.documents.getUrl(documentName);
+    const url = getDocumentUrl(documentName);
     setSelectedDocumentUrl(url);
     setShowPdfModal(true);
-  }, [api]);
+  }, []);
 
   const handleClosePdfModal = useCallback(() => {
     setShowPdfModal(false);
@@ -43,25 +56,22 @@ const SOWList = () => {
   const handleDelete = async () => {
     if (!sowToDelete) return;
 
-    setIsDeleting(true);
     try {
-      await api.sows.delete(sowToDelete);
+      await deleteMutation.mutateAsync(sowToDelete);
+      setSuccessMessage('SOW successfully deleted!');
+      setErrorMessage(null);
+      setShowDeleteModal(false);
+      setSowToDelete(null);
       setReload((prev) => !prev);
-      setError(null);
-      setShowDeleteModal(false);
-      setSowToDelete(null);
-      setSuccess('SOW successfully deleted!');
     } catch (err) {
-      setSuccess(null);
-      setError(`Error deleting SOW: ${err.message}`);
+      setErrorMessage(`Error deleting SOW: ${err.message}`);
+      setSuccessMessage(null);
       setShowDeleteModal(false);
       setSowToDelete(null);
-    } finally {
-      setIsDeleting(false);
     }
-  }
+  };
 
-  const columns = React.useMemo(
+  const columns = useMemo(
     () => [
       {
         Header: 'ID',
@@ -93,11 +103,9 @@ const SOWList = () => {
       {
         Header: '',
         accessor: 'actions',
-        Cell: ({ row }) => 
-          {
-            return (
-            <Dropdown>
-             <Dropdown.Toggle
+        Cell: ({ row }) => (
+          <Dropdown>
+            <Dropdown.Toggle
               variant="outline-primary"
               size="sm"
               id={`dropdown-${row.original.id}`}
@@ -106,55 +114,80 @@ const SOWList = () => {
               <i className="fas fa-ellipsis-v"></i>
             </Dropdown.Toggle>
             <Dropdown.Menu align="end">
-              <Dropdown.Item className="d-flex align-items-center gap-1" onClick={() => handleViewDocument(row.original.document)} disabled={!row.original.document}>
+              <Dropdown.Item 
+                className="d-flex align-items-center gap-1" 
+                onClick={() => handleViewDocument(row.original.document)} 
+                disabled={!row.original.document}
+              >
                 <i className="fas fa-eye me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 View
               </Dropdown.Item>
-              <Dropdown.Item className="d-flex align-items-center gap-1" href={`${api.documents.getUrl(row.original.document)}`} target="_blank" rel="noopener noreferrer">
+              <Dropdown.Item 
+                className="d-flex align-items-center gap-1" 
+                href={getDocumentUrl(row.original.document)} 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
                 <i className="fas fa-download me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 Download
               </Dropdown.Item>
-               <Dropdown.Item className="d-flex align-items-center gap-1" href={`/sows/${row.original.id}`} >
+              <Dropdown.Item className="d-flex align-items-center gap-1" href={`/sows/${row.original.id}`}>
                 <i className="fas fa-edit me-2" style={{ color: 'var(--bs-primary)' }}></i>
                 Edit
               </Dropdown.Item>
-                <Dropdown.Item className="d-flex align-items-center gap-1" onClick={() => { setSowToDelete(row.original.id); setShowDeleteModal(true); }} >
+              <Dropdown.Item 
+                className="d-flex align-items-center gap-1" 
+                onClick={() => { 
+                  setSowToDelete(row.original.id); 
+                  setShowDeleteModal(true); 
+                }}
+              >
                 <i className="fas fa-trash-alt me-2" style={{ color: 'var(--bs-danger)' }}></i>
                 Delete
               </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-            )
-          }
-         
+            </Dropdown.Menu>
+          </Dropdown>
+        ),
       },
     ],
     [handleViewDocument]
   );
 
-  const fetchSOWs = async (skip, limit, sortBy, search) => {
-    const response = await api.sows.list(-1, skip, limit, sortBy, search);
-      // Apply frontend search filter on SOW number if debouncedSearchTerm exists
-    if (debouncedSearchTerm && response.data) {
-      const filteredData = response.data.filter(
-        (sow) => sow.number && sow.number.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
-      )
-      return {
-        ...response,
-        data: filteredData,
-        total: filteredData.length,
-      }
+  // Memoize filtered data (source of truth for search)
+  const filteredSOWs = useMemo(() => {
+    if (!sowsData?.data) return [];
+    
+    if (debouncedSearchTerm) {
+      return sowsData.data.filter(
+        (sow) => sow.number && sow.number.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      );
     }
     
-    return response;
-  };
+    return sowsData.data;
+  }, [sowsData, debouncedSearchTerm]);
+
+  const fetchSOWs = useCallback(async (skip, limit, sortBy, search) => {
+    // Apply client-side pagination on filtered data
+    const paginatedData = filteredSOWs.slice(skip, skip + limit);
+    
+    return {
+      data: paginatedData,
+      total: filteredSOWs.length,
+      skip: skip,
+      limit: limit,
+    };
+  }, [filteredSOWs]);
 
   return (
     <div className='px-5 py-3'>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-2">
         <h1 className="h4 fw-bold">SOWs</h1>
-        <Button className='primary' onClick={() => setShowCreateSOWModal(true)}><i className="fas fa-plus me-2" />New SOW </Button> 
+        <Button className='primary' onClick={() => setShowCreateSOWModal(true)}>
+          <i className="fas fa-plus me-2" />
+          New SOW
+        </Button> 
       </div>
+
       {/* Search Bar */}
       <SearchInput
         value={searchTerm}
@@ -163,31 +196,51 @@ const SOWList = () => {
         placeholder="Search by SOW number..."
         id="sow-search"
       />
-       {error && (
-        <Alert variant="danger" dismissible onClose={() => setError(null)}>
-         <i className="fa-solid fa-circle-exclamation" variant="danger"></i> {error}
+
+      {/* Error message from fetch or delete */}
+      {(errorMessage || fetchError) && (
+        <Alert variant="danger" dismissible onClose={() => { setErrorMessage(null); }}>
+          <i className="fa-solid fa-circle-exclamation" variant="danger"></i>{' '}
+          {errorMessage || fetchError?.message}
         </Alert>
       )}
-       {success && (
-        <Alert variant="success" dismissible onClose={() => setSuccess(null)}>
-         <i className="fa-solid fa-circle-check" variant="success"></i> {success}
+      
+      {/* Success message */}
+      {successMessage && (
+        <Alert variant="success" dismissible onClose={() => setSuccessMessage(null)}>
+          <i className="fa-solid fa-circle-check" variant="success"></i>{' '}
+          {successMessage}
         </Alert>
       )}
 
-      <PagedTable columns={columns} fetchData={fetchSOWs} reload={reload} key={debouncedSearchTerm} noDataMesssage={'No SOWs have been added yet.'} noDataDescription={'Click on "New SOW" to begin adding SOWs.'} />
+      <PagedTable 
+        columns={columns} 
+        fetchData={fetchSOWs} 
+        reload={reload} 
+        key={debouncedSearchTerm} 
+        noDataMesssage={'No SOWs have been added yet.'} 
+        noDataDescription={'Click on "New SOW" to begin adding SOWs.'}
+        initialData={filteredSOWs}
+        initialTotal={filteredSOWs.length}
+        initialSkip={0}
+        initialLimit={10}
+        initialLoadCompleted={!isLoading}
+        isExternalLoading={isLoading}
+      />
 
       <ConfirmModal
         show={showDeleteModal}
         handleClose={() => setShowDeleteModal(false)}
         handleConfirm={handleDelete}
         message="Are you sure you want to delete this SOW?"
-        isLoading={isDeleting}
+        isLoading={deleteMutation.isPending}
       />
-         <SOWCreateModal 
+
+      <SOWCreateModal 
         show={showCreateSOWModal} 
         onHide={() => setShowCreateSOWModal(false)} 
-        
       />
+
       <PdfPreviewModal
         show={showPdfModal}
         handleClose={handleClosePdfModal}

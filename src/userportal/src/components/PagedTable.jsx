@@ -2,7 +2,7 @@ import { Spinner } from 'react-bootstrap';
 import React, { useEffect, useState, useRef } from 'react';
 import Table from './Table';
 
-const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination = true, reload, noDataMesssage, noDataDescription, initialData = null, initialTotal = 0, initialSkip = 0, initialLimit = 10, initialLoadCompleted = false }) => {
+const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination = true, reload, noDataMesssage, noDataDescription, initialData = null, initialTotal = 0, initialSkip = 0, initialLimit = 10, initialLoadCompleted = false, isExternalLoading = false }) => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(0);
@@ -13,16 +13,33 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
   const [searchQuery, setSearchQuery] = useState('');
 
   const loadingData = useRef(false);
-  const loadData = async (skip, limit, sortBy, searchQuery) => {
-    // If initial data was provided and marked as completed, use it for the first load
-    if (initialLoadCompleted && !loadingData.current && skip === initialSkip && searchQuery === '' && sortBy.length === 0 && !reload) {
-      setData(initialData || []);
-      setTotal(initialTotal || 0);
-      setSkip(initialSkip || 0);
-      setLimit(initialLimit || 10);
-      return;
-    }
+  const hasLoadedInitialData = useRef(false);
+  const hasNavigated = useRef(false);
 
+  // Reset flags when component remounts (key changes)
+  useEffect(() => {
+    return () => {
+      hasLoadedInitialData.current = false;
+      hasNavigated.current = false;
+    };
+  }, []);
+
+  // Update data when initialData changes (for React Query integration)
+  useEffect(() => {
+    if (initialLoadCompleted && initialData && !hasLoadedInitialData.current) {
+      // Only show the first page of data initially
+      const pageSize = initialLimit || 10;
+      const firstPageData = initialData.slice(0, pageSize);
+      
+      setData(firstPageData);
+      setTotal(initialTotal || initialData.length);
+      setSkip(initialSkip || 0);
+      setLimit(pageSize);
+      hasLoadedInitialData.current = true;
+    }
+  }, [initialData, initialLoadCompleted, initialTotal, initialSkip, initialLimit]);
+
+  const loadData = async (skip, limit, sortBy, searchQuery) => {
     if (!loadingData.current) {
       loadingData.current = true;
       setLoading(true);
@@ -44,6 +61,14 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
   };
 
   useEffect(() => {
+    // Skip first load if initial data is already set and we haven't navigated yet
+    if (hasLoadedInitialData.current && skip === 0 && !hasNavigated.current && !reload) {
+      return;
+    }
+    // Mark that we've started navigating
+    if (skip !== 0) {
+      hasNavigated.current = true;
+    }
     loadData(skip, limit, sortBy, searchQuery);
   }, [skip, limit, sortBy, searchQuery, reload]);
 
@@ -101,7 +126,7 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
           </div>
         </div>
       )}
-      {loading ? (
+      {(loading || isExternalLoading) ? (
           <div className="d-flex justify-content-center align-items-center py-4">
           <Spinner animation="border" role="status" variant="primary" />
         </div>

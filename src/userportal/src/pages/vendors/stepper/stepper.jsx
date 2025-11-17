@@ -2,8 +2,12 @@ import { useState, useEffect } from "react";
 import { Breadcrumb, Button, Form , Alert, Spinner, Modal} from "react-bootstrap";
 import ReactMarkdown from 'react-markdown';
 
-import api from '../../../api/Api';
 import "./stepper.css";
+import { useAllVendors, useCreateVendor } from '../../../hooks/useVendors';
+import { useAnalyzeSOW, useValidateSOW } from '../../../hooks/useSOWs';
+import { useAnalyzeInvoice, useValidateInvoice } from '../../../hooks/useInvoices';
+import { sowsService } from '../../../services/sows.service';
+import { invoicesService } from '../../../services/invoices.service';
 
 const NavigationStepper = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -37,6 +41,14 @@ const NavigationStepper = () => {
 
   const [vendorId, setVendorId] = useState(formData.name);
 
+  // React Query hooks
+  const { data: vendorsData, isLoading: loadingVendors } = useAllVendors();
+  const createVendorMutation = useCreateVendor();
+  const analyzeSOWMutation = useAnalyzeSOW();
+  const validateSOWMutation = useValidateSOW();
+  const analyzeInvoiceMutation = useAnalyzeInvoice();
+  const validateInvoiceMutation = useValidateInvoice();
+
   const steps = [
     {
       title: "Vendor Details",
@@ -54,17 +66,13 @@ const NavigationStepper = () => {
       required: false,
     },
   ];
-    useEffect(() => {
-    const fetchVendors = async () => {
-      try {
-        const data = await api.vendors.list(0, -1);
-        setVendors(data.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchVendors();
-  }, []);
+
+  // Set vendors from React Query
+  useEffect(() => {
+    if (vendorsData?.data) {
+      setVendors(vendorsData.data);
+    }
+  }, [vendorsData]);
 
 
   // Auto-upload Invoice when both file and vendorId are available
@@ -168,7 +176,7 @@ const NavigationStepper = () => {
       throw new Error("Please fill in all required vendor details");
     }
     try {
-      const response = await api.vendors.create(formData);
+      const response = await createVendorMutation.mutateAsync(formData);
       return response;
     } catch (err) {
       throw err;
@@ -201,7 +209,7 @@ const NavigationStepper = () => {
         setShowAnalysisModal(true);
         setLoading('Analyzing document. This might take a few seconds...');
 
-        const result = await api.sows.analyze(file, { vendor_id: vendorId });
+        const result = await analyzeSOWMutation.mutateAsync({ file, metadata: { vendor_id: vendorId } });
         if (result.hasError) {
           setErrorDetail(result.error);
           throw new Error(result.message);
@@ -218,14 +226,14 @@ const NavigationStepper = () => {
 
       try {
         setLoading('Validating document with AI...');
-        await api.sows.validate(newSowId);
+        await validateSOWMutation.mutateAsync(newSowId);
         setShowAnalysisModal(false);
         setLoading(null);
         setSuccess('SOW created and validated successfully with AI!');
         
         // Fetch validation results to display
         try {
-          const validationData = await api.validationResults.sow(newSowId);
+          const validationData = await sowsService.getValidationResults(newSowId);
           setValidations(validationData.data);
         } catch (validationErr) {
           console.error('Error fetching validation results:', validationErr);
@@ -239,7 +247,7 @@ const NavigationStepper = () => {
         
         // Still try to fetch validation results even if validation had errors
         try {
-          const validationData = await api.validationResults.sow(newSowId);
+          const validationData = await sowsService.getValidationResults(newSowId);
           setValidations(validationData.data);
         } catch (validationErr) {
           console.error('Error fetching validation results:', validationErr);
@@ -264,7 +272,7 @@ const NavigationStepper = () => {
         setShowInvoiceAnalysisModal(true);
         setInvoiceLoading('Analyzing document. This might take a few seconds...');
 
-        const result = await api.invoices.analyze(invoiceFile, { vendor_id: vendorId });
+        const result = await analyzeInvoiceMutation.mutateAsync({ file: invoiceFile, metadata: { vendor_id: vendorId } });
         if (result.hasError) {
           setInvoiceError(result.message);
           setInvoiceErrorDetail(result.error);
@@ -286,14 +294,14 @@ const NavigationStepper = () => {
 
       try {
         setInvoiceLoading('Validating document with AI...');
-        await api.invoices.validate(newInvoiceId);
+        await validateInvoiceMutation.mutateAsync(newInvoiceId);
         setShowInvoiceAnalysisModal(false);
         setInvoiceLoading(null);
         setInvoiceSuccess('Invoice created and validated successfully with AI!');
         
         // Fetch validation results to display
         try {
-          const validationData = await api.validationResults.invoice(newInvoiceId);
+          const validationData = await invoicesService.getValidationResults(newInvoiceId);
           setInvoiceValidations(validationData.data);
         } catch (validationErr) {
           console.error('Error fetching invoice validation results:', validationErr);
@@ -307,7 +315,7 @@ const NavigationStepper = () => {
         
         // Still try to fetch validation results even if validation had errors
         try {
-          const validationData = await api.validationResults.invoice(newInvoiceId);
+          const validationData = await invoicesService.getValidationResults(newInvoiceId);
           setInvoiceValidations(validationData.data);
         } catch (validationErr) {
           console.error('Error fetching invoice validation results:', validationErr);

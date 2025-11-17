@@ -1,76 +1,63 @@
-import React, { useEffect, useState } from 'react';
-import { Form, Button, } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
-import api from '../../api/Api';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { Form, Button, Spinner, Alert } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
 import ConfirmModal from '../../components/ConfirmModal';
 import PagedTable from '../../components/PagedTable';
+import { useVendor } from '../../hooks/useVendors';
+import { useSOWs, useDeleteSOW } from '../../hooks/useSOWs';
 
 const VendorEdit = () => {
-    const { id } = useParams(); // Extract Vendor ID from URL
-    const [name, setName] = useState('');
-    const [address, setAddress] = useState('');
-    const [contactName, setContactName] = useState('');
-    const [contactEmail, setContactEmail] = useState('');
-    const [contactPhone, setContactPhone] = useState('');
-    const [contactType, setContactType] = useState('');
-    const [website, setWebsite] = useState('');
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
+  const { id } = useParams(); // Extract Vendor ID from URL
+  const navigate = useNavigate();
+  
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactType, setContactType] = useState('');
+  const [website, setWebsite] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [showDeleteSowModal, setShowDeleteSowModal] = useState(false);
+  const [sowToDelete, setSowToDelete] = useState(null);
+  const [reloadSows, setReloadSows] = useState(false);
 
-    
-    const [showDeleteSowModal, setShowDeleteSowModal] = useState(false);
-    const [sowToDelete, setSowToDelete] = useState(null);
-    const [reloadSows, setReloadSows] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
-    
-    useEffect(() => {
-        // Fetch SOW data when component mounts
-        const fetchSOW = async () => {
-          try {
-            const data = await api.vendors.get(id);
-            updateDisplay(data);
-          } catch (err) {
-            setError('Failed to load Vendor data');
-          }
-        };
-        fetchSOW();
-      }, [id]);
-    
-      const updateDisplay = (data) => {
-        setName(data.name);
-        setAddress(data.address);
-        setContactName(data.contact_name);
-        setContactEmail(data.contact_email);
-        setContactPhone(data.contact_phone);
-        setWebsite(data.website);
-        setContactType(data.type);
-      }
-    
-      const handleSubmit = async (e) => {
-        e.preventDefault();
-        // try {
-        //   var data = {
-        //     name: name,
-        //     address: address,
-        //     contact_name: contactName,
-        //     contact_email: contactEmail,
-        //     contact_phone: contactPhone,
-        //     type: contactType
-        //   };
-        //   var updatedItem = await api.vendors.update(id, data);
+  // Fetch vendor data using React Query
+  const { 
+    data: vendor, 
+    isLoading: loadingVendor, 
+    error: fetchError 
+  } = useVendor(id);
+  
+  // Fetch SOWs for this vendor
+  const { 
+    data: sowsData, 
+    isLoading: loadingSOWs 
+  } = useSOWs({ vendorId: id, skip: 0, limit: -1 });
+  
+  // Delete SOW mutation
+  const deleteSOWMutation = useDeleteSOW();
 
-        //   updateDisplay(updatedItem);
-        //   setSuccess('Vendor updated successfully!');
-        //   setError(null);
-        // } catch (err) {
-        //   console.error(err);
-        //   setError('Failed to update Vendor');
-        //   setSuccess(null);
-        // }
-      };
+  // Populate form when vendor data is loaded
+  useEffect(() => {
+    if (vendor) {
+      setName(vendor.name || '');
+      setAddress(vendor.address || '');
+      setContactName(vendor.contact_name || '');
+      setContactEmail(vendor.contact_email || '');
+      setContactPhone(vendor.contact_phone || '');
+      setWebsite(vendor.website || '');
+      setContactType(vendor.type || '');
+    }
+  }, [vendor]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Currently form is disabled, but keeping handler for future enablement
+  };
 
-  const sowColumns = React.useMemo(
+  const sowColumns = useMemo(
     () => [
       {
         Header: 'Number',
@@ -116,41 +103,78 @@ const VendorEdit = () => {
   );
 
   const handleDeleteSow = async () => {
-      setIsDeleting(true);
-      try {
-        await api.sows.delete(sowToDelete);
-        setSuccess('SOW deleted successfully!');
-        setError(null);
-        setShowDeleteSowModal(false);
-        setSowToDelete(null);
-        setReloadSows(true);
-      } catch (err) {
-        setSuccess(null);
-        setError(`Error deleting SOW: ${err.message}`);
-        setShowDeleteSowModal(false);
-        setSowToDelete(null);
-      } finally {
-        setIsDeleting(false);
-      }
-    }
-      
-  const fetchSows = async () => {
+    if (!sowToDelete) return;
+
     try {
-      const data = await api.sows.list(id, 0, -1); // No pagination limit
-      return data;
+      await deleteSOWMutation.mutateAsync(sowToDelete);
+      
+      setSuccess('SOW deleted successfully!');
+      setError(null);
+      setShowDeleteSowModal(false);
+      setSowToDelete(null);
+      setReloadSows((prev) => !prev);
     } catch (err) {
-      console.error(err);
-      setError('Error fetching SOWs');
+      setError(err.message || 'Error deleting SOW');
       setSuccess(null);
+      setShowDeleteSowModal(false);
+      setSowToDelete(null);
     }
+  };
+
+  const fetchSows = useCallback(async () => {
+    if (!sowsData) {
+      return {
+        data: [],
+        total: 0,
+        skip: 0,
+        limit: 10
+      };
+    }
+    return sowsData;
+  }, [sowsData]);
+
+  // Loading state
+  if (loadingVendor) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+        <Spinner animation="border" role="status" variant="primary">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  // Error state
+  if (fetchError) {
+    return (
+      <div className='p-4'>
+        <Alert variant="danger">
+          <i className="fa-solid fa-circle-exclamation"></i> Failed to load vendor data: {fetchError.message}
+        </Alert>
+        <Button variant="secondary" onClick={() => navigate('/vendors')}>
+          <i className="fas fa-arrow-left"></i> Back to Vendors
+        </Button>
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className='p-4'>
       <h1>Edit Vendor</h1>
       <hr/>
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
+      
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          <i className="fa-solid fa-circle-exclamation"></i> {error}
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert variant="success" dismissible onClose={() => setSuccess(null)}>
+          <i className="fa-solid fa-circle-check"></i> {success}
+        </Alert>
+      )}
+      
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>Name</Form.Label>
@@ -162,26 +186,29 @@ const VendorEdit = () => {
             disabled
           />
         </Form.Group>
+        
         <Form.Group className="mb-3">
-            <Form.Label>Address</Form.Label>
-            <Form.Control
+          <Form.Label>Address</Form.Label>
+          <Form.Control
             type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             required
             disabled
-            />
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
-            <Form.Label>Contact Name</Form.Label>
-            <Form.Control
+          <Form.Label>Contact Name</Form.Label>
+          <Form.Control
             type="text"
             value={contactName}
             onChange={(e) => setContactName(e.target.value)}
             required
             disabled
-            />
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Contact Email</Form.Label>
           <Form.Control
@@ -190,8 +217,9 @@ const VendorEdit = () => {
             onChange={(e) => setContactEmail(e.target.value)}
             required
             disabled
-            />
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Contact Phone</Form.Label>
           <Form.Control
@@ -200,8 +228,9 @@ const VendorEdit = () => {
             onChange={(e) => setContactPhone(e.target.value)}
             required
             disabled
-            />
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Contact Type</Form.Label>
           <Form.Control
@@ -210,8 +239,9 @@ const VendorEdit = () => {
             onChange={(e) => setContactType(e.target.value)}
             required
             disabled
-            />
+          />
         </Form.Group>
+        
         <Form.Group className="mb-3">
           <Form.Label>Website</Form.Label>
           <Form.Control
@@ -220,31 +250,34 @@ const VendorEdit = () => {
             onChange={(e) => setWebsite(e.target.value)}
             required
             disabled
-            />
+          />
         </Form.Group>
-        
-        {/* <Button type="submit" variant="primary">
-          <i className="fas fa-save"></i> Save
-        </Button>
-        <Button type="button" variant="secondary" className="ms-2" onClick={() => window.location.href = '/vendors' }>
-          <i className="fas fa-times"></i> Cancel
-        </Button> */}
       </Form>
 
       <hr />
 
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h2 className="h2">SOWs</h2>
-        <Button variant="primary" onClick={() => window.location.href = `/sows/create/${id}`}>
+        <Button 
+          variant="primary" 
+          onClick={() => navigate(`/sows/create/${id}`)}
+        >
           New SOW <i className="fas fa-plus" />
         </Button>
       </div>
 
-      <PagedTable columns={sowColumns}
+      <PagedTable 
+        columns={sowColumns}
         fetchData={fetchSows}
         reload={reloadSows}
         showPagination={false}
-        />
+        initialData={sowsData?.data || []}
+        initialTotal={sowsData?.total || 0}
+        initialSkip={0}
+        initialLimit={10}
+        initialLoadCompleted={!loadingSOWs}
+        isExternalLoading={loadingSOWs}
+      />
 
       <ConfirmModal
         show={showDeleteSowModal}
@@ -252,7 +285,7 @@ const VendorEdit = () => {
         handleConfirm={handleDeleteSow}
         title="Delete SOW"
         message="Are you sure you want to delete this SOW?"
-        isLoading={isDeleting}
+        isLoading={deleteSOWMutation.isPending}
       />
     </div>
   );
