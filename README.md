@@ -8,7 +8,7 @@ Explore how intelligent AI agents handle document extraction, validation, semant
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/postgres-invoice-pilot)
 
 > The full documentation for deploying and completing the workshop can be found here:
-> <http://aka.ms/pg-byoac-docs/>
+> <http://aka.ms/pg-invoice-pilot-docs/>
 
 ## 🧭 Quick Navigation
 - [App Scenario](#app-scenario-ai-powered-financial-document-intelligence)
