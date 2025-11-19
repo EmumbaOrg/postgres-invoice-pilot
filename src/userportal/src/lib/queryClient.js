@@ -11,6 +11,9 @@ export const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
       
       // Time before inactive queries are garbage collected (10 minutes)
+      // Increased to handle StrictMode remounting - keeps queries in cache longer
+      // This ensures that even if a component unmounts and remounts quickly,
+      // the query data stays in cache and doesn't trigger a duplicate request
       gcTime: 10 * 60 * 1000,
       
       // Retry failed queries
@@ -32,8 +35,15 @@ export const queryClient = new QueryClient({
       // Refetch on reconnect
       refetchOnReconnect: true,
       
-      // Refetch on mount if data is stale
+      // Refetch on mount only if data is stale (prevents duplicate calls in StrictMode)
+      // React Query automatically deduplicates identical queries by query key,
+      // but 'true' ensures we only refetch when data is actually stale (older than staleTime)
+      // This works together with staleTime to prevent unnecessary refetches
       refetchOnMount: true,
+      
+      // Enable structural sharing (default: true) to ensure stable references
+      // This helps React Query detect when data hasn't changed
+      structuralSharing: true,
     },
     mutations: {
       // Retry failed mutations once

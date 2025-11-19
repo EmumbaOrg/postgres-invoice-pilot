@@ -18,13 +18,16 @@ const SOWList = () => {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [selectedDocumentUrl, setSelectedDocumentUrl] = useState(null);
   
-  // Fetch SOWs using React Query
-  const { data: sowsData, isLoading, error: fetchError } = useSOWs({ 
+  // Memoize query parameters to ensure stable query key (prevents duplicate calls in StrictMode)
+  const sowQueryParams = useMemo(() => ({ 
     vendorId: -1, 
     skip: 0, 
     limit: -1, 
     sortBy: '' 
-  });
+  }), []);
+  
+  // Fetch SOWs using React Query
+  const { data: sowsData, isLoading, error: fetchError } = useSOWs(sowQueryParams);
   
   // Delete mutation
   const deleteMutation = useDeleteSOW();
