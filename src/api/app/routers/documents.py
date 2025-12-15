@@ -27,7 +27,7 @@ async def get(sort_by: Literal["blob_name", "created"] = Query(default="blob_nam
             blobs.append({
                 "blob_name": blob.name,
                 "content_type": blob_properties.content_settings.content_type,
-                "created": blob_properties.creation_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "created": blob_properties.creation_time.strftime('%B %d, %Y at %I:%M %p'),
                 "size": blob_properties.size
             })
         # Sort documents by the specified field
