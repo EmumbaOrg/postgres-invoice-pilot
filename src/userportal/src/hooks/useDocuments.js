@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { documentsService } from '../services/documents.service';
+import { getDocuments, getRecentDocuments, getDocumentUrl, uploadDocument, deleteDocument } from '../services/documents.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,8 @@ import { queryKeys } from '../lib/queryKeys';
 export const useDocuments = () => {
   return useQuery({
     queryKey: queryKeys.documents.lists(),
-    queryFn: documentsService.getDocuments,
+    queryFn: getDocuments,
+    staleTime: 30_000,
   });
 };
 
@@ -17,8 +18,8 @@ export const useDocuments = () => {
  */
 export const useRecentDocuments = (sortBy = 'created') => {
   return useQuery({
-    queryKey: queryKeys.documents.recent(),
-    queryFn: () => documentsService.getRecentDocuments(sortBy),
+    queryKey: queryKeys.documents.recent(sortBy),
+    queryFn: () => getRecentDocuments(sortBy),
   });
 };
 
@@ -29,7 +30,7 @@ export const useUploadDocument = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: documentsService.uploadDocument,
+    mutationFn: uploadDocument,
     onSuccess: () => {
       // Invalidate documents list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.documents.all });
@@ -46,7 +47,7 @@ export const useDeleteDocument = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: documentsService.deleteDocument,
+    mutationFn: deleteDocument,
     onMutate: async (blobName) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.documents.all });
@@ -81,5 +82,5 @@ export const useDeleteDocument = () => {
 /**
  * Get document URL (not a hook, just a utility function)
  */
-export const getDocumentUrl = documentsService.getDocumentUrl;
+export { getDocumentUrl };
 

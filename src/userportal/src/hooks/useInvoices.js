@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { invoicesService } from '../services/invoices.service';
+import { getInvoices, getInvoice, analyzeInvoice, validateInvoice, updateInvoice, deleteInvoice, getValidationResults } from '../services/invoices.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,8 @@ import { queryKeys } from '../lib/queryKeys';
 export const useInvoices = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '' } = {}) => {
   return useQuery({
     queryKey: queryKeys.invoices.list({ vendorId, skip, limit, sortBy }),
-    queryFn: () => invoicesService.getInvoices({ vendorId, skip, limit, sortBy }),
+    queryFn: () => getInvoices({ vendorId, skip, limit, sortBy }),
+    staleTime: 30_000,
   });
 };
 
@@ -18,7 +19,7 @@ export const useInvoices = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '' }
 export const useInvoice = (id) => {
   return useQuery({
     queryKey: queryKeys.invoices.detail(id),
-    queryFn: () => invoicesService.getInvoice(id),
+    queryFn: () => getInvoice(id),
     enabled: !!id,
   });
 };
@@ -30,7 +31,7 @@ export const useAnalyzeInvoice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: invoicesService.analyzeInvoice,
+    mutationFn: analyzeInvoice,
     onSuccess: () => {
       // Invalidate invoices list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.invoices.lists() });
@@ -49,7 +50,7 @@ export const useValidateInvoice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: invoicesService.validateInvoice,
+    mutationFn: validateInvoice,
     onSuccess: (_, invoiceId) => {
       // Invalidate validation results
       queryClient.invalidateQueries({ 
@@ -70,7 +71,7 @@ export const useUpdateInvoice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: invoicesService.updateInvoice,
+    mutationFn: updateInvoice,
     onSuccess: (updatedInvoice, variables) => {
       // Invalidate invoices list
       queryClient.invalidateQueries({ queryKey: queryKeys.invoices.lists() });
@@ -91,7 +92,7 @@ export const useDeleteInvoice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: invoicesService.deleteInvoice,
+    mutationFn: deleteInvoice,
     onMutate: async (invoiceId) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.invoices.lists() });
@@ -133,7 +134,7 @@ export const useDeleteInvoice = () => {
 export const useInvoiceValidationResults = (id) => {
   return useQuery({
     queryKey: queryKeys.validationResults.invoice(id),
-    queryFn: () => invoicesService.getValidationResults(id),
+    queryFn: () => getValidationResults(id),
     enabled: !!id,
   });
 };

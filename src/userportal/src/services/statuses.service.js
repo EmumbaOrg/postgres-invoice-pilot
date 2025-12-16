@@ -1,22 +1,16 @@
 import apiService from './api.service';
 
 /**
- * Statuses Service
- * Handles all status-related API calls
+ * Get app status
  */
-export const statusesService = {
-  /**
-   * Get app status
-   */
-  getStatus: async () => {
-    return apiService.get('status');
-  },
+export const getStatus = async () => {
+  return apiService.get('status');
+};
 
-  /**
-   * Get list of all statuses
-   */
-  getStatusList: async () => {
-    return apiService.get('statuses/');
-  },
+/**
+ * Get list of all statuses
+ */
+export const getStatusList = async () => {
+  return apiService.get('statuses/');
 };
 

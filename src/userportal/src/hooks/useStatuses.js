@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { statusesService } from '../services/statuses.service';
+import { getStatus, getStatusList } from '../services/statuses.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,7 @@ import { queryKeys } from '../lib/queryKeys';
 export const useAppStatus = () => {
   return useQuery({
     queryKey: queryKeys.status.detail(),
-    queryFn: statusesService.getStatus,
+    queryFn: getStatus,
     // Refetch status periodically
     refetchInterval: 60000, // Every minute
   });
@@ -20,7 +20,7 @@ export const useAppStatus = () => {
 export const useStatusList = () => {
   return useQuery({
     queryKey: queryKeys.statuses.list(),
-    queryFn: statusesService.getStatusList,
+    queryFn: getStatusList,
     // This data rarely changes, so we can cache it longer
     staleTime: 10 * 60 * 1000, // 10 minutes
   });

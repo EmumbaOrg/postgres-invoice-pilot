@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { invoiceLineItemsService } from '../services/invoiceLineItems.service';
+import { getInvoiceLineItems, getInvoiceLineItem, getMilestonesForInvoice, createInvoiceLineItem, updateInvoiceLineItem, deleteInvoiceLineItem } from '../services/invoiceLineItems.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,8 @@ import { queryKeys } from '../lib/queryKeys';
 export const useInvoiceLineItems = ({ invoiceId = -1, skip = 0, limit = 10, sortBy = '' } = {}) => {
   return useQuery({
     queryKey: queryKeys.invoiceLineItems.list({ invoiceId, skip, limit, sortBy }),
-    queryFn: () => invoiceLineItemsService.getInvoiceLineItems({ invoiceId, skip, limit, sortBy }),
+    queryFn: () => getInvoiceLineItems({ invoiceId, skip, limit, sortBy }),
+    staleTime: 30_000, // 30 seconds
   });
 };
 
@@ -18,7 +19,7 @@ export const useInvoiceLineItems = ({ invoiceId = -1, skip = 0, limit = 10, sort
 export const useInvoiceLineItem = (id) => {
   return useQuery({
     queryKey: queryKeys.invoiceLineItems.detail(id),
-    queryFn: () => invoiceLineItemsService.getInvoiceLineItem(id),
+    queryFn: () => getInvoiceLineItem(id),
     enabled: !!id,
   });
 };
@@ -29,7 +30,7 @@ export const useInvoiceLineItem = (id) => {
 export const useInvoiceMilestones = (invoiceId) => {
   return useQuery({
     queryKey: queryKeys.invoiceLineItems.milestones(invoiceId),
-    queryFn: () => invoiceLineItemsService.getMilestonesForInvoice(invoiceId),
+    queryFn: () => getMilestonesForInvoice(invoiceId),
     enabled: !!invoiceId,
   });
 };
@@ -41,7 +42,7 @@ export const useCreateInvoiceLineItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: invoiceLineItemsService.createInvoiceLineItem,
+    mutationFn: createInvoiceLineItem,
     onSuccess: (newLineItem) => {
       // Invalidate invoice line items list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.invoiceLineItems.lists() });
@@ -62,7 +63,7 @@ export const useUpdateInvoiceLineItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: invoiceLineItemsService.updateInvoiceLineItem,
+    mutationFn: updateInvoiceLineItem,
     onSuccess: (updatedLineItem, variables) => {
       // Invalidate invoice line items list
       queryClient.invalidateQueries({ queryKey: queryKeys.invoiceLineItems.lists() });
@@ -83,7 +84,7 @@ export const useDeleteInvoiceLineItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: invoiceLineItemsService.deleteInvoiceLineItem,
+    mutationFn: deleteInvoiceLineItem,
     onMutate: async (lineItemId) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.invoiceLineItems.lists() });
@@ -99,7 +100,7 @@ export const useDeleteInvoiceLineItem = () => {
         return {
           ...old,
           data: old.data.filter((item) => item.id !== lineItemId),
-          total: old.total - 1,
+          total: Math.max(0, old.total - 1),
         };
       });
 

@@ -15,8 +15,8 @@ import { useAllVendors } from '../../hooks/useVendors';
 import { useSOW, useUpdateSOW, useValidateSOW, useSOWChunks } from '../../hooks/useSOWs';
 import { useMilestones, useDeleteMilestone } from '../../hooks/useMilestones';
 import { useSOWValidationResults } from '../../hooks/useSOWs';
-import { documentsService } from '../../services/documents.service';
-import { milestonesService } from '../../services/milestones.service';
+import { getDocumentUrl } from '../../services/documents.service';
+import { getMilestones } from '../../services/milestones.service';
 
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
@@ -179,7 +179,7 @@ const SOWEdit = () => {
 
   const fetchMilestones = async () => {
     try {
-      const data = await milestonesService.getMilestones({ sowId: id, skip: 0, limit: -1 });
+      const data = await getMilestones({ sowId: id, skip: 0, limit: -1 });
       setReloadMilestones(false);
       return data;
     } catch (err) {
@@ -397,7 +397,7 @@ const SOWEdit = () => {
                             title={sowDocument}
                             showMenu={false}
                           />
-                             <a href={documentsService.getDocumentUrl(sowDocument)} target="_blank" rel="noreferrer">
+                             <a href={getDocumentUrl(sowDocument)} target="_blank" rel="noreferrer">
               <i className="fas fa-download ms-3"></i>
             </a>
           </div>

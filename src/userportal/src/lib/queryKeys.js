@@ -77,7 +77,7 @@ export const queryKeys = {
     all: ['documents'],
     lists: () => [...queryKeys.documents.all, 'list'],
     list: (filters) => [...queryKeys.documents.lists(), filters],
-    recent: () => [...queryKeys.documents.all, 'recent'],
+    recent: (sortBy) => [...queryKeys.documents.all, 'recent', sortBy],
   },
 
   // Activities

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { vendorsService } from '../services/vendors.service';
+import { getVendors, getVendor, createVendor, updateVendor, deleteVendor } from '../services/vendors.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,8 @@ import { queryKeys } from '../lib/queryKeys';
 export const useVendors = ({ skip = 0, limit = 10, sortBy = '' } = {}) => {
   return useQuery({
     queryKey: queryKeys.vendors.list({ skip, limit, sortBy }),
-    queryFn: () => vendorsService.getVendors({ skip, limit, sortBy }),
+    queryFn: () => getVendors({ skip, limit, sortBy }),
+    staleTime: 30_000,
   });
 };
 
@@ -18,7 +19,7 @@ export const useVendors = ({ skip = 0, limit = 10, sortBy = '' } = {}) => {
 export const useAllVendors = () => {
   return useQuery({
     queryKey: queryKeys.vendors.list({ skip: 0, limit: -1, sortBy: '' }),
-    queryFn: () => vendorsService.getVendors({ skip: 0, limit: -1, sortBy: '' }),
+    queryFn: () => getVendors({ skip: 0, limit: -1, sortBy: '' }),
   });
 };
 
@@ -28,7 +29,7 @@ export const useAllVendors = () => {
 export const useVendor = (id) => {
   return useQuery({
     queryKey: queryKeys.vendors.detail(id),
-    queryFn: () => vendorsService.getVendor(id),
+    queryFn: () => getVendor(id),
     enabled: !!id,
   });
 };
@@ -40,7 +41,7 @@ export const useCreateVendor = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: vendorsService.createVendor,
+    mutationFn: createVendor,
     onSuccess: (newVendor) => {
       // Invalidate vendors list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.vendors.lists() });
@@ -58,7 +59,7 @@ export const useUpdateVendor = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: vendorsService.updateVendor,
+    mutationFn: updateVendor,
     onSuccess: (updatedVendor, variables) => {
       // Invalidate vendors list
       queryClient.invalidateQueries({ queryKey: queryKeys.vendors.lists() });
@@ -79,7 +80,7 @@ export const useDeleteVendor = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: vendorsService.deleteVendor,
+    mutationFn: deleteVendor,
     onMutate: async (vendorId) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.vendors.lists() });

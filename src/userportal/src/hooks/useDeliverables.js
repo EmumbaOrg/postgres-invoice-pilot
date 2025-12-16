@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { deliverablesService } from '../services/deliverables.service';
+import { getDeliverables, getDeliverable, createDeliverable, updateDeliverable, deleteDeliverable } from '../services/deliverables.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,8 @@ import { queryKeys } from '../lib/queryKeys';
 export const useDeliverables = ({ milestoneId = -1, skip = 0, limit = 10, sortBy = '' } = {}) => {
   return useQuery({
     queryKey: queryKeys.deliverables.list({ milestoneId, skip, limit, sortBy }),
-    queryFn: () => deliverablesService.getDeliverables({ milestoneId, skip, limit, sortBy }),
+    queryFn: () => getDeliverables({ milestoneId, skip, limit, sortBy }),
+    staleTime: 30_000,
   });
 };
 
@@ -18,7 +19,7 @@ export const useDeliverables = ({ milestoneId = -1, skip = 0, limit = 10, sortBy
 export const useDeliverable = (id) => {
   return useQuery({
     queryKey: queryKeys.deliverables.detail(id),
-    queryFn: () => deliverablesService.getDeliverable(id),
+    queryFn: () => getDeliverable(id),
     enabled: !!id,
   });
 };
@@ -30,7 +31,7 @@ export const useCreateDeliverable = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deliverablesService.createDeliverable,
+    mutationFn: createDeliverable,
     onSuccess: (newDeliverable) => {
       // Invalidate deliverables list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.deliverables.lists() });
@@ -51,7 +52,7 @@ export const useUpdateDeliverable = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deliverablesService.updateDeliverable,
+    mutationFn: updateDeliverable,
     onSuccess: (updatedDeliverable, variables) => {
       // Invalidate deliverables list
       queryClient.invalidateQueries({ queryKey: queryKeys.deliverables.lists() });
@@ -72,7 +73,7 @@ export const useDeleteDeliverable = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deliverablesService.deleteDeliverable,
+    mutationFn: deleteDeliverable,
     onMutate: async (deliverableId) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.deliverables.lists() });

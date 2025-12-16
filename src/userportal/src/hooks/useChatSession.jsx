@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { completionsService } from "../services/completions.service";
+import { sendChatMessage, getChatHistory, getChatSessions, deleteChatSession } from "../services/completions.service";
 
 export const useChatSession = () => {
   const [sessionId, setSessionId] = useState(-1); // -1 indicates not yet established with backend
@@ -45,7 +45,7 @@ export const useChatSession = () => {
       if (sessionId === -1) {
         suppressNextHistoryLoadRef.current = true;
       }
-      const output = await completionsService.sendChatMessage({ sessionId, message: prompt });
+      const output = await sendChatMessage({ sessionId, message: prompt });
       const assistantMessage = { role: "assistant", content: output.content };
 
       // Ensure session id is updated first so future sends use correct id
@@ -84,7 +84,7 @@ export const useChatSession = () => {
     }
 
     try {
-      const data = await completionsService.getChatHistory(sessionId);
+      const data = await getChatHistory(sessionId);
       setMessages(prev => {
         // If backend has fewer messages (race), keep optimistic ones
         if (data.length < prev.length) return prev;

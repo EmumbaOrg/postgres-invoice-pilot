@@ -6,8 +6,8 @@ import "./stepper.css";
 import { useAllVendors, useCreateVendor } from '../../../hooks/useVendors';
 import { useAnalyzeSOW, useValidateSOW } from '../../../hooks/useSOWs';
 import { useAnalyzeInvoice, useValidateInvoice } from '../../../hooks/useInvoices';
-import { sowsService } from '../../../services/sows.service';
-import { invoicesService } from '../../../services/invoices.service';
+import { getSows, getValidationResults as getSowValidationResults } from '../../../services/sows.service';
+import { getInvoices, getValidationResults as getInvoiceValidationResults } from '../../../services/invoices.service';
 
 const NavigationStepper = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -233,7 +233,7 @@ const NavigationStepper = () => {
         
         // Fetch validation results to display
         try {
-          const validationData = await sowsService.getValidationResults(newSowId);
+          const validationData = await getSowValidationResults(newSowId);
           setValidations(validationData.data);
         } catch (validationErr) {
           console.error('Error fetching validation results:', validationErr);
@@ -247,7 +247,7 @@ const NavigationStepper = () => {
         
         // Still try to fetch validation results even if validation had errors
         try {
-          const validationData = await sowsService.getValidationResults(newSowId);
+          const validationData = await getSowValidationResults(newSowId);
           setValidations(validationData.data);
         } catch (validationErr) {
           console.error('Error fetching validation results:', validationErr);
@@ -301,7 +301,7 @@ const NavigationStepper = () => {
         
         // Fetch validation results to display
         try {
-          const validationData = await invoicesService.getValidationResults(newInvoiceId);
+          const validationData = await getInvoiceValidationResults(newInvoiceId);
           setInvoiceValidations(validationData.data);
         } catch (validationErr) {
           console.error('Error fetching invoice validation results:', validationErr);
@@ -315,7 +315,7 @@ const NavigationStepper = () => {
         
         // Still try to fetch validation results even if validation had errors
         try {
-          const validationData = await invoicesService.getValidationResults(newInvoiceId);
+          const validationData = await getInvoiceValidationResults(newInvoiceId);
           setInvoiceValidations(validationData.data);
         } catch (validationErr) {
           console.error('Error fetching invoice validation results:', validationErr);

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { sowsService } from '../services/sows.service';
+import { getSows, getSow, analyzeSow, validateSow, updateSow, deleteSow, getSowChunks, getValidationResults } from '../services/sows.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,8 @@ import { queryKeys } from '../lib/queryKeys';
 export const useSOWs = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '' } = {}) => {
   return useQuery({
     queryKey: queryKeys.sows.list({ vendorId, skip, limit, sortBy }),
-    queryFn: () => sowsService.getSows({ vendorId, skip, limit, sortBy }),
+    queryFn: () => getSows({ vendorId, skip, limit, sortBy }),
+    staleTime: 30_000,
   });
 };
 
@@ -18,7 +19,7 @@ export const useSOWs = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '' } = {
 export const useSOW = (id) => {
   return useQuery({
     queryKey: queryKeys.sows.detail(id),
-    queryFn: () => sowsService.getSow(id),
+    queryFn: () => getSow(id),
     enabled: !!id,
   });
 };
@@ -29,7 +30,7 @@ export const useSOW = (id) => {
 export const useSOWChunks = (id) => {
   return useQuery({
     queryKey: queryKeys.sows.chunks(id),
-    queryFn: () => sowsService.getSowChunks(id),
+    queryFn: () => getSowChunks(id),
     enabled: !!id,
   });
 };
@@ -41,7 +42,7 @@ export const useAnalyzeSOW = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: sowsService.analyzeSow,
+    mutationFn: analyzeSow,
     onSuccess: () => {
       // Invalidate SOWs list to refetch
       queryClient.invalidateQueries({ queryKey: queryKeys.sows.lists() });
@@ -60,7 +61,7 @@ export const useValidateSOW = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: sowsService.validateSow,
+    mutationFn: validateSow,
     onSuccess: (_, sowId) => {
       // Invalidate validation results
       queryClient.invalidateQueries({ 
@@ -81,7 +82,7 @@ export const useUpdateSOW = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: sowsService.updateSow,
+    mutationFn: updateSow,
     onSuccess: (updatedSOW, variables) => {
       // Invalidate SOWs list
       queryClient.invalidateQueries({ queryKey: queryKeys.sows.lists() });
@@ -102,7 +103,7 @@ export const useDeleteSOW = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: sowsService.deleteSow,
+    mutationFn: deleteSow,
     onMutate: async (sowId) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.sows.lists() });
@@ -144,7 +145,7 @@ export const useDeleteSOW = () => {
 export const useSOWValidationResults = (id) => {
   return useQuery({
     queryKey: queryKeys.validationResults.sow(id),
-    queryFn: () => sowsService.getValidationResults(id),
+    queryFn: () => getValidationResults(id),
     enabled: !!id,
   });
 };

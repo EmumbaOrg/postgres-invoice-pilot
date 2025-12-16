@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { activitiesService } from '../services/activities.service';
+import { getRecentActivities } from '../services/activities.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,7 @@ import { queryKeys } from '../lib/queryKeys';
 export const useRecentActivities = (limit = 3) => {
   return useQuery({
     queryKey: queryKeys.activities.recent(limit),
-    queryFn: () => activitiesService.getRecentActivities(limit),
+    queryFn: () => getRecentActivities(limit),
     // Refetch more frequently for activities
     refetchInterval: 30000, // Refetch every 30 seconds
   });

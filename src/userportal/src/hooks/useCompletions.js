@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { completionsService } from '../services/completions.service';
+import { sendChatMessage, getChatHistory, getChatSessions, deleteChatSession } from '../services/completions.service';
 import { queryKeys } from '../lib/queryKeys';
 
 /**
@@ -8,7 +8,7 @@ import { queryKeys } from '../lib/queryKeys';
 export const useChatSessions = () => {
   return useQuery({
     queryKey: queryKeys.completions.sessions(),
-    queryFn: completionsService.getChatSessions,
+    queryFn: getChatSessions,
   });
 };
 
@@ -18,7 +18,7 @@ export const useChatSessions = () => {
 export const useChatHistory = (sessionId) => {
   return useQuery({
     queryKey: queryKeys.completions.history(sessionId),
-    queryFn: () => completionsService.getChatHistory(sessionId),
+    queryFn: () => getChatHistory(sessionId),
     enabled: !!sessionId,
   });
 };
@@ -30,7 +30,7 @@ export const useSendChatMessage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: completionsService.sendChatMessage,
+    mutationFn: sendChatMessage,
     onSuccess: (data, variables) => {
       // Invalidate chat history to refetch with new message
       queryClient.invalidateQueries({ 
@@ -52,7 +52,7 @@ export const useDeleteChatSession = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: completionsService.deleteChatSession,
+    mutationFn: deleteChatSession,
     onMutate: async (sessionId) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.completions.sessions() });

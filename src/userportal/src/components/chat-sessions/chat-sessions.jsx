@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Row, Button, OverlayTrigger, Tooltip, Spinner } from 'react-bootstrap';
 import ConfirmModal from '../ConfirmModal'; 
-import { completionsService } from '../../services/completions.service';
+import { deleteChatSession, getChatSessions, getChatHistory } from '../../services/completions.service';
 import "./chat-session.css";
 import { DeleteChatHistoryIcon } from '../../icon-svgs/icon-svgs';
 
@@ -15,7 +15,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
     const refreshSessionList = async () => {
         setSessionHistoryLoading(true);
         try {
-          const data = await completionsService.getChatSessions();
+          const data = await getChatSessions();
           setSessions(data);
           setSessionHistoryLoading(false);
         } catch (error) {
@@ -31,7 +31,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
           return;
         }
         try {
-          const data = await completionsService.getChatHistory(sessionId);
+          const data = await getChatHistory(sessionId);
           setMessages(data);
           setSessionHistoryLoading(false);
         } catch (error) {
@@ -46,7 +46,7 @@ const ChatSessions = ({  sessionId, setSessionId, setSessionToDelete, setMessage
         setError(null);
         setIsDeletingSession(true);
         try {
-          await completionsService.deleteChatSession(sessionToDelete);
+          await deleteChatSession(sessionToDelete);
     
           if (sessionId === sessionToDelete) {
             setSessionId(-1);
