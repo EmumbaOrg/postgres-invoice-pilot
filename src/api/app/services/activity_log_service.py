@@ -47,7 +47,7 @@ class ActivityLogService:
             return [
                     {
                         "message": row['message'],
-                        "timestamp": row['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')
+                        "timestamp": row['timestamp'].strftime('%B %d, %Y at %I:%M %p')
                     }
                     for row in rows
                 ]
