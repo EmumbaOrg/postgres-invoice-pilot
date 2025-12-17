@@ -19,14 +19,16 @@ export const getInvoice = async (id) => {
 /**
  * Analyze invoice from file upload
  */
-export const analyzeInvoice = async ({ file, data }) => {
+export const analyzeInvoice = async ({ file, metadata }) => {
   const formData = new FormData();
   formData.append('file', file);
   
-  // Append additional data fields
-  Object.keys(data).forEach((key) => {
-    formData.append(key, data[key]);
-  });
+  // Append additional metadata fields
+  if (metadata && typeof metadata === 'object') {
+    Object.keys(metadata).forEach((key) => {
+      formData.append(key, metadata[key]);
+    });
+  }
 
   return apiService.postFormData('invoices/', formData);
 };

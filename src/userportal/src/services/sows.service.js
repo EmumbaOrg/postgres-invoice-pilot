@@ -19,14 +19,16 @@ export const getSow = async (id) => {
 /**
  * Analyze SOW from file upload
  */
-export const analyzeSow = async ({ file, data }) => {
+export const analyzeSow = async ({ file, metadata }) => {
   const formData = new FormData();
   formData.append('file', file);
   
-  // Append additional data fields
-  Object.keys(data).forEach((key) => {
-    formData.append(key, data[key]);
-  });
+  // Append additional metadata fields
+  if (metadata && typeof metadata === 'object') {
+    Object.keys(metadata).forEach((key) => {
+      formData.append(key, metadata[key]);
+    });
+  }
 
   return apiService.postFormData('sows/', formData);
 };
