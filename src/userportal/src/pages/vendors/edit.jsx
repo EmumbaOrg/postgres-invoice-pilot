@@ -57,6 +57,35 @@ const VendorEdit = () => {
     // Currently form is disabled, but keeping handler for future enablement
   };
 
+  const isNonEmpty = (s) => typeof s === 'string' && s.trim().length > 0;
+  const validateEmail = (email) => {
+    if (!email) return false;
+    const trimmed = email.trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+  };
+  const validatePhone = (phone) => {
+    if (!phone) return false;
+    const digits = (phone || '').replace(/\D/g, '');
+    return digits.length >= 7 && digits.length <= 15;
+  };
+
+  const validateFormFields = () => {
+    if (!isNonEmpty(name) || !isNonEmpty(address) || !isNonEmpty(contactName) || !isNonEmpty(contactEmail) || !isNonEmpty(contactPhone) || !isNonEmpty(contactType)) {
+      setError('Please fill in all required fields');
+      return false;
+    }
+    if (!validateEmail(contactEmail)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    if (!validatePhone(contactPhone)) {
+      setError('Please enter a valid phone number');
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
   const sowColumns = useMemo(
     () => [
       {

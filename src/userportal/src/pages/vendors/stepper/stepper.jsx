@@ -39,6 +39,16 @@ const NavigationStepper = () => {
     address: "",
   });
 
+  // Inline validation messages
+  const [contactEmailError, setContactEmailError] = useState('');
+  const [contactPhoneError, setContactPhoneError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({
+    name: '',
+    contact_name: '',
+    type: '',
+    address: '',
+  });
+
   const [vendorId, setVendorId] = useState(formData.name);
 
   // React Query hooks
@@ -83,10 +93,59 @@ const NavigationStepper = () => {
   }, [invoiceFile, vendorId, invoiceId, invoiceLoading, showInvoiceAnalysisModal]);
 
   const handleInputChange = (field, value) => {
+    // Update form data
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+
+    // Inline validation: only validate when user has entered something (non-empty after trim)
+    if (field === 'contact_email') {
+      const trimmed = (value || '').trim();
+      // If user entered only spaces -> show message
+      if (value && trimmed.length === 0) {
+        setContactEmailError('Email cannot be blank or only spaces');
+      } else if (trimmed.length === 0) {
+        // empty input -> clear inline message until blur
+        setContactEmailError('');
+      } else if (!validateEmail(trimmed)) {
+        setContactEmailError('Please enter a valid email address');
+      } else {
+        setContactEmailError('');
+      }
+    }
+
+    if (field === 'contact_phone') {
+      const trimmed = (value || '').trim();
+      const digits = trimmed.replace(/\D/g, '');
+      if (value && trimmed.length === 0) {
+        setContactPhoneError('Phone cannot be blank or only spaces');
+      } else if (digits.length === 0) {
+        setContactPhoneError('');
+      } else if (!(digits.length >= 7 && digits.length <= 15)) {
+        setContactPhoneError('Please enter a valid phone number (7-15 digits)');
+      } else {
+        setContactPhoneError('');
+      }
+    }
+
+    // Generic required-field spaces-only detection
+    if (['name', 'contact_name', 'type', 'address'].includes(field)) {
+      const trimmed = (value || '').trim();
+      setFieldErrors((prev) => ({ ...prev, [field]: value && trimmed.length === 0 ? 'This field cannot be blank or only spaces' : '' }));
+    }
+  };
+
+  const isNonEmpty = (s) => typeof s === 'string' && s.trim().length > 0;
+  const validateEmail = (email) => {
+    if (!email) return false;
+    const trimmed = email.trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+  };
+  const validatePhone = (phone) => {
+    if (!phone) return false;
+    const digits = (phone || '').replace(/\D/g, '');
+    return digits.length >= 7 && digits.length <= 15;
   };
 
   const clearErrors = () => {
@@ -116,6 +175,38 @@ const NavigationStepper = () => {
     setInvoiceSuccess(null);
     setInvoiceValidations([]);
     setShowInvoiceAnalysisModal(false);
+  };
+
+  const handleBlur = (field) => {
+    const value = formData[field] || '';
+    // For required fields, show message if empty or spaces-only on blur
+    if (['name', 'contact_name', 'type', 'address'].includes(field)) {
+      if (!isNonEmpty(value)) {
+        setFieldErrors((prev) => ({ ...prev, [field]: 'This field is required' }));
+      } else {
+        setFieldErrors((prev) => ({ ...prev, [field]: '' }));
+      }
+    }
+
+    if (field === 'contact_email') {
+      if (!isNonEmpty(value)) {
+        setContactEmailError('Email is required');
+      } else if (!validateEmail(value)) {
+        setContactEmailError('Please enter a valid email address');
+      } else {
+        setContactEmailError('');
+      }
+    }
+
+    if (field === 'contact_phone') {
+      if (!isNonEmpty(value)) {
+        setContactPhoneError('Phone number is required');
+      } else if (!validatePhone(value)) {
+        setContactPhoneError('Please enter a valid phone number (7-15 digits)');
+      } else {
+        setContactPhoneError('');
+      }
+    }
   };
 
   const handleSaveAndNext = async () => {
@@ -172,11 +263,32 @@ const NavigationStepper = () => {
 
   const saveVendorDetails = async () => {
     // Validate required fields for vendor details
-    if (!formData.name || !formData.contact_name || !formData.contact_email || !formData.contact_phone || !formData.type || !formData.address) {
-      throw new Error("Please fill in all required vendor details");
+    const { name, contact_name, contact_email, contact_phone, type, address, website } = formData;
+
+    if (!isNonEmpty(name) || !isNonEmpty(contact_name) || !isNonEmpty(contact_email) || !isNonEmpty(contact_phone) || !isNonEmpty(type) || !isNonEmpty(address)) {
+      throw new Error('Please fill in all required vendor details');
     }
+
+    if (!validateEmail(contact_email)) {
+      throw new Error('Please enter a valid email address');
+    }
+
+    if (!validatePhone(contact_phone)) {
+      throw new Error('Please enter a valid phone number');
+    }
+
+    const payload = {
+      name: name.trim(),
+      contact_name: contact_name.trim(),
+      contact_email: contact_email.trim(),
+      contact_phone: contact_phone.trim(),
+      type: type.trim(),
+      address: address.trim(),
+      website: website ? website.trim() : '',
+    };
+
     try {
-      const response = await createVendorMutation.mutateAsync(formData);
+      const response = await createVendorMutation.mutateAsync(payload);
       return response;
     } catch (err) {
       throw err;
@@ -185,7 +297,14 @@ const NavigationStepper = () => {
 
   // Helper function to check if required vendor details are filled
   const isVendorDetailsValid = () => {
-    return formData.name && formData.contact_name && formData.contact_email && formData.contact_phone && formData.type && formData.address;
+    return (
+      isNonEmpty(formData.name) &&
+      isNonEmpty(formData.contact_name) &&
+      isNonEmpty(formData.type) &&
+      isNonEmpty(formData.address) &&
+      validateEmail(formData.contact_email) &&
+      validatePhone(formData.contact_phone)
+    );
   };
 
   // Helper function to check if Save & Next button should be disabled
@@ -352,16 +471,20 @@ const NavigationStepper = () => {
                 <h5 className="section-heading">Vendor Details</h5>
                 <div className="row g-3">
                   <div className="col-12">
-                      <Form.Group>
-                <input
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  required
-                  className="form-control p-3"
-                  placeholder="Vendor Name *"
-                  type="text"
-                ></input>
-              </Form.Group>
+                    <Form.Group>
+                      <input
+                        value={formData.name}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        required
+                        className="form-control p-3"
+                        placeholder="Vendor Name *"
+                        type="text"
+                        onBlur={() => handleBlur('name')}
+                      />
+                      {fieldErrors.name ? (
+                        <div className="form-text text-danger mt-1">{fieldErrors.name}</div>
+                      ) : null}
+                    </Form.Group>
                   </div>
                   <div className="col-12">
                     <input
@@ -371,12 +494,15 @@ const NavigationStepper = () => {
                       placeholder="Type *"
                       value={formData.type}
                       onChange={(e) => handleInputChange("type", e.target.value)}
+                      onBlur={() => handleBlur('type')}
                       required
                     />
+                    {fieldErrors.type ? (
+                      <div className="form-text text-danger mt-1">{fieldErrors.type}</div>
+                    ) : null}
                   </div>
                 </div>
               </div>
-
               <div className="mb-4">
                 <h5 className="section-heading">Contact Info</h5>
                 <div className="row g-3">
@@ -389,8 +515,12 @@ const NavigationStepper = () => {
                       onChange={(e) =>
                         handleInputChange("contact_name", e.target.value)
                       }
+                      onBlur={() => handleBlur('contact_name')}
                       required
                     />
+                    {fieldErrors.contact_name ? (
+                      <div className="form-text text-danger mt-1">{fieldErrors.contact_name}</div>
+                    ) : null}
                   </div>
                   <div className="col-12">
                     <input
@@ -402,7 +532,11 @@ const NavigationStepper = () => {
                         handleInputChange("contact_phone", e.target.value)
                       }
                       required
+                       onBlur={() => handleBlur('contact_phone')}
                     />
+                    {contactPhoneError ? (
+                      <div className="form-text text-danger mt-1">{contactPhoneError}</div>
+                    ) : null}
                   </div>
                   <div className="col-12">
                     <input
@@ -414,7 +548,11 @@ const NavigationStepper = () => {
                         handleInputChange("contact_email", e.target.value)
                       }
                       required
+                       onBlur={() => handleBlur('contact_email')}
                     />
+                    {contactEmailError ? (
+                      <div className="form-text text-danger mt-1">{contactEmailError}</div>
+                    ) : null}
                   </div>
                   <div className="col-12">
                     <input
@@ -436,8 +574,12 @@ const NavigationStepper = () => {
                       onChange={(e) =>
                         handleInputChange("address", e.target.value)
                       }
+                      onBlur={() => handleBlur('address')}
                       required
                     />
+                    {fieldErrors.address ? (
+                      <div className="form-text text-danger mt-1">{fieldErrors.address}</div>
+                    ) : null}
                   </div>
                 </div>
               </div>
