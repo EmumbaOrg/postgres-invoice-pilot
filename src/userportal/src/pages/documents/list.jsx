@@ -1,37 +1,27 @@
-// src/Documents.js
-import React, { useEffect, useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTable, useSortBy } from 'react-table';
-import { Table, Button, Modal, Form } from 'react-bootstrap';
+import { Table, Button, Modal, Form, Spinner, Alert } from 'react-bootstrap';
 
 import ConfirmModal from '../../components/ConfirmModal'; 
-import api from '../../api/Api';
 import { formatFileSize } from '../../utils/common-functions';
-
+import { useDocuments, useUploadDocument, useDeleteDocument, getDocumentUrl } from '../../hooks/useDocuments';
 
 const DocumentList = () => {
-  const [documents, setDocuments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [file, setFile] = useState(null);
   const [blobToDelete, setBlobToDelete] = useState(null);
 
-  const fetchDocuments = async () => {
-    try {
-      const data = await api.documents.list();
-      setDocuments(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // Fetch documents using React Query
+  const { data: documents = [], isLoading, error: fetchError } = useDocuments();
+  
+  // Mutations
+  const uploadMutation = useUploadDocument();
+  const deleteMutation = useDeleteDocument();
 
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
-
+  // Success/error state for UI feedback
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -39,12 +29,19 @@ const DocumentList = () => {
 
   const handleUpload = async () => {
     if (!file) return;
+
     try {
-      await api.documents.upload(file);
+      await uploadMutation.mutateAsync(file);
+      setSuccessMessage('Document uploaded successfully!');
+      setErrorMessage(null);
       setShowModal(false);
-      fetchDocuments(); // Refresh the document list
+      setFile(null);
+      // Reset file input
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput) fileInput.value = '';
     } catch (err) {
-      setError(err.message);
+      setErrorMessage(`Error uploading document: ${err.message}`);
+      setSuccessMessage(null);
     }
   };
 
@@ -52,15 +49,20 @@ const DocumentList = () => {
     if (!blobToDelete) return;
 
     try {
-      await api.documents.delete(blobToDelete);
+      await deleteMutation.mutateAsync(blobToDelete);
+      setSuccessMessage('Document deleted successfully!');
+      setErrorMessage(null);
       setShowConfirmModal(false);
-      fetchDocuments(); // Refresh the document list
+      setBlobToDelete(null);
     } catch (err) {
-      setError(err.message);
+      setErrorMessage(`Error deleting document: ${err.message}`);
+      setSuccessMessage(null);
+      setShowConfirmModal(false);
+      setBlobToDelete(null);
     }
   };
 
-  const columns = React.useMemo(
+  const columns = useMemo(
     () => [
       {
         Header: 'Storage Blob Name',
@@ -85,17 +87,31 @@ const DocumentList = () => {
         accessor: 'actions',
         Cell: ({ row }) => (
           <div>
-            <a href={`${api.documents.getUrl(row.original.blob_name)}`} target="_blank" rel="noopener noreferrer" className="btn btn-link" aria-label="Download">
+            <a 
+              href={getDocumentUrl(row.original.blob_name)} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn btn-link" 
+              aria-label="Download"
+            >
               <i className="fas fa-download"></i>
             </a>
-            <Button variant="danger" onClick={() => { setBlobToDelete(row.original.blob_name); setShowConfirmModal(true); }} aria-label="Delete">
+            <Button 
+              variant="danger" 
+              onClick={() => { 
+                setBlobToDelete(row.original.blob_name); 
+                setShowConfirmModal(true); 
+              }} 
+              aria-label="Delete"
+              disabled={deleteMutation.isPending}
+            >
               <i className="fas fa-trash-alt"></i>
             </Button>
           </div>
         ),
       },
     ],
-    []
+    [deleteMutation.isPending]
   );
 
   const {
@@ -106,20 +122,42 @@ const DocumentList = () => {
     prepareRow,
   } = useTable({ columns, data: documents }, useSortBy);
 
-  if (loading) {
-    return <p>Loading documents...</p>;
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+        <Spinner animation="border" role="status" variant="primary">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
   }
 
-  if (error) {
-    return <p>Error loading documents: {error}</p>;
-  }
+  const error = fetchError || errorMessage;
 
   return (
     <div>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 className="h2">Documents</h1>
+        {/* Uncomment to enable upload functionality */}
         {/* <Button variant="primary" onClick={() => setShowModal(true)}>Upload</Button> */}
       </div>
+
+      {/* Error message */}
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => { setErrorMessage(null); }}>
+          <i className="fa-solid fa-circle-exclamation" variant="danger"></i>{' '}
+          {typeof error === 'string' ? error : error?.message}
+        </Alert>
+      )}
+      
+      {/* Success message */}
+      {successMessage && (
+        <Alert variant="success" dismissible onClose={() => setSuccessMessage(null)}>
+          <i className="fa-solid fa-circle-check" variant="success"></i>{' '}
+          {successMessage}
+        </Alert>
+      )}
+
       <Table striped bordered hover {...getTableProps()}>
         <thead>
           {headerGroups.map(headerGroup => (
@@ -128,7 +166,7 @@ const DocumentList = () => {
                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render('Header')}
                   <span>
-                  {column.isSorted
+                    {column.isSorted
                       ? column.isSortedDesc
                         ? <i className="ms-2 fas fa-sort-down text-muted"></i>
                         : <i className="ms-2 fas fa-sort-up text-muted"></i>
@@ -153,29 +191,44 @@ const DocumentList = () => {
         </tbody>
       </Table>
 
+      {/* Upload Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Upload Document</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-          <Form.Group>
+            <Form.Group>
               <Form.Label>Choose document</Form.Label>
-              <Form.Control type="file" onChange={handleFileChange} />
+              <Form.Control 
+                type="file" 
+                id="fileInput"
+                onChange={handleFileChange} 
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-          <Button variant="primary" onClick={handleUpload}>Upload</Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={handleUpload}
+            disabled={!file || uploadMutation.isPending}
+          >
+            {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
+          </Button>
         </Modal.Footer>
       </Modal>
 
+      {/* Delete Confirmation Modal */}
       <ConfirmModal
         show={showConfirmModal}
         handleClose={() => setShowConfirmModal(false)}
         handleConfirm={handleDelete}
         message="Are you sure you want to delete this document?"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

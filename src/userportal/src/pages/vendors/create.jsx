@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import NavigationStepper from '../vendors/stepper/stepper';
-import api from '../../api/Api';
 
 const VendorCreate = () => {
     const [name, setName] = useState('');

@@ -1,17 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Spinner, Alert, Modal, Breadcrumb, Dropdown } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
-import api from '../../api/Api';
 import SelectFormField from '../../components/SelectFormField';
 import ConfirmModal from '../../components/ConfirmModal';
 import PagedTable from '../../components/PagedTable';
 import SOWCreateModal from './create';
 import ActivityTile from '../../components/activity-tile/activity-tile';
 import StatusChip from '../../components/status-chip/status-chip';
+import { useAllVendors } from '../../hooks/useVendors';
+import { useSOW, useUpdateSOW, useValidateSOW, useSOWChunks } from '../../hooks/useSOWs';
+import { useMilestones, useDeleteMilestone } from '../../hooks/useMilestones';
+import { useSOWValidationResults } from '../../hooks/useSOWs';
+import { getDocumentUrl } from '../../services/documents.service';
+import { getMilestones } from '../../services/milestones.service';
 
 const useQuery = () => {
   return new URLSearchParams(useLocation().search);
@@ -33,18 +38,28 @@ const SOWEdit = () => {
   const [success, setSuccess] = useState(null);
   const [showValidation, setShowValidation] = useState(false);
   const [validating, setValidating] = useState(false); 
-  const [vendors, setVendors] = useState([]);
-  const [validations, setValidations] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [initialMilestones, setInitialMilestones] = useState(null);
-  const [initialMilestonesMeta, setInitialMilestonesMeta] = useState({ total: 0, skip: 0, limit: 10 });
-
   const [showDeleteMilestoneModal, setShowDeleteMilestoneModal] = useState(false);
   const [milestoneToDelete, setMilestoneToDelete] = useState(null);
   const [reloadMilestones, setReloadMilestones] = useState(false);
-const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
-  const [isDeletingMilestone, setIsDeletingMilestone] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
+
+  // React Query hooks
+  const { data: vendorsData } = useAllVendors();
+  const vendors = vendorsData?.data || [];
+  
+  const { data: sowData, isLoading: loadingSOW } = useSOW(id);
+  const { data: validationsData } = useSOWValidationResults(id);
+  const { data: milestonesData, isLoading: loadingMilestones } = useMilestones({ sowId: id, skip: 0, limit: -1 });
+  
+  const updateMutation = useUpdateSOW();
+  const validateMutation = useValidateSOW();
+  const deleteMilestoneMutation = useDeleteMilestone();
+
+  const validations = validationsData?.data || [];
+  const milestones = milestonesData?.data || [];
+  const initialMilestonesMeta = { total: milestonesData?.total || 0, skip: milestonesData?.skip || 0, limit: milestonesData?.limit || 10 };
+  
+  const isLoading = loadingSOW || loadingMilestones;
 
   useEffect(() => {
     const message = query.get('success');
@@ -57,79 +72,34 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
     }
   }, [useLocation().search]);
 
-  const sowLoaded = useRef(false);
-
+  // Update form fields when SOW data is loaded
   useEffect(() => {
-    // Fetch all required data when component mounts and show a loading state
-    if (!sowLoaded.current) {
-      const loadAll = async () => {
-        setIsLoading(true);
-        try {
-          // Fetch vendors and sow in parallel (sow needs id)
-          const vendorsPromise = api.vendors.list(0, -1);
-          const sowPromise = api.sows.get(id);
-
-          const [vendorsData, sowData] = await Promise.all([vendorsPromise, sowPromise]);
-
-          setVendors(vendorsData?.data || []);
-          updateDisplay(sowData);
-
-          // Fetch validations and milestones after sow is available
-          try {
-            const [validationsData, milestonesData] = await Promise.all([
-              api.validationResults.sow(id),
-              api.milestones.list(id, 0, -1),
-            ]);
-            setValidations(validationsData?.data || []);
-            if (milestonesData) {
-              setInitialMilestones(milestonesData.data || []);
-              setInitialMilestonesMeta({ total: milestonesData.total || 0, skip: milestonesData.skip || 0, limit: milestonesData.limit || 10 });
-            }
-          } catch (err) {
-            console.error(err);
-            setError('Error fetching Validations or Milestones');
-            setSuccess(null);
-          }
-
-          sowLoaded.current = true;
-        } catch (err) {
-          console.error(err);
-          setError('Failed to load SOW data');
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      loadAll();
+    if (sowData) {
+      setSowNumber(sowData.number || '');
+      setSowVendorId(sowData.vendor_id || '');
+      setSowDocument(sowData.document || '');
+      setStartDate(sowData.start_date || '');
+      setEndDate(sowData.end_date || '');
+      setBudget(sowData.budget || '');
+      setMetadata(sowData.metadata ? JSON.stringify(sowData.metadata, null, 2) : '');
+      setSummary(sowData.summary || '');
     }
-  }, [id]);
-
-  const updateDisplay = (data) => {
-    setSowNumber(data.number);
-    setSowVendorId(data.vendor_id);
-    setSowDocument(data.document);
-    setStartDate(data.start_date);
-    setEndDate(data.end_date);
-    setBudget(data.budget);
-    setMetadata(data.metadata ? JSON.stringify(data.metadata, null, 2) : '');
-    setSummary(data.summary);
-  }
+  }, [sowData]);
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) {
       e.preventDefault();
     }
-    setIsSaving(true);
     try {
-      var data = {
+      const data = {
         number: sowNumber,
         vendor_id: sowVendorId,
         start_date: startDate,
         end_date: endDate,
         budget: parseFloat(budget)
       };
-      var updatedItem = await api.sows.update(id, data);
+      await updateMutation.mutateAsync({ id, data });
 
-      updateDisplay(updatedItem);
       setSuccess('SOW updated successfully!');
       setError(null);
       setTimeout(() => {
@@ -137,17 +107,14 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
       }, 500); 
     } catch (err) {
       console.error(err);
-      setError('Failed to update SOW');
+      setError(err.message || 'Failed to update SOW');
       setSuccess(null);
-    } finally {
-      setIsSaving(false);
     }
   };
 
   const handleDeleteMilestone = async () => {
-    setIsDeletingMilestone(true);
     try {
-      await api.milestones.delete(milestoneToDelete);
+      await deleteMilestoneMutation.mutateAsync(milestoneToDelete);
       setSuccess('Milestone deleted successfully!');
       setError(null);
       setShowDeleteMilestoneModal(false);
@@ -158,8 +125,6 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
       setError(`Error deleting milestone: ${err.message}`);
       setShowDeleteMilestoneModal(false);
       setMilestoneToDelete(null);
-    } finally {
-      setIsDeletingMilestone(false);
     }
   };
 
@@ -214,7 +179,7 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
 
   const fetchMilestones = async () => {
     try {
-      const data = await api.milestones.list(id, 0, -1); // No pagination limit
+      const data = await getMilestones({ sowId: id, skip: 0, limit: -1 });
       setReloadMilestones(false);
       return data;
     } catch (err) {
@@ -253,27 +218,35 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
     []
   );
 
+  const { data: chunksData, isLoading: loadingChunks } = useSOWChunks(id);
+  
+  const chunks = chunksData?.data || [];
+  const chunksMeta = {
+    total: chunksData?.total || 0,
+    skip: chunksData?.skip || 0,
+    limit: chunksData?.limit || 10,
+  };
+  
   const fetchSowChunks = async () => {
-    try {
-      const data = await api.sows.getChunks(id);
-      return data;
-    } catch (err) {
-      console.error(err);
-      setError('Error fetching SOW chunks');
-      setSuccess(null);
-    }
+    if (!chunksData) return { data: [], total: 0, skip: 0, limit: 10 };
+    return {
+      data: chunksData.data || [],
+      total: chunksData.total || 0,
+      skip: chunksData.skip || 0,
+      limit: chunksData.limit || 10,
+    };
   };
 
   const runManualValidation = async () => {
       try {
         setValidating(true);
-        await api.sows.validate(id);
+        await validateMutation.mutateAsync(id);
         window.location.href = `/sows/${id}?showValidation=true`;
       }
       catch (err) {
         setValidating(false);
         console.error(err);
-        setError('Manual validation failed!');
+        setError(err.message || 'Manual validation failed!');
       }
     };
 
@@ -317,8 +290,8 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
         <Button type="button" variant="outline-primary" className="ms-2" onClick={() => window.location.href = '/sows' }>
            Cancel
         </Button>
-             <Button type="button" variant="primary" onClick={handleSubmit} disabled={isSaving}>
-           {isSaving ? (
+             <Button type="button" variant="primary" onClick={handleSubmit} disabled={updateMutation.isPending}>
+           {updateMutation.isPending ? (
             <>
               <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
               Saving...
@@ -424,7 +397,7 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
                             title={sowDocument}
                             showMenu={false}
                           />
-                             <a href={api.documents.getUrl(sowDocument)} target="_blank" rel="noreferrer">
+                             <a href={getDocumentUrl(sowDocument)} target="_blank" rel="noreferrer">
               <i className="fas fa-download ms-3"></i>
             </a>
           </div>
@@ -449,17 +422,18 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
            <i className="fas fa-plus" style={{marginRight: '0.5em'}} />Add New Milestone
         </Button>
       </div>
-      <PagedTable columns={milestoneColumns}
+        <PagedTable columns={milestoneColumns}
         fetchData={fetchMilestones}
         reload={reloadMilestones}
         showPagination={false}
         noDataMesssage={'No milestones have been added yet.'}
         noDataDescription={'Click on "Add New Milestone" to begin adding milestones.'}
-        initialData={initialMilestones}
+        initialData={milestones}
         initialTotal={initialMilestonesMeta.total}
         initialSkip={initialMilestonesMeta.skip}
         initialLimit={initialMilestonesMeta.limit}
-        initialLoadCompleted={initialMilestones !== null}
+        initialLoadCompleted={!loadingMilestones}
+        isExternalLoading={loadingMilestones}
         />
       <ConfirmModal
         show={showDeleteMilestoneModal}
@@ -467,7 +441,7 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
         handleConfirm={handleDeleteMilestone}
         title="Delete Milestone"
         message="Are you sure you want to delete this milestone?"
-        isLoading={isDeletingMilestone}
+        isLoading={deleteMilestoneMutation.isPending}
       />
     <hr />
     <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -563,6 +537,14 @@ const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
       <PagedTable columns={sowChunkColumns}
         fetchData={fetchSowChunks}
         showPagination={false}
+        initialData={chunks}
+        initialTotal={chunksMeta.total}
+        initialSkip={chunksMeta.skip}
+        initialLimit={chunksMeta.limit}
+        initialLoadCompleted={!loadingChunks}
+        isExternalLoading={loadingChunks}
+        noDataMesssage={'No chunks available for this SOW.'}
+        noDataDescription={'Chunks will appear here after the document is analyzed.'}
         />
 
         <SOWCreateModal 

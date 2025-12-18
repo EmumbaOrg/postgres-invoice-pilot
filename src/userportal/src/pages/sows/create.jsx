@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal, Form, Button, Spinner, Alert } from "react-bootstrap";
-import api from "../../api/Api";
 import SelectFormField from "../../components/SelectFormField";
 import { formatFileSize } from "../../utils/common-functions";
+import { useAllVendors } from "../../hooks/useVendors";
+import { useAnalyzeSOW, useValidateSOW } from "../../hooks/useSOWs";
 
 const SOWCreateModal = ({ show, onHide, vendorId }) => {
   const [sowId, setSowId] = useState(0);
@@ -13,26 +14,15 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(null);
   const [showUpload, setShowUpload] = useState(true);
-  const [vendors, setVendors] = useState([]);
   const [dragActive, setDragActive] = useState(false);
 
-  useEffect(() => {
-    const fetchVendors = async () => {
-      try {
-        const data = await api.vendors.list(0, -1);
-        setVendors(data.data);
-      } catch (err) {
-        console.error(err);
-        setError("Error fetching Vendors");
-        setErrorDetail(null);
-        setSuccess(null);
-      }
-    };
+  // Fetch vendors using React Query
+  const { data: vendorsData, isLoading: loadingVendors, error: vendorsError } = useAllVendors();
+  const vendors = vendorsData?.data || [];
 
-    if (show) {
-      fetchVendors();
-    }
-  }, [show]);
+  // React Query mutations
+  const analyzeMutation = useAnalyzeSOW();
+  const validateMutation = useValidateSOW();
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -80,7 +70,11 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
       setErrorDetail(null);
       setLoading("Analyzing document with AI...");
 
-      const result = await api.sows.analyze(file, { vendor_id: sowVendorId });
+      const result = await analyzeMutation.mutateAsync({ 
+        file, 
+        data: { vendor_id: sowVendorId } 
+      });
+      
       if (result.hasError) {
         setError(result.message);
         setErrorDetail(result.error);
@@ -95,7 +89,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
     } catch (err) {
       console.error(err);
       setShowUpload(true);
-      setError("Error analyzing document");
+      setError(err.message || "Error analyzing document");
       setErrorDetail(null);
       setSuccess(null);
       setLoading(null);
@@ -104,7 +98,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
 
     try {
       setLoading("Validating document with AI...");
-      await api.sows.validate(newSowId);
+      await validateMutation.mutateAsync(newSowId);
     } catch (err) {
       console.error(err);
       // still continue on, since the SOW is already created in the database
@@ -213,8 +207,9 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
                     : null
                 }
                 onChange={(option) => setSowVendorId(option?.value || "")}
-                placeholder="Select vendor name"
+                placeholder={loadingVendors ? "Loading vendors..." : "Select vendor name"}
                 isSearchable
+                isLoading={loadingVendors}
               />
             </Form.Group>
 
@@ -349,7 +344,13 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
           </Form>
         )}
 
-        {loading && (
+        {vendorsError && (
+          <Alert variant="danger" className="mb-3">
+            Error loading vendors: {vendorsError.message}
+          </Alert>
+        )}
+
+        {(loading || analyzeMutation.isPending || validateMutation.isPending) && (
           <Alert variant="light" className="text-center py-4">
             <Spinner
               animation="border"
@@ -359,7 +360,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
             >
               <span className="visually-hidden">{loading}</span>
             </Spinner>
-            <div className="fw-medium">{loading}</div>
+            <div className="fw-medium">{loading || "Processing..."}</div>
           </Alert>
         )}
       </Modal.Body>

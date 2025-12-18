@@ -1,47 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
-import api from '../../api/Api';
+import React, { useState } from 'react';
+import { Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
 import SelectFormField from '../../components/SelectFormField';
+import { useCreateMilestone } from '../../hooks/useMilestones';
+import { useStatusList } from '../../hooks/useStatuses';
 
 const MilestoneCreate = () => {
   const { sowId } = useParams(); // Extract from URL
+  const navigate = useNavigate();
+  
   const [name, setName] = useState('');
   const [status, setStatus] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const [statuses, setStatuses] = useState([]);
-    
-  useEffect(() => {
-    // Fetch data when component mounts
-    const fetchStatuses = async () => {
-      try {
-        const data = await api.statuses.list();
-        setStatuses(data);
-      } catch (err) {
-        setError('Failed to load statuses');
-      }
-    }
-    fetchStatuses();
-  }, []);
+  // Fetch statuses using React Query
+  const { data: statuses = [], isLoading: loadingStatuses } = useStatusList();
+  
+  // Create mutation
+  const createMutation = useCreateMilestone();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     try {
-      var data = {
+      const data = {
         sow_id: sowId,
         name: name,
         status: status
       };
-      var newItem = await api.milestones.create(data);
+      
+      const newItem = await createMutation.mutateAsync(data);
 
       setSuccess('Milestone created successfully!');
-      window.location.href = `/milestones/${newItem.id}`;
       setError(null);
+      
+      // Navigate to the new milestone detail page
+      setTimeout(() => {
+        navigate(`/milestones/${newItem.id}`);
+      }, 1000);
     } catch (err) {
       console.error(err);
-      setError('Failed to create Milestone');
+      setError(err.message || 'Failed to create Milestone');
       setSuccess(null);
     }
   };
@@ -50,35 +50,84 @@ const MilestoneCreate = () => {
     <div className='p-3'>
       <h3>Create Milestone</h3>
       <hr/>
-      {error && <div className="alert alert-danger">{error}</div>}
-      {success && <div className="alert alert-success">{success}</div>}
-      <Form onSubmit={handleSubmit}>
+      
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          <i className="fa-solid fa-circle-exclamation"></i> {error}
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert variant="success" dismissible onClose={() => setSuccess(null)}>
+          <i className="fa-solid fa-circle-check"></i> {success}
+        </Alert>
+      )}
+      
+      {loadingStatuses ? (
+        <div className="d-flex justify-content-center align-items-center py-5">
+          <Spinner animation="border" role="status" variant="primary">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      ) : (
+        <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
+            <Form.Label>Name <span className="text-danger">*</span></Form.Label>
             <Form.Control
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={createMutation.isPending}
+              placeholder="Enter milestone name"
             />
-        </Form.Group>
-        <Form.Group className="mb-3">
+          </Form.Group>
+          
+          <Form.Group className="mb-3">
             <Form.Label>Status</Form.Label>
             <SelectFormField
               options={statuses.map(s => ({ value: s.name, label: s.name }))}
-              value={statuses.find(s => s.name == status) ? { value: status, label: status } : null}
+              value={statuses.find(s => s.name === status) ? { value: status, label: status } : null}
               onChange={(opt) => setStatus(opt?.value || '')}
               placeholder="Select Status"
               isSearchable
+              isDisabled={createMutation.isPending}
             />
-        </Form.Group>
-        <Button type="submit" variant="primary">
-          <i className="fas fa-plus"></i> Create
-        </Button>
-        <a href={`/sows/${sowId}`} className="btn btn-secondary ms-2" aria-label="Cancel">
-          <i className="fas fa-arrow-left"></i> Back to Sow
-        </a>
-      </Form>
+          </Form.Group>
+          
+          <Button 
+            type="submit" 
+            variant="primary"
+            disabled={createMutation.isPending}
+          >
+            {createMutation.isPending ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="me-2"
+                />
+                Creating...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-plus"></i> Create
+              </>
+            )}
+          </Button>
+          
+          <a 
+            href={`/sows/${sowId}`} 
+            className="btn btn-secondary ms-2" 
+            aria-label="Cancel"
+          >
+            <i className="fas fa-arrow-left"></i> Back to SOW
+          </a>
+        </Form>
+      )}
     </div>
   );
 };
