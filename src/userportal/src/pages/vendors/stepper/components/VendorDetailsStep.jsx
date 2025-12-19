@@ -5,7 +5,8 @@ const VendorDetailsStep = ({
   formData, 
   setFormData, 
   error, 
-  onSave 
+  onSave,
+  serverFieldErrors = {}
 }) => {
   // Inline validation messages
   const [contactEmailError, setContactEmailError] = useState('');
@@ -109,6 +110,12 @@ const VendorDetailsStep = ({
         setContactPhoneError('');
       }
     }
+    // If server returned a field error, show it on blur as well
+    if (serverFieldErrors && serverFieldErrors[field]) {
+      if (field === 'contact_email') setContactEmailError(serverFieldErrors[field]);
+      if (field === 'contact_phone') setContactPhoneError(serverFieldErrors[field]);
+      setFieldErrors((prev) => ({ ...prev, [field]: serverFieldErrors[field] }));
+    }
   };
 
   // Helper function to check if required vendor details are filled
@@ -146,8 +153,8 @@ const VendorDetailsStep = ({
                   type="text"
                   onBlur={() => handleBlur('name')}
                 />
-                {fieldErrors.name ? (
-                  <div className="form-text text-danger mt-1">{fieldErrors.name}</div>
+                {(fieldErrors.name || serverFieldErrors.name) ? (
+                  <div className="form-text text-danger mt-1">{serverFieldErrors.name || fieldErrors.name}</div>
                 ) : null}
               </Form.Group>
             </div>
@@ -162,8 +169,8 @@ const VendorDetailsStep = ({
                 onBlur={() => handleBlur('type')}
                 required
               />
-              {fieldErrors.type ? (
-                <div className="form-text text-danger mt-1">{fieldErrors.type}</div>
+              {(fieldErrors.type || serverFieldErrors.type) ? (
+                <div className="form-text text-danger mt-1">{serverFieldErrors.type || fieldErrors.type}</div>
               ) : null}
             </div>
           </div>
@@ -182,8 +189,8 @@ const VendorDetailsStep = ({
                 onBlur={() => handleBlur('contact_name')}
                 required
               />
-              {fieldErrors.contact_name ? (
-                <div className="form-text text-danger mt-1">{fieldErrors.contact_name}</div>
+              {(fieldErrors.contact_name || serverFieldErrors.contact_name) ? (
+                <div className="form-text text-danger mt-1">{serverFieldErrors.contact_name || fieldErrors.contact_name}</div>
               ) : null}
             </div>
             <div className="col-12">
@@ -196,8 +203,8 @@ const VendorDetailsStep = ({
                 onBlur={() => handleBlur('contact_phone')}
                 required
               />
-              {contactPhoneError ? (
-                <div className="form-text text-danger mt-1">{contactPhoneError}</div>
+              {(contactPhoneError || serverFieldErrors.contact_phone) ? (
+                <div className="form-text text-danger mt-1">{serverFieldErrors.contact_phone || contactPhoneError}</div>
               ) : null}
             </div>
             <div className="col-12">
@@ -210,8 +217,8 @@ const VendorDetailsStep = ({
                 onBlur={() => handleBlur('contact_email')}
                 required
               />
-              {contactEmailError ? (
-                <div className="form-text text-danger mt-1">{contactEmailError}</div>
+              {(contactEmailError || serverFieldErrors.contact_email) ? (
+                <div className="form-text text-danger mt-1">{serverFieldErrors.contact_email || contactEmailError}</div>
               ) : null}
             </div>
             <div className="col-12">
@@ -233,8 +240,8 @@ const VendorDetailsStep = ({
                 onBlur={() => handleBlur('address')}
                 required
               />
-              {fieldErrors.address ? (
-                <div className="form-text text-danger mt-1">{fieldErrors.address}</div>
+              {(fieldErrors.address || serverFieldErrors.address) ? (
+                <div className="form-text text-danger mt-1">{serverFieldErrors.address || fieldErrors.address}</div>
               ) : null}
             </div>
           </div>

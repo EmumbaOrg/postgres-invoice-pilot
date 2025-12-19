@@ -25,6 +25,7 @@ const NavigationStepper = () => {
     website: "",
     address: "",
   });
+  const [serverFieldErrors, setServerFieldErrors] = useState({});
   const [vendorId, setVendorId] = useState(null);
 
   // React Query hooks
@@ -88,6 +89,7 @@ const NavigationStepper = () => {
   const handleSaveAndNext = async () => {
     setIsLoading(true);
     setError(null);
+    setServerFieldErrors({});
     try {
       // Make API calls based on current step
       switch (currentStep) {
@@ -123,10 +125,50 @@ const NavigationStepper = () => {
         window.location.href = "/vendors";
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Something went wrong";
+      // Default fallback message
+      const rawMessage = error instanceof Error ? error.message : "Something went wrong";
       // Show error in alert for vendor details step
       if (currentStep === 0) {
-        setError(`Error: ${errorMessage}`);
+        // If the error contains details (field errors), build a friendly message
+        if (error && error.details && Array.isArray(error.details) && error.details.length > 0) {
+          const fieldErrs = {};
+          const friendlyParts = [];
+          const labelMap = {
+            contact_email: 'Email',
+            contact_phone: 'Phone',
+            contact_name: 'Contact person',
+            name: 'Vendor name',
+            type: 'Type',
+            address: 'Location',
+            website: 'Website'
+          };
+
+          error.details.forEach((d) => {
+            let field = null;
+            if (Array.isArray(d.loc) && d.loc.length >= 2) {
+              field = d.loc[1];
+            } else if (typeof d.loc === 'string') {
+              const parts = d.loc.split('.');
+              field = parts[parts.length - 1];
+            }
+
+            const msg = d.msg || (typeof d === 'string' ? d : JSON.stringify(d));
+
+            if (field) {
+              fieldErrs[field] = msg;
+              const label = labelMap[field] || field.replace(/_/g, ' ');
+              friendlyParts.push(`${label}: ${msg}`);
+            } else {
+              friendlyParts.push(msg);
+            }
+          });
+
+          setServerFieldErrors(fieldErrs);
+          setError(friendlyParts.join('; '));
+        } else {
+          // No structured details; show plain message
+          setError(rawMessage);
+        }
       }
       // Don't advance to next step if there was an error
       return;
@@ -198,6 +240,7 @@ const NavigationStepper = () => {
       formData={formData}
       setFormData={setFormData}
       error={error}
+      serverFieldErrors={serverFieldErrors}
       onSave={handleSaveAndNext}
     />,
     <SOWUploadStep

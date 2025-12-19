@@ -47,9 +47,28 @@ axiosInstance.interceptors.response.use(
     // Handle different error scenarios
     if (error.response) {
       // Server responded with error status
-      const errorMessage = error.response.data?.detail || 
-                          error.response.data?.message || 
-                          'An error occurred';
+      const respData = error.response.data || {};
+      let errorMessage = respData?.message || 'An error occurred';
+
+      // If 'detail' is present and is an array (Pydantic style validation), format it
+      const detail = respData?.detail;
+      if (Array.isArray(detail)) {
+        // Build a readable message and attach details
+        const parts = detail.map((d) => {
+          try {
+            const loc = Array.isArray(d.loc) ? d.loc.join('.') : d.loc;
+            const msg = d.msg || JSON.stringify(d);
+            return loc ? `${loc}: ${msg}` : msg;
+          } catch (ex) {
+            return d.msg || JSON.stringify(d);
+          }
+        });
+        errorMessage = parts.join('; ');
+      } else if (typeof detail === 'string') {
+        errorMessage = detail;
+      } else if (respData?.message) {
+        errorMessage = respData.message;
+      }
       
       // Handle specific status codes
       switch (error.response.status) {
@@ -76,7 +95,10 @@ axiosInstance.interceptors.response.use(
           break;
       }
       
-      return Promise.reject(new Error(errorMessage));
+      const newErr = new Error(errorMessage);
+      // Attach original detail array if present so callers can inspect field-level errors
+      if (detail) newErr.details = detail;
+      return Promise.reject(newErr);
     } else if (error.request) {
       // Request was made but no response received
       return Promise.reject(new Error('No response from server. Please check your connection.'));

@@ -93,17 +93,27 @@ const InvoiceEdit = () => {
   const deleteMutation = useDeleteInvoice();
   const deleteLineItemMutation = useDeleteInvoiceLineItem();
 
-  // Check for query params
+  // Check for query params and clear them immediately to prevent loops
   useEffect(() => {
     const message = query.get('success');
-    if (message) {
-      setSuccess(message);
-    }
     const validation = query.get('showValidation');
-    if (validation) {
-      setShowValidation(true);
+    
+    // Only process if there are relevant params
+    if (message || validation) {
+      if (message) {
+        setSuccess(message);
+      }
+      if (validation) {
+        setShowValidation(true);
+      }
+      
+      // Clear the URL parameters immediately to prevent re-triggering
+      const url = new URL(window.location);
+      url.searchParams.delete('success');
+      url.searchParams.delete('showValidation');
+      window.history.replaceState({}, document.title, url.pathname + url.search);
     }
-  }, [query]);
+  }, []); // Empty dependency array - only run once on mount
 
   // Populate form when invoice data is loaded
   useEffect(() => {
@@ -256,6 +266,10 @@ const InvoiceEdit = () => {
     setShowValidation(false);
     setSuccess(null);
     setError(null);
+  };
+
+  const handleCloseValidationModal = () => {
+    setShowValidation(false);
   };
 
   const handleDelete = async () => {
@@ -561,8 +575,8 @@ const InvoiceEdit = () => {
 
       {showValidation && validations && validations.length > 0 && (
         <Modal
-          show={true}
-          onHide={() => setShowValidation(false)}
+          show={showValidation}
+          onHide={handleCloseValidationModal}
           centered
           size='lg'
         >
@@ -587,7 +601,7 @@ const InvoiceEdit = () => {
             <Button variant="outline-primary" onClick={onAddAnotherInvoice}>
               Add Another Invoice
             </Button>
-            <Button variant="primary" onClick={() => setShowValidation(false)}>
+            <Button variant="primary" onClick={handleCloseValidationModal}>
               View Invoice
             </Button>
           </Modal.Footer>
