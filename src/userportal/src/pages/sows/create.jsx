@@ -72,7 +72,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
 
       const result = await analyzeMutation.mutateAsync({ 
         file, 
-        data: { vendor_id: sowVendorId } 
+        metadata: { vendor_id: sowVendorId } 
       });
       
       if (result.hasError) {

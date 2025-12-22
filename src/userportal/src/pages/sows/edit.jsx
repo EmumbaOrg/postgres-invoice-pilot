@@ -63,14 +63,24 @@ const SOWEdit = () => {
 
   useEffect(() => {
     const message = query.get('success');
-    if (message) {
-      setSuccess(message);
-    }
     const validation = query.get('showValidation');
-    if (validation) {
-      setShowValidation(true);
+    
+    // Only process if there are relevant params
+    if (message || validation) {
+      if (message) {
+        setSuccess(message);
+      }
+      if (validation) {
+        setShowValidation(true);
+      }
+      
+      // Clear the URL parameters immediately to prevent re-triggering
+      const url = new URL(window.location);
+      url.searchParams.delete('success');
+      url.searchParams.delete('showValidation');
+      window.history.replaceState({}, document.title, url.pathname + url.search);
     }
-  }, [useLocation().search]);
+  }, []); // Empty dependency array - only run once on mount
 
   // Update form fields when SOW data is loaded
   useEffect(() => {
@@ -255,6 +265,10 @@ const SOWEdit = () => {
     setShowValidation(false);
     setSuccess(null);
     setError(null);
+  };
+
+  const handleCloseValidationModal = () => {
+    setShowValidation(false);
   };
 
   if (isLoading) {
@@ -486,8 +500,8 @@ const SOWEdit = () => {
 
       {showValidation && validations && validations.length > 0 && (
         <Modal
-  show={true}
-  onHide={() => setShowValidation(false)}
+  show={showValidation}
+  onHide={handleCloseValidationModal}
   centered
   size='lg'
 >
@@ -512,7 +526,7 @@ const SOWEdit = () => {
      <Button variant="outline-primary" onClick={() => onAddAnotherSOW()}>
      Add Another SOW
     </Button>
-    <Button variant="primary" onClick={() => setShowValidation(false)}>
+    <Button variant="primary" onClick={handleCloseValidationModal}>
       View SOW
     </Button>
   </Modal.Footer>

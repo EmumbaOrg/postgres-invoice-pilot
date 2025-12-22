@@ -72,7 +72,7 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
       // Analyze invoice
       const result = await analyzeInvoiceMutation.mutateAsync({
         file,
-        data: { vendor_id: invoiceVendorId },
+        metadata: { vendor_id: invoiceVendorId },
       });
 
       if (result.hasError) {
