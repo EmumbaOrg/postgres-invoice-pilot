@@ -3,7 +3,7 @@ import { useTable, useSortBy } from 'react-table';
 import { Table, Button, Modal, Form, Spinner, Alert } from 'react-bootstrap';
 
 import ConfirmModal from '../../components/ConfirmModal'; 
-import { formatFileSize } from '../../utils/common-functions';
+import { formatFileSize, formatDocumentDisplayName } from '../../utils/common-functions';
 import { useDocuments, useUploadDocument, useDeleteDocument, getDocumentUrl } from '../../hooks/useDocuments';
 
 const DocumentList = () => {
@@ -65,8 +65,9 @@ const DocumentList = () => {
   const columns = useMemo(
     () => [
       {
-        Header: 'Storage Blob Name',
+        Header: 'Document Name',
         accessor: 'blob_name',
+        Cell: ({ value }) => formatDocumentDisplayName(value),
       },
       {
         Header: 'Content Type',
@@ -227,7 +228,7 @@ const DocumentList = () => {
         show={showConfirmModal}
         handleClose={() => setShowConfirmModal(false)}
         handleConfirm={handleDelete}
-        message="Are you sure you want to delete this document?"
+        message={`Are you sure you want to delete this document?\n\n"${blobToDelete ? formatDocumentDisplayName(blobToDelete) : ''}"`}
         isLoading={deleteMutation.isPending}
       />
     </div>
