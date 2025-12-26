@@ -7,7 +7,8 @@ const StepperWizard = ({
   renderContent, 
   onSaveAndNext, 
   isLoading, 
-  isSaveNextDisabled 
+  isSaveNextDisabled,
+  buttonText = "Save & Next" 
 }) => {
   
   const getStepStatus = (stepIndex) => {
@@ -119,7 +120,7 @@ const StepperWizard = ({
                           Saving...
                         </>
                       ) : (
-                        activeStep === steps.length - 1 ? "Complete" : "Save & Next"
+                        buttonText
                       )}
                     </Button>
                   </div>

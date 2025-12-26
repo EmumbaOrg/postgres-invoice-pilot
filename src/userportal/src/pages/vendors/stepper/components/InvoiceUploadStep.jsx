@@ -11,10 +11,16 @@ const InvoiceUploadStep = ({
   invoiceLoading, 
   showInvoiceAnalysisModal, 
   onUpload,
-  onClearFile 
+  onClearFile,
+  hasSOW = false 
 }) => {
   
   const handleFileSelect = () => {
+    // Don't allow file selection if no SOW or if there's an error
+    if (!hasSOW || invoiceError) {
+      return;
+    }
+    
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".pdf,.doc,.docx";
@@ -34,39 +40,84 @@ const InvoiceUploadStep = ({
         <h5 className="section-heading">Add Invoice</h5>
       </div>
 
+      {!hasSOW && (
+        <Alert variant="warning" className="mb-3">
+          <Alert.Heading className="h6">
+            No SOW Available
+          </Alert.Heading>
+          <p className="mb-0 small">
+            Invoices require an associated Statement of Work (SOW). Since no SOW was uploaded in the previous step, you can skip this step and add invoices later after creating SOWs.
+          </p>
+        </Alert>
+      )}
+
       {invoiceError && (
         <Alert variant="danger" className="mb-3">
-          <p className="mb-1">{invoiceError}</p>
+          <Alert.Heading className="h6">
+            {invoiceError}
+          </Alert.Heading>
           {invoiceErrorDetail && (
             <div 
+              className="small"
               style={{ 
                 maxHeight: '10em', 
                 overflowY: 'scroll', 
                 backgroundColor: '#fff', 
                 padding: '0.5rem', 
                 borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                border: '1px solid #dee2e6'
+                border: '1px solid #dee2e6',
+                whiteSpace: 'pre-line'
               }} 
               dangerouslySetInnerHTML={{ 
                 __html: (invoiceErrorDetail || '').replace(/\n/g, '<br/>') 
               }}
             />
           )}
+          {invoiceError.includes('Referenced SOW Not Found') && (
+            <div className="mt-3 d-flex gap-2">
+              <Button 
+                variant="outline-primary" 
+                size="sm"
+                onClick={() => window.open('/sows', '_blank')}
+              >
+                <i className="fas fa-file-alt me-1"></i>
+                Upload SOW
+              </Button>
+              <Button 
+                variant="outline-secondary" 
+                size="sm"
+                onClick={onClearFile}
+              >
+                <i className="fas fa-redo me-1"></i>
+                Try Different Invoice
+              </Button>
+            </div>
+          )}
+          {invoiceError && invoiceError !== 'SOW Required' && (
+            <div className="mt-3">
+              <Button 
+                variant="outline-secondary" 
+                size="sm"
+                onClick={onClearFile}
+              >
+                <i className="fas fa-redo me-1"></i>
+                Try Again
+              </Button>
+            </div>
+          )}
         </Alert>
       )}
 
       {invoiceSuccess && (
         <Alert variant="success" className="mb-3">
-          <p className="mb-0">
-            <i className="fa-solid fa-check-circle me-2"></i>
+          <p className="mb-0 small">
             {invoiceSuccess}
           </p>
         </Alert>
       )}
 
       <div
-        className="rounded p-5 text-center"
+        className={`rounded p-5 text-center ${(!hasSOW || invoiceError) ? 'opacity-50' : ''}`}
         style={{
           border: "1px dashed #6c757d",
           minHeight: "300px",
@@ -74,7 +125,8 @@ const InvoiceUploadStep = ({
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#ffffff",
+          backgroundColor: (!hasSOW || invoiceError) ? "#f8f9fa" : "#ffffff",
+          pointerEvents: (!hasSOW || invoiceError) ? "none" : "auto"
         }}
       >
         {!invoiceFile ? (
@@ -89,12 +141,15 @@ const InvoiceUploadStep = ({
               className="mb-4"
               style={{ color: "#9696a0", fontSize: "16px" }}
             >
-              Or choose file to upload
+              {!hasSOW ? "Upload a SOW first to enable invoice upload" : 
+               invoiceError ? "Please resolve the error above to continue" : 
+               "Or choose file to upload"}
             </p>
             <Button
               variant="outlined-primary"
               className="btn btn-outline-primary fw-bold"
               onClick={handleFileSelect}
+              disabled={!hasSOW || invoiceError}
             >
               Browse
             </Button>

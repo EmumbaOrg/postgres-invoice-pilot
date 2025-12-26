@@ -22,6 +22,9 @@ export const useInvoiceUpload = () => {
     setInvoiceSuccess(null);
   };
 
+  // Add upload attempt tracking to prevent infinite loops
+  const [uploadAttempted, setUploadAttempted] = useState(false);
+
   const clearInvoiceFile = () => {
     setInvoiceFile(null);
     setInvoiceId(null);
@@ -31,9 +34,10 @@ export const useInvoiceUpload = () => {
     setInvoiceSuccess(null);
     setInvoiceValidations([]);
     setShowInvoiceAnalysisModal(false);
+    setUploadAttempted(false); // Reset upload attempt flag
   };
 
-  const uploadInvoice = async (file, vendorId) => {
+  const uploadInvoice = async (file, vendorId, hasSOW = true) => {
     if (!file || !vendorId) {
       if (!file) {
         console.log('No Invoice file selected, skipping upload');
@@ -44,6 +48,17 @@ export const useInvoiceUpload = () => {
       }
     }
 
+    // Prevent upload if no SOW exists (optional safety check)
+    if (!hasSOW) {
+      setInvoiceError('SOW Required');
+      setInvoiceErrorDetail('Invoices require an associated Statement of Work (SOW). Please upload a SOW first before adding invoices.');
+      setUploadAttempted(true); // Mark as attempted to prevent retries
+      return;
+    }
+
+    // Mark that we've attempted upload for this file
+    setUploadAttempted(true);
+    
     let newInvoiceId = 0;
 
     try {
@@ -69,8 +84,36 @@ export const useInvoiceUpload = () => {
       newInvoiceId = result.invoice.id;
     } catch (err) {
       console.error('Invoice analysis error:', err);
-      setInvoiceError('Error analyzing document');
-      setInvoiceErrorDetail(null);
+      
+      // Handle specific error cases more gracefully
+      let errorMessage = 'Error analyzing document';
+      let errorDetail = null;
+      
+      if (err.response?.status === 400) {
+        const errorText = err.response.data?.detail || '';
+        
+        // Handle specific SOW-related errors
+        if (errorText.includes('SOW number') && errorText.includes('could not be found')) {
+          // Extract SOW number from error message
+          const sowMatch = errorText.match(/SOW number "([^"]+)"/);
+          const sowNumber = sowMatch ? sowMatch[1] : 'referenced SOW';
+          
+          errorMessage = 'Referenced SOW Not Found';
+          errorDetail = `This invoice references SOW "${sowNumber}" which could not be found in the system. Please:\n\n• Upload the corresponding SOW document first, or\n• Use an invoice that references an existing SOW, or\n• Upload an invoice that doesn't reference any SOW number\n\nYou can upload SOWs from the vendor details page or the SOWs section.`;
+        } else if (errorText.includes('SOW number not found in invoice')) {
+          errorMessage = 'No SOW Reference Found';
+          errorDetail = 'This invoice does not contain a reference to a Statement of Work (SOW) number. Invoices must be associated with a SOW. Please ensure your invoice document includes a valid SOW number that matches an existing SOW in the system.';
+        } else {
+          errorMessage = 'Unable to Process Invoice';
+          errorDetail = errorText || 'The invoice could not be processed due to validation errors.';
+        }
+      } else {
+        errorMessage = err.message || 'Error analyzing document';
+        errorDetail = null;
+      }
+      
+      setInvoiceError(errorMessage);
+      setInvoiceErrorDetail(errorDetail);
       setShowInvoiceAnalysisModal(false);
       setInvoiceLoading(null);
       throw err;
@@ -117,6 +160,7 @@ export const useInvoiceUpload = () => {
     invoiceSuccess,
     invoiceLoading,
     showInvoiceAnalysisModal,
+    uploadAttempted,
     
     // Actions
     setInvoiceFile,
