@@ -26,11 +26,12 @@ export const useAllVendors = () => {
 /**
  * Hook to fetch single vendor
  */
-export const useVendor = (id) => {
+export const useVendor = (id, options = {}) => {
   return useQuery({
     queryKey: queryKeys.vendors.detail(id),
     queryFn: () => getVendor(id),
-    enabled: !!id,
+    enabled: !!id && (options.enabled !== false),
+    ...options,
   });
 };
 
@@ -76,42 +77,57 @@ export const useUpdateVendor = () => {
 /**
  * Hook to delete vendor
  */
-export const useDeleteVendor = () => {
+export const useDeleteVendor = (options = {}) => {
   const queryClient = useQueryClient();
+  const { fromViewPage = false } = options;
 
   return useMutation({
     mutationFn: deleteVendor,
     onMutate: async (vendorId) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: queryKeys.vendors.lists() });
+      // Always cancel queries and remove detail to prevent 404
+      await queryClient.cancelQueries({ queryKey: ['vendors'] });
+      queryClient.removeQueries({ queryKey: queryKeys.vendors.detail(vendorId) });
 
-      // Snapshot the previous value
-      const previousVendors = queryClient.getQueriesData({
-        queryKey: queryKeys.vendors.lists(),
-      });
+      if (!fromViewPage) {
+        // Only do optimistic updates for list page deletions
+        const previousVendorData = queryClient.getQueriesData({
+          queryKey: ['vendors'],
+        });
 
-      // Optimistically update by removing the vendor from all list queries
-      queryClient.setQueriesData({ queryKey: queryKeys.vendors.lists() }, (old) => {
-        if (!old?.data) return old;
-        return {
-          ...old,
-          data: old.data.filter((vendor) => vendor.id !== vendorId),
-          total: old.total - 1,
-        };
-      });
+        // Update all vendor list caches
+        queryClient.setQueriesData({ queryKey: ['vendors', 'list'] }, (old) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: old.data.filter((vendor) => vendor.id !== vendorId),
+            total: Math.max(0, old.total - 1),
+          };
+        });
 
-      // Return context with the snapshot
-      return { previousVendors };
+        return { previousVendorData };
+      }
+
+      return {};
     },
     onError: (err, vendorId, context) => {
-      // Rollback on error
-      context?.previousVendors?.forEach(([key, data]) => {
-        queryClient.setQueryData(key, data);
-      });
+      if (context?.previousVendorData) {
+        context.previousVendorData.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
     },
-    onSettled: () => {
-      // Always refetch after error or success
-      queryClient.invalidateQueries({ queryKey: queryKeys.vendors.lists() });
+    onSuccess: (data, vendorId) => {
+      queryClient.removeQueries({ queryKey: queryKeys.vendors.detail(vendorId) });
+      
+      if (fromViewPage) {
+        // For view page deletions, clear all vendor list caches and force refetch
+        queryClient.removeQueries({ queryKey: ['vendors', 'list'] });
+        queryClient.refetchQueries({ queryKey: ['vendors'] });
+      }
+    },
+    onSettled: (data, error, vendorId) => {
+      // Always invalidate to ensure eventual consistency
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
     },
   });
 };
