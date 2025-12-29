@@ -268,18 +268,20 @@ const Shell = ({onLogout}) => {
         </div>
       </div>
       
-      {/* Floating Ask AI Button - Only for small screens */}
-      <button
-        className="floating-ai-button d-lg-none"
-        onClick={(e) => {
-          e.preventDefault()
-          onAskAI()
-        }}
-        title="Ask AI"
-      >
-        <i className="fa-solid fa-wand-magic-sparkles"></i>
-        <span className="ai-button-text">Ask AI</span>
-      </button>
+      {/* Floating Ask AI Button - Only for small screens and not on chat page */}
+      {!location.pathname.startsWith('/chats') && (
+        <button
+          className="floating-ai-button d-lg-none"
+          onClick={(e) => {
+            e.preventDefault()
+            onAskAI()
+          }}
+          title="Ask AI"
+        >
+          <i className="fa-solid fa-wand-magic-sparkles"></i>
+          <span className="ai-button-text">Ask AI</span>
+        </button>
+      )}
       
       {showDrawer &&
       <SideDrawer handleCloseAIdrawer={handleCloseAIdrawer} showDrawer={showDrawer}/>
