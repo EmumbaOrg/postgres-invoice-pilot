@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import "./stepper.css";
 import { useAllVendors, useCreateVendor } from '../../../hooks/useVendors';
 import { useSOWUpload } from '../../../hooks/useSOWUpload';
-import { useInvoiceUpload } from '../../../hooks/useInvoiceUpload';
+import { useInvoiceUploadFlow } from '../../../hooks/useInvoiceUploadFlow';
 
 // Import step components
 import StepperWizard from './components/StepperWizard';
@@ -34,7 +34,7 @@ const NavigationStepper = () => {
 
   // Custom upload hooks
   const sowUpload = useSOWUpload();
-  const invoiceUpload = useInvoiceUpload();
+  const invoiceUpload = useInvoiceUploadFlow();
 
   const steps = [
     {
