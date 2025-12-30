@@ -5,12 +5,26 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import './pdf-preview-modal.css';
 import { usePdfViewerState } from './hooks/usePdfViewerState';
+import { configurePdfWorker } from '../../utils/pdfWorkerConfig';
 import PdfHeader from './components/PdfHeader';
 import PdfControls from './components/PdfControls';
 import PdfDocumentViewer from './components/PdfDocumentViewer';
 
-// Configure PDF.js worker - use local file to avoid CORS issues
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+// Initialize worker configuration on module load
+let workerInitialized = false;
+const initializeWorker = async () => {
+  if (!workerInitialized) {
+    try {
+      await configurePdfWorker(pdfjs);
+      workerInitialized = true;
+    } catch (error) {
+      console.error('Failed to initialize PDF worker:', error);
+    }
+  }
+};
+
+// Start worker initialization immediately
+initializeWorker();
 
 const PdfPreviewModal = ({ show, handleClose, fileUrl }) => {
   const {
