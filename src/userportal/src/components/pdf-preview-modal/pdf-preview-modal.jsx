@@ -9,8 +9,8 @@ import PdfHeader from './components/PdfHeader';
 import PdfControls from './components/PdfControls';
 import PdfDocumentViewer from './components/PdfDocumentViewer';
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
+// Configure PDF.js worker - use local file to avoid CORS issues
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 const PdfPreviewModal = ({ show, handleClose, fileUrl }) => {
   const {
