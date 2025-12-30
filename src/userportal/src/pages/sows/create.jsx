@@ -156,16 +156,16 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
       <Modal.Body className="px-4 py-3">
         {error && (
           <Alert variant="danger" className="mb-3">
-            <p className="mb-1">{error}</p>
+            <p className="mb-1 small">{error}</p>
             {errorDetail && (
               <div
+                className="small"
                 style={{
                   maxHeight: "10em",
                   overflowY: "scroll",
                   backgroundColor: "#fff",
                   padding: "0.5rem",
                   borderRadius: "0.375rem",
-                  fontSize: "0.875rem",
                   border: "1px solid #dee2e6",
                 }}
                 dangerouslySetInnerHTML={{
@@ -178,7 +178,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
 
         {success && (
           <Alert variant="success" className="mb-3">
-            {success}
+            <span className="small">{success}</span>
           </Alert>
         )}
 

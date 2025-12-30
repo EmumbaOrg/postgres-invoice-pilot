@@ -32,20 +32,23 @@ const SOWUploadStep = ({
     <div>
       <div className="mb-4">
         <h5 className="section-heading">Add SOW</h5>
+        <p className="text-muted small mb-0">
+          Uploading a SOW is optional, but required if you plan to add invoices that reference SOW numbers.
+        </p>
       </div>
 
       {error && (
         <Alert variant="danger" className="mb-3">
-          <p className="mb-1">{error}</p>
+          <p className="mb-1 small">{error}</p>
           {errorDetail && (
             <div 
+              className="small"
               style={{ 
                 maxHeight: '10em', 
                 overflowY: 'scroll', 
                 backgroundColor: '#fff', 
                 padding: '0.5rem', 
                 borderRadius: '0.375rem',
-                fontSize: '0.875rem',
                 border: '1px solid #dee2e6'
               }} 
               dangerouslySetInnerHTML={{ 
@@ -58,8 +61,7 @@ const SOWUploadStep = ({
 
       {success && (
         <Alert variant="success" className="mb-3">
-          <p className="mb-0">
-            <i className="fa-solid fa-check-circle me-2"></i>
+          <p className="mb-0 small">
             {success}
           </p>
         </Alert>

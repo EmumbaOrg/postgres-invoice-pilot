@@ -5,11 +5,12 @@ import { queryKeys } from '../lib/queryKeys';
 /**
  * Hook to fetch invoices list
  */
-export const useInvoices = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '' } = {}) => {
+export const useInvoices = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '', enabled = true } = {}) => {
   return useQuery({
     queryKey: queryKeys.invoices.list({ vendorId, skip, limit, sortBy }),
     queryFn: () => getInvoices({ vendorId, skip, limit, sortBy }),
     staleTime: 30_000,
+    enabled: enabled,
   });
 };
 

@@ -87,8 +87,32 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
       newInvoiceId = result.invoice.id;
     } catch (err) {
       setShowUpload(true);
-      setError(err.message || "Error analyzing the document");
-      setErrorDetail(null);
+      
+      // Handle specific error cases more gracefully
+      let errorMessage = err.message || "Error analyzing the document";
+      let errorDetail = null;
+      
+      if (err.response?.status === 400) {
+        const errorText = err.response.data?.detail || '';
+        
+        if (errorText.includes('SOW number') && errorText.includes('could not be found')) {
+          // Extract SOW number from error message
+          const sowMatch = errorText.match(/SOW number "([^"]+)"/);
+          const sowNumber = sowMatch ? sowMatch[1] : 'referenced SOW';
+          
+          errorMessage = 'Referenced SOW Not Found';
+          errorDetail = `This invoice references SOW "${sowNumber}" which could not be found in the system. Please upload the corresponding SOW document first, or use an invoice that references an existing SOW.`;
+        } else if (errorText.includes('SOW number not found in invoice')) {
+          errorMessage = 'No SOW Reference Found';
+          errorDetail = 'This invoice does not contain a reference to a Statement of Work (SOW) number. Invoices must be associated with a SOW.';
+        } else {
+          errorMessage = 'Unable to Process Invoice';
+          errorDetail = errorText;
+        }
+      }
+      
+      setError(errorMessage);
+      setErrorDetail(errorDetail);
       setSuccess(null);
       return false;
     }
@@ -145,22 +169,45 @@ const InvoiceCreate = ({ show, onHide, vendorId }) => {
       <Modal.Body className="px-4 py-3">
         {error && (
           <Alert variant="danger" className="mb-3">
-            <p className="mb-1">{error}</p>
+            <Alert.Heading className="h6">
+              {error}
+            </Alert.Heading>
             {errorDetail && (
               <div
+                className="small"
                 style={{
                   maxHeight: "10em",
                   overflowY: "scroll",
                   backgroundColor: "#fff",
                   padding: "0.5rem",
                   borderRadius: "0.375rem",
-                  fontSize: "0.875rem",
                   border: "1px solid #dee2e6",
+                  whiteSpace: "pre-line"
                 }}
                 dangerouslySetInnerHTML={{
                   __html: (errorDetail || "").replace(/\n/g, "<br/>"),
                 }}
               />
+            )}
+            {error.includes('Referenced SOW Not Found') && (
+              <div className="mt-3 d-flex gap-2">
+                <Button 
+                  variant="outline-primary" 
+                  size="sm"
+                  onClick={() => window.open('/sows', '_blank')}
+                >
+                  <i className="fas fa-file-alt me-1"></i>
+                  Upload SOW First
+                </Button>
+                <Button 
+                  variant="outline-secondary" 
+                  size="sm"
+                  onClick={resetForm}
+                >
+                  <i className="fas fa-redo me-1"></i>
+                  Try Different Invoice
+                </Button>
+              </div>
             )}
           </Alert>
         )}

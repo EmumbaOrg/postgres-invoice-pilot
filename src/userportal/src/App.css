@@ -392,7 +392,7 @@ h2 {
 .floating-ai-button {
   position: fixed;
   bottom: 30px;
-  right: 30px;
+  left: 30px;
   background: var(--bs-primary);
   color: white;
   border: none;
@@ -442,48 +442,26 @@ h2 {
   }
 }
 
-/* PDF Preview Modal Responsive Styling */
-.pdf-preview-modal .modal-dialog {
-  max-height: 95vh;
-  margin: 2.5vh auto;
+/* Modern PDF Preview Modal Base Styles */
+.modern-pdf-modal .modal-backdrop {
+  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
-.pdf-preview-modal .modal-content {
-  height: 95vh;
-  max-height: 95vh;
+/* Ensure react-pdf-viewer styles work properly */
+.rpv-core__viewer,
+.rpv-default-layout__container {
+  font-family: inherit !important;
 }
 
-.pdf-modal-body {
-  height: calc(95vh - 120px); /* Subtract header and footer height */
-  overflow: hidden;
-  padding: 0;
+/* Override any conflicting styles */
+.modern-pdf-modal .btn {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.pdf-thumbnails {
-  background: #f8f9fa;
-  height: 100%;
-  max-height: 100%;
-}
-
-.pdf-main-view {
-  height: 100%;
-  padding: 20px;
-}
-
-/* Mobile responsive PDF modal */
-@media (max-width: 768px) {
-  .pdf-preview-modal .modal-dialog {
-    max-height: 100vh;
-    margin: 0;
-    height: 100vh;
-  }
-  
-  .pdf-preview-modal .modal-content {
-    height: 100vh;
-    border-radius: 0;
-  }
-  
-  .pdf-modal-body {
-    height: calc(100vh - 120px);
-  }
+.modern-pdf-modal .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }

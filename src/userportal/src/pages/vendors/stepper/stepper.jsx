@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import "./stepper.css";
 import { useAllVendors, useCreateVendor } from '../../../hooks/useVendors';
 import { useSOWUpload } from '../../../hooks/useSOWUpload';
-import { useInvoiceUpload } from '../../../hooks/useInvoiceUpload';
+import { useInvoiceUploadFlow } from '../../../hooks/useInvoiceUploadFlow';
 
 // Import step components
 import StepperWizard from './components/StepperWizard';
@@ -34,7 +34,7 @@ const NavigationStepper = () => {
 
   // Custom upload hooks
   const sowUpload = useSOWUpload();
-  const invoiceUpload = useInvoiceUpload();
+  const invoiceUpload = useInvoiceUploadFlow();
 
   const steps = [
     {
@@ -63,10 +63,17 @@ const NavigationStepper = () => {
 
   // Auto-upload Invoice when both file and vendorId are available
   useEffect(() => {
-    if (invoiceUpload.invoiceFile && vendorId && !invoiceUpload.invoiceId && !invoiceUpload.invoiceLoading && !invoiceUpload.showInvoiceAnalysisModal) {
-      invoiceUpload.uploadInvoice(invoiceUpload.invoiceFile, vendorId);
+    if (invoiceUpload.invoiceFile && 
+        vendorId && 
+        !invoiceUpload.invoiceId && 
+        !invoiceUpload.invoiceLoading && 
+        !invoiceUpload.showInvoiceAnalysisModal &&
+        !invoiceUpload.uploadAttempted && // Don't retry if already attempted
+        !invoiceUpload.invoiceError) { // Don't retry if there's an error
+      const hasSOW = sowUpload.sowId || sowUpload.sowFile;
+      invoiceUpload.uploadInvoice(invoiceUpload.invoiceFile, vendorId, hasSOW);
     }
-  }, [invoiceUpload.invoiceFile, vendorId, invoiceUpload.invoiceId, invoiceUpload.invoiceLoading, invoiceUpload.showInvoiceAnalysisModal]);
+  }, [invoiceUpload.invoiceFile, vendorId, invoiceUpload.invoiceId, invoiceUpload.invoiceLoading, invoiceUpload.showInvoiceAnalysisModal, invoiceUpload.uploadAttempted, invoiceUpload.invoiceError, sowUpload.sowId, sowUpload.sowFile]);
 
   // Validation helper functions
   const isNonEmpty = (s) => typeof s === 'string' && s.trim().length > 0;
@@ -107,9 +114,13 @@ const NavigationStepper = () => {
           }
           break;
         case 2:
-          // Step 3: Upload invoice (if file exists) - only if not already processed
-          if (invoiceUpload.invoiceFile && !invoiceUpload.invoiceId) {
-            await invoiceUpload.uploadInvoice(invoiceUpload.invoiceFile, vendorId);
+          // Step 3: Upload invoice (if file exists) - only if not already processed and no previous errors
+          if (invoiceUpload.invoiceFile && 
+              !invoiceUpload.invoiceId && 
+              !invoiceUpload.uploadAttempted && 
+              !invoiceUpload.invoiceError) {
+            const hasSOW = sowUpload.sowId || sowUpload.sowFile;
+            await invoiceUpload.uploadInvoice(invoiceUpload.invoiceFile, vendorId, hasSOW);
           }
           break;
         default:
@@ -117,8 +128,20 @@ const NavigationStepper = () => {
           break;
       }
 
+      // Special handling for invoice step when no SOW exists
+      if (currentStep === 2 && !sowUpload.sowId && !sowUpload.sowFile) {
+        // Skip invoice upload if no SOW was uploaded (invoices require SOW)
+        window.location.href = "/vendors";
+        return;
+      }
+
       // Move to next step if API call successful
       if (currentStep < steps.length - 1) {
+        // Skip invoice step if no SOW was uploaded (invoices require SOW)
+        if (currentStep === 1 && !sowUpload.sowId && !sowUpload.sowFile) {
+          window.location.href = "/vendors";
+          return;
+        }
         setCurrentStep(currentStep + 1);
       } else {
         // All steps completed
@@ -233,6 +256,22 @@ const NavigationStepper = () => {
     return isLoading;
   };
 
+  // Check if we should skip invoice step
+  const shouldSkipInvoiceStep = () => {
+    return !sowUpload.sowId && !sowUpload.sowFile;
+  };
+
+  // Get button text based on current step and conditions
+  const getButtonText = () => {
+    if (currentStep === 0) {
+      return "Save & Next";
+    } else if (currentStep === 1) {
+      return shouldSkipInvoiceStep() ? "Complete" : "Save & Next";
+    } else {
+      return "Complete";
+    }
+  };
+
   // Define render content for each step
   const renderContent = [
     <VendorDetailsStep
@@ -266,8 +305,12 @@ const NavigationStepper = () => {
       invoiceSuccess={invoiceUpload.invoiceSuccess}
       invoiceLoading={invoiceUpload.invoiceLoading}
       showInvoiceAnalysisModal={invoiceUpload.showInvoiceAnalysisModal}
-      onUpload={(file) => invoiceUpload.uploadInvoice(file, vendorId)}
+      onUpload={(file) => {
+        const hasSOW = sowUpload.sowId || sowUpload.sowFile;
+        invoiceUpload.uploadInvoice(file, vendorId, hasSOW);
+      }}
       onClearFile={invoiceUpload.clearInvoiceFile}
+      hasSOW={sowUpload.sowId || sowUpload.sowFile}
     />
   ];
 
@@ -280,6 +323,7 @@ const NavigationStepper = () => {
       onSaveAndNext={handleSaveAndNext}
       isLoading={isLoading}
       isSaveNextDisabled={isSaveNextDisabled}
+      buttonText={getButtonText()}
     />
   );
 };

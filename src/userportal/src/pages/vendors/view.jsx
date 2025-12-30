@@ -15,29 +15,7 @@ const VendorView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // Fetch vendor data using React Query
-  const { data: vendor, isLoading: loadingVendor, error: vendorError } = useVendor(id);
-  
-  // Fetch SOWs for this vendor
-  const { data: sowsData, isLoading: fetchingSows, error: sowsError } = useSOWs({ 
-    vendorId: id, 
-    skip: 0, 
-    limit: -1 
-  });
-  
-  // Fetch invoices for this vendor
-  const { data: invoicesData, isLoading: fetchingInvoices, error: invoicesError } = useInvoices({ 
-    vendorId: id, 
-    skip: 0, 
-    limit: 10 
-  });
-  
-  // Mutations
-  const deleteVendorMutation = useDeleteVendor();
-  const deleteSOWMutation = useDeleteSOW();
-  const deleteInvoiceMutation = useDeleteInvoice();
-  
-  // Local state
+  // Local state - must be declared before using in queries
   const [openPDFView, setOpenPDFView] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [showDeleteSOWModal, setShowDeleteSOWModal] = useState(false);
@@ -47,6 +25,33 @@ const VendorView = () => {
   const [deleteItemType, setDeleteItemType] = useState("");
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Fetch vendor data using React Query
+  const { data: vendor, isLoading: loadingVendor, error: vendorError } = useVendor(id, {
+    enabled: !!id && !isDeleting
+  });
+  
+  // Fetch SOWs for this vendor
+  const { data: sowsData, isLoading: fetchingSows, error: sowsError } = useSOWs({ 
+    vendorId: id, 
+    skip: 0, 
+    limit: -1,
+    enabled: !!id && !isDeleting
+  });
+  
+  // Fetch invoices for this vendor
+  const { data: invoicesData, isLoading: fetchingInvoices, error: invoicesError } = useInvoices({ 
+    vendorId: id, 
+    skip: 0, 
+    limit: 10,
+    enabled: !!id && !isDeleting
+  });
+  
+  // Mutations
+  const deleteVendorMutation = useDeleteVendor({ fromViewPage: true });
+  const deleteSOWMutation = useDeleteSOW();
+  const deleteInvoiceMutation = useDeleteInvoice();
 
   const sows = sowsData?.data || [];
   const invoices = invoicesData?.data || [];
@@ -83,16 +88,21 @@ const VendorView = () => {
     if (!id) return;
 
     try {
+      setIsDeleting(true); // Prevent further API calls
       await deleteVendorMutation.mutateAsync(id);
       setSuccessMessage('Vendor deleted successfully!');
       setErrorMessage(null);
       setShowDeleteVendorModal(false);
-      // Redirect to vendors list after successful deletion
-      navigate('/vendors');
+      
+      // Small delay to ensure cache invalidation completes before redirect
+      setTimeout(() => {
+        navigate('/vendors');
+      }, 100);
     } catch (err) {
       setErrorMessage(`Error deleting vendor: ${err.message}`);
       setSuccessMessage(null);
       setShowDeleteVendorModal(false);
+      setIsDeleting(false); // Re-enable queries on error
     }
   };
 
@@ -165,7 +175,7 @@ const VendorView = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h2 mb-0 fw-bold text-dark">{vendor?.name || "Vendor"}</h1>
         <div className="d-flex gap-2">
-          <Button variant="danger" onClick={() => { setVendorToDelete(id); setShowDeleteVendorModal(true); }}>Delete</Button>
+          <Button variant="danger" onClick={() => setShowDeleteVendorModal(true)}>Delete</Button>
           <Button variant="primary" onClick={() => setShowCreateSOWModal(true)}>Add new SOW</Button>
         </div>
       </div>

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.1",
+    "@react-pdf-viewer/toolbar": "^3.12.0",
     "@tanstack/react-query": "^5.90.10",
     "@tanstack/react-query-devtools": "^5.90.2",
     "@testing-library/jest-dom": "^5.17.0",
@@ -27,7 +28,7 @@
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
     "react-number-format": "^5.4.3",
-    "react-pdf": "^10.0.1",
+    "react-pdf": "^10.2.0",
     "react-router-dom": "^7.0.2",
     "react-select": "^5.10.2",
     "react-table": "^7.8.0",

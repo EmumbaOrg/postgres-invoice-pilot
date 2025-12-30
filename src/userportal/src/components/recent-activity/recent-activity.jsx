@@ -9,6 +9,7 @@ import { useRecentDocuments, useDeleteDocument, getDocumentUrl } from "../../hoo
 import { useRecentActivities } from "../../hooks/useActivities";
 import { useDeleteInvoice } from "../../hooks/useInvoices";
 import { useDeleteSOW } from "../../hooks/useSOWs";
+import { formatDocumentDisplayName, extractFileName, getDocumentIconClass } from "../../utils/common-functions";
 
 export default function RecentActivity() {
   const [showPdfModal, setShowPdfModal] = useState(false);
@@ -52,7 +53,7 @@ export default function RecentActivity() {
           const downloadUrl = getDocumentUrl(documentItem.blob_name);
           const link = document.createElement('a');
           link.href = downloadUrl;
-          link.download = documentItem.blob_name;
+          link.download = extractFileName(documentItem.blob_name);
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -169,8 +170,8 @@ export default function RecentActivity() {
             {!loadingDocuments && recentDocuments.slice(0, 3).map((document, index) => (
               <ActivityTile
                 key={index}
-                icon={<i className="fa-solid fa-file-invoice"></i>}
-                title={document.blob_name}
+                icon={<i className={getDocumentIconClass(document.blob_name)}></i>}
+                title={formatDocumentDisplayName(document.blob_name)}
                 timestamp={document.created}
                 fileSize={document.size}
                 showMenu={true}
@@ -196,7 +197,7 @@ export default function RecentActivity() {
         handleClose={() => setShowDeleteModal(false)}
         handleConfirm={handleConfirmDelete}
         title="Delete Document"
-        message={`Are you sure you want to delete this document?\n\n"${documentToDelete?.blob_name || ''}"`}
+        message={`Are you sure you want to delete this document?\n\n"${documentToDelete ? formatDocumentDisplayName(documentToDelete.blob_name) : ''}"`}
         isLoading={isDeleting}
       />
     </Container>

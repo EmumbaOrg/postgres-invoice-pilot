@@ -5,11 +5,12 @@ import { queryKeys } from '../lib/queryKeys';
 /**
  * Hook to fetch SOWs list
  */
-export const useSOWs = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '' } = {}) => {
+export const useSOWs = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '', enabled = true } = {}) => {
   return useQuery({
     queryKey: queryKeys.sows.list({ vendorId, skip, limit, sortBy }),
     queryFn: () => getSows({ vendorId, skip, limit, sortBy }),
     staleTime: 30_000,
+    enabled: enabled,
   });
 };
 
