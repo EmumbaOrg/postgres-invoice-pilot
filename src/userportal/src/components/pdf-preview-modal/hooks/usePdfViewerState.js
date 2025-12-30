@@ -58,7 +58,6 @@ export const usePdfViewerState = (show, fileUrl) => {
   };
 
   const resetState = () => {
-    console.log('Resetting PDF viewer state for:', fileUrl, 'isPDF:', isPdfFile(fileUrl));
     setError(null);
     setPageNumber(1);
     setScale(1.0);
