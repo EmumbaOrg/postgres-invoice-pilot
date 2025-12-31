@@ -1,5 +1,6 @@
 import { Button, Alert, Spinner, Modal } from "react-bootstrap";
 import ReactMarkdown from 'react-markdown';
+import { useDragAndDrop } from '../../../../hooks/useDragAndDrop';
 
 const InvoiceUploadStep = ({ 
   invoiceFile, 
@@ -14,6 +15,16 @@ const InvoiceUploadStep = ({
   onClearFile,
   hasSOW = false 
 }) => {
+  
+  const handleFileDrop = (file) => {
+    setInvoiceFile(file);
+    // Auto-upload will be handled by useEffect in parent
+  };
+
+  const isDisabled = !hasSOW || !!invoiceError;
+  const { dragActive, dragHandlers, getDragStyles } = useDragAndDrop(handleFileDrop, {
+    disabled: isDisabled
+  });
   
   const handleFileSelect = () => {
     // Don't allow file selection if no SOW or if there's an error
@@ -117,17 +128,17 @@ const InvoiceUploadStep = ({
       )}
 
       <div
-        className={`rounded p-5 text-center ${(!hasSOW || invoiceError) ? 'opacity-50' : ''}`}
-        style={{
-          border: "1px dashed #6c757d",
+        className={`rounded p-5 text-center ${isDisabled ? 'opacity-50' : ''}`}
+        style={getDragStyles({
           minHeight: "300px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: (!hasSOW || invoiceError) ? "#f8f9fa" : "#ffffff",
-          pointerEvents: (!hasSOW || invoiceError) ? "none" : "auto"
-        }}
+          backgroundColor: isDisabled ? "#f8f9fa" : "#ffffff",
+          pointerEvents: isDisabled ? "none" : "auto"
+        })}
+        {...dragHandlers}
       >
         {!invoiceFile ? (
           <div className="mb-4">

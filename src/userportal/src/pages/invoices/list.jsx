@@ -177,7 +177,7 @@ const InvoiceList = () => {
   return (
     <div className='px-5 py-3'>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-2">
-        <h1 className="h4 fw-bold">Invoices</h1>
+        <h1 className="h4 fw-bold mb-0">Invoices</h1>
         <Button className='primary' onClick={() => setShowCreateInvoiceModal(true)}>
           <i className="fas fa-plus me-2" />
           New Invoice

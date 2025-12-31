@@ -1,5 +1,6 @@
 import { Button, Alert, Spinner, Modal } from "react-bootstrap";
 import ReactMarkdown from 'react-markdown';
+import { useDragAndDrop } from '../../../../hooks/useDragAndDrop';
 
 const SOWUploadStep = ({ 
   sowFile, 
@@ -13,6 +14,13 @@ const SOWUploadStep = ({
   onUpload,
   onClearFile 
 }) => {
+  
+  const handleFileDrop = (file) => {
+    setSowFile(file);
+    onUpload(file);
+  };
+
+  const { dragActive, dragHandlers, getDragStyles } = useDragAndDrop(handleFileDrop);
   
   const handleFileSelect = () => {
     const input = document.createElement("input");
@@ -69,15 +77,14 @@ const SOWUploadStep = ({
 
       <div
         className="rounded p-5 text-center"
-        style={{
-          border: "1px dashed #6c757d",
+        style={getDragStyles({
           minHeight: "300px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#ffffff",
-        }}
+        })}
+        {...dragHandlers}
       >
         {!sowFile ? (
           <div className="mb-4">
