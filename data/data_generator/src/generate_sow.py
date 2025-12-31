@@ -180,7 +180,7 @@ def generate_sow_pdf(output_path, vendor_name, vendor_config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate Statement of Work PDF")
-    parser.add_argument("vendor_name", type=str, help="The name of the vendor")
+    parser.add_argument("vendor_name", type=str, nargs='?', help="The name of the vendor (optional - if not provided, generates for all vendors)")
     parser.add_argument("config_file", type=str, nargs='?', default='sow_inv.config', help="The configuration file to use (default: sow_inv.config)")
     args = parser.parse_args()
 
@@ -190,15 +190,30 @@ if __name__ == "__main__":
     config_path = f'src/config/{config_file}'
     configs = load_config(config_path)
     
-    vendor_config = next((config for config in configs if config['name'] == vendor_name), None)
-    if not vendor_config:
-        raise ValueError(f"Vendor '{vendor_name}' not found in configuration.")
-    
-    name = vendor_config['name'].replace(" ", "_").replace(".", "")
-    start_date_str = vendor_config.get('start_date', "")
-    if not start_date_str:
-        raise ValueError(f"Start date not found for vendor '{vendor_name}'")
-    
-    start_date = datetime.strptime(start_date_str, "%B %d, %Y").strftime("%Y%m%d")
-    output_path = f"../sample_docs/Statement_of_Work_{name}_Invoice_Pilot_{start_date}.pdf"
-    generate_sow_pdf(output_path, vendor_name, vendor_config)
+    if vendor_name:
+        vendor_config = next((config for config in configs if config['name'] == vendor_name), None)
+        if not vendor_config:
+            raise ValueError(f"Vendor '{vendor_name}' not found in configuration.")
+        
+        name = vendor_config['name'].replace(" ", "_").replace(".", "")
+        start_date_str = vendor_config.get('start_date', "")
+        if not start_date_str:
+            raise ValueError(f"Start date not found for vendor '{vendor_name}'")
+        
+        start_date = datetime.strptime(start_date_str, "%B %d, %Y").strftime("%Y%m%d")
+        output_path = f"../sample_docs/Statement_of_Work_{name}_Invoice_Pilot_{start_date}.pdf"
+        generate_sow_pdf(output_path, vendor_name, vendor_config)
+    else:
+        # Generate SOW for all vendors
+        for vendor_config in configs:
+            vendor_name = vendor_config['name']
+            name = vendor_name.replace(" ", "_").replace(".", "")
+            start_date_str = vendor_config.get('start_date', "")
+            if not start_date_str:
+                print(f"Warning: Start date not found for vendor '{vendor_name}', skipping...")
+                continue
+            
+            start_date = datetime.strptime(start_date_str, "%B %d, %Y").strftime("%Y%m%d")
+            output_path = f"../sample_docs/Statement_of_Work_{name}_Invoice_Pilot_{start_date}.pdf"
+            generate_sow_pdf(output_path, vendor_name, vendor_config)
+            print(f"Generated SOW for {vendor_name}")
