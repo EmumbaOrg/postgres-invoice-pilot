@@ -137,7 +137,7 @@ const VendorList = () => {
   return (
     <div className='px-5 py-3'>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
-        <h1 className="h4">Vendors</h1>
+        <h1 className="h4 mb-0">Vendors</h1>
         <Link to="/vendors/create" className="btn btn-primary">
           <i className="fas fa-plus me-2" />
           New Vendor
