@@ -72,7 +72,7 @@ def render_table_row(pdf, cell_data, cell_widths, min_height=10, border=1, align
     pdf.set_xy(start_x, start_y + max_height)
 
 # Create a function to generate an invoice PDF
-def create_invoice(invoice_number, deliverables, vendor_info, client_info, output_path):
+def create_invoice(invoice_number, deliverables, vendor_info, client_info, output_path, payment_info):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=10)
@@ -102,7 +102,7 @@ def create_invoice(invoice_number, deliverables, vendor_info, client_info, outpu
     pdf.set_font("Arial", size=10)
     pdf.cell(0, 10, txt=f"Contact Name: {client_info['contact_name']}", ln=True, align="L")
     pdf.cell(0, 10, txt=f"Contact Email: {client_info['contact_email']}", ln=True, align="L")
-    pdf.ln(10)  # Added line
+    pdf.ln(10)
 
     # Invoice Details
     pdf.set_font("Arial", style="B", size=10)
@@ -152,30 +152,10 @@ def create_invoice(invoice_number, deliverables, vendor_info, client_info, outpu
     # Output the PDF
     pdf.output(output_path)
 
-if __name__ == "__main__":
-    # Define the argument parser
-    parser = argparse.ArgumentParser(description="Generate invoices for a given vendor.")
-    parser.add_argument("vendor_name", type=str, help="The name of the vendor")
-    parser.add_argument("config_file", type=str, nargs='?', default='sow_inv.config', help="The configuration file to use (default: sow_inv.config)")
-    args = parser.parse_args()
-
-    vendor_name = args.vendor_name
-    config_file = args.config_file
-
-    config_path = f'src/config/{config_file}'
-    configs = load_config(config_path)
+def generate_invoices_for_vendor(vendor_config, client_info):
+    """Generate all invoices for a specific vendor"""
+    vendor_name = vendor_config['name']
     
-    # Find the vendor configuration by name
-    vendor_config = next((config for config in configs if config['name'] == vendor_name), None)
-    if not vendor_config:
-        raise ValueError(f"Vendor '{vendor_name}' not found in configuration.")
-    
-    client_info = {
-        "name": "Invoice Pilot",
-        "contact_name": "Chris Green",
-        "contact_email": "chris.green@invoicepilot.com"
-    }
-
     # Extract payment terms and penalty from the configuration
     payment_terms = vendor_config['payments']['terms']
     penalty = vendor_config['payments']['penalty']
@@ -194,9 +174,42 @@ if __name__ == "__main__":
     # Generate invoices for each group of deliverables
     for invoice_num, deliverables in grouped_deliverables.items():
         # Generate the invoice number in the required format
-        words = vendor_config['name'].split()
+        words = vendor_name.split()
         invoice_prefix = f"{words[0][0]}{words[1][0]}" if len(words) > 1 else words[0][:2]
         invoice_number = f"INV-{invoice_prefix.upper()}2024-{invoice_num:03d}"
         output_path = f"../sample_docs/{invoice_number}.pdf"
         
-        create_invoice(invoice_number, deliverables, vendor_config, client_info, output_path)
+        create_invoice(invoice_number, deliverables, vendor_config, client_info, output_path, payment_info)
+
+if __name__ == "__main__":
+    # Define the argument parser
+    parser = argparse.ArgumentParser(description="Generate invoices for a given vendor or all vendors.")
+    parser.add_argument("vendor_name", type=str, nargs='?', help="The name of the vendor (optional - if not provided, generates for all vendors)")
+    parser.add_argument("config_file", type=str, nargs='?', default='sow_inv.config', help="The configuration file to use (default: sow_inv.config)")
+    args = parser.parse_args()
+
+    vendor_name = args.vendor_name
+    config_file = args.config_file
+
+    config_path = f'src/config/{config_file}'
+    configs = load_config(config_path)
+    
+    client_info = {
+        "name": "Invoice Pilot",
+        "contact_name": "Chris Green",
+        "contact_email": "chris.green@invoicepilot.com"
+    }
+
+    if vendor_name:
+        # Generate invoices for specific vendor
+        vendor_config = next((config for config in configs if config['name'] == vendor_name), None)
+        if not vendor_config:
+            raise ValueError(f"Vendor '{vendor_name}' not found in configuration.")
+        
+        generate_invoices_for_vendor(vendor_config, client_info)
+        print(f"Generated invoices for {vendor_name}")
+    else:
+        # Generate invoices for all vendors
+        for vendor_config in configs:
+            generate_invoices_for_vendor(vendor_config, client_info)
+            print(f"Generated invoices for {vendor_config['name']}")
