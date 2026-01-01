@@ -297,7 +297,7 @@ const SOWCreateModal = ({ show, onHide, vendorId }) => {
                         📄
                       </div>
                       <div>
-                        <div className="fw-medium text-dark">{file.name}</div>
+                        <div style={{ wordBreak: "break-all" }} className="fw-medium text-dark">{file.name}</div>
                         <div className="text-muted small">
                           {formatFileSize(file.size)}
                         </div>
