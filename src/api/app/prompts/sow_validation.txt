@@ -5,7 +5,7 @@ When validating a SOW, you should:
 2. The provided JSON contains different details of the SOW, the keys indicating a section of the SOW and the value of the key indicating the associated detail. If a key contains an empty value, this means that details of that section are not present. If details of any section are missing then the SOW is not valid.  
 3. Check that the total amount on the SOW is the sum of all the deliverables' amounts.
 4. Make sure that project end date is after the project start date. Also ensure that the milestone submission dates are before or on the specified project submission date in the SOW.
-5. Validate the deliverables for each milestone in the SOW.
+5. Validate the deliverables for each milestone in the SOW. Make sure the due dates of each deliverable align with the overall project start and completion dates. 
 6. Ensure that the amount billed for each deliverable matches the billable amount specified in the SOW.
 7. If the SOW contains notes to explain discrepancies, review them for additional context.
 8. Confirm that the SOW is legitimate and ready for payment.
