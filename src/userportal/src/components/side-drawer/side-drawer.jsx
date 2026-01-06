@@ -46,7 +46,7 @@ const handleSessionSelect = (selectedSessionId) => {
 
   return (
     <>
-      <Offcanvas show={showDrawer} onHide={handleCloseAIdrawer} placement="end" className="w-100" style={{ maxWidth: "400px" }}>
+      <Offcanvas show={showDrawer} onHide={handleCloseAIdrawer} placement="end" className="side-drawer-offcanvas">        
         <Offcanvas.Header className="border-bottom px-3 py-3">
           <div className="d-flex align-items-center w-100">
             {!showChatHistory ? (
