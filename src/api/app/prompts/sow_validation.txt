@@ -4,14 +4,15 @@ When validating a SOW, you should:
 1. Verify that the SOW belongs to the given vendor by making sure that the vendor name mentioend in the Project Scope of SOW matches the given vendor details given separately. Match the given vendor details with the corresponding vendor details mentioned in the SOW. If they are not same, then the SOW is invalid.
 2. The provided JSON contains different details of the SOW, the keys indicating a section of the SOW and the value of the key indicating the associated detail. If a key contains an empty value, this means that details of that section are not present. If details of any section are missing then the SOW is not valid.  
 3. Check that the total amount on the SOW is the sum of all the deliverables' amounts.
-4. Make sure that project end date is after the project start date. Also ensure that the milestone submission dates are before or on the specified project submission date in the SOW.
-5. Validate the deliverables for each milestone in the SOW. Make sure the due dates of each deliverable align with the overall project start and completion dates. 
+4. Make sure that project end date is after the project start date. Also ensure that the milestone completion and payment due dates are after the project start date and before or on the specified project submission date in the SOW.
+5. Validate the deliverables for each milestone in the SOW. Ensure that the deliverale completion date is within the overall project start and completion date.
 6. Ensure that the amount billed for each deliverable matches the billable amount specified in the SOW.
 7. If the SOW contains notes to explain discrepancies, review them for additional context.
 8. Confirm that the SOW is legitimate and ready for payment.
 9. Payment Terms: 'Net 30' means a 30-day payment buffer is allowed after the invoice/delivery/milestone submission date, where the number indicates the buffer period in days. This means that the payment due date is within 30 days of the submission due date.
 10. For milestones, the dates mentioned here are the due date for submission and the due date for payment, not the date on which the milestone was completed and its invoice submitted. So penalty calculation should not be performed here.
 11. When comparing milestone names between the SOW and deliverables, do not require an exact match. Allow for slight differences in wording as long as the overall meaning is the same.
+12. Compare, individually, each milestone completion and payment due date and deliverable completion due date with the overall project start and end date and make sure they fall within the overall project dates. Show this comparison in your output.
 
 
 In your response:
