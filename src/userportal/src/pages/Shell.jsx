@@ -249,7 +249,7 @@ const Shell = ({onLogout}) => {
          
             {/* </div> */}
           {/* </div> */}
-          <main className="col-lg-12">
+          <main className="col-lg-12 p-0">
             <Routes>
               <Route exact path="/" element={<Dashboard />} />
               <Route exact path="/chats" element={<CopilotChat/>}/>
