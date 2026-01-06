@@ -145,7 +145,7 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
           {showPagination ? (
             <div className="d-flex justify-content-end align-items-center">
               <div className="pagination-info">
-                Page {pageIndex} of {pageCount}
+                {total === 0 ? 'No records' : `Page ${pageIndex} of ${pageCount}`}
               </div>
               <button className="btn border-0" onClick={handlePrevious} disabled={skip === 0}>
               <i className="fa-solid fa-chevron-left"></i>

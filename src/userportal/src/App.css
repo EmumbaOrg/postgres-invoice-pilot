@@ -2,8 +2,8 @@ body {
   font-size: .875rem;
 }
 
-.row>*{
-  padding:0% !important;
+.row > * {
+  padding: 0;
 }
 
 /* Override Bootstrap's default table-responsive overflow */
@@ -30,6 +30,12 @@ body {
 
 /* Mobile-specific table and dropdown styling */
 @media (max-width: 768px) {
+  /* Reduce logo size in mobile navbar */
+  .navbar-brand img {
+    height: 24px !important;
+    width: auto !important;
+  }
+  
   .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -39,12 +45,78 @@ body {
   
   .table {
     font-size: 0.75rem;
+    position: relative;
   }
   
   .table td,
   .table th {
     padding: 0.25rem 0.5rem;
     white-space: nowrap;
+  }
+  
+  /* Hide ID columns on mobile */
+  .table th:first-child,
+  .table td:first-child {
+    display: none;
+  }
+  
+  /* Ensure empty state message is always visible on mobile */
+  .table .empty-state-row td {
+    display: table-cell !important;
+    visibility: visible !important;
+  }
+  
+  /* Mobile styling for empty state text - ensure same font size for both lines */
+  .table .empty-state-row td p {
+    font-size: 0.85rem;
+  }
+  
+  /* Make main message bold (No invoices/SOWs/vendors added yet) */
+  .table .empty-state-row td p.mb-0 {
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  
+  /* Keep action text normal weight (Click on "Add...") */
+  .table .empty-state-row td p:last-child {
+    font-weight: normal;
+    font-size: 0.85rem;
+  }
+  
+  /* Make the new first column (after hiding ID) sticky on mobile - only when there's data */
+  .table:not(.table-no-data) th:nth-child(2),
+  .table:not(.table-no-data) td:nth-child(2) {
+    position: sticky;
+    left: 0;
+    background-color: white;
+    z-index: 10;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    font-weight: 600;
+    border-right: 2px solid #e9ecef;
+  }
+  
+  /* Add a left border overlay to completely hide scrolled content - only when there's data */
+  .table:not(.table-no-data) th:nth-child(2)::before,
+  .table:not(.table-no-data) td:nth-child(2)::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: white;
+    z-index: 1;
+  }
+  
+  /* Ensure sticky header has proper background - only when there's data */
+  .table:not(.table-no-data) thead th:nth-child(2) {
+    background-color: #f8f9fa;
+    font-weight: 700;
+  }
+  
+  /* Add subtle highlight to sticky column - only when there's data */
+  .table:not(.table-no-data) tbody td:nth-child(2) {
+    background-color: #fefefe;
   }
   
   /* Keep actions column narrow */
@@ -195,8 +267,8 @@ h2 {
  * Navbar
  */
 
- .navbar{
-  justify-content: start !important;
+ .navbar {
+  justify-content: flex-start;
   background-color: white;
  }
 .navbar-brand {
@@ -216,6 +288,12 @@ h2 {
   border: none;
   outline: none;
   box-shadow: none;
+}
+
+/* When showing cross button, adjust positioning */
+.navbar .navbar-toggler[aria-expanded="true"] {
+  padding: 0;
+  right: 0;
 }
 
 .navbar .navbar-toggler:focus {
@@ -276,8 +354,51 @@ h2 {
   .active-nav::after {
     display: none;
   }
+}
+
+/* Mobile hamburger menu overlay - screens below 768px */
+@media (max-width: 767.98px) {
+  /* Transform navbar-collapse into overlay */
+  .navbar .navbar-collapse {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 70% !important;
+    height: 100vh !important;
+    background-color: white !important;
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1) !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    z-index: 1050 !important;
+    padding: 20px;
+    margin: 0;
+    border-left: 1px solid #e0e0e0;
+    visibility: hidden !important;
+  }
   
-  /* Add background color and styling for mobile active state */
+  .navbar .navbar-collapse.show {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+  }
+  
+  .navbar-collapse.collapsing {
+    visibility: visible !important;
+    transform: translateX(100%) !important;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  }
+  
+  /* Style the navigation links */
+  .navbar-collapse .navbar-nav {
+    margin: 0 !important;
+    padding-top: 60px !important;
+  }
+  
+  .navbar-collapse .nav-item {
+    margin-bottom: 12px !important;
+    width: 100% !important;
+  }
+  
+  /* Active state styling for mobile overlay */
   .navbar-collapse .active-nav {
     background-color: rgba(13, 110, 253, 0.1) !important;
     border-radius: 8px !important;
@@ -285,15 +406,6 @@ h2 {
     padding: 12px 16px !important;
     margin: 4px 0 !important;
     border-left: 4px solid var(--bs-primary) !important;
-  }
-  
-  .navbar-nav .nav-item {
-    margin-bottom: 8px;
-  }
-  
-  .navbar-collapse {
-    margin-top: 15px;
-    padding-bottom: 15px;
   }
   
   /* Hover effect for mobile nav items */
@@ -311,6 +423,21 @@ h2 {
     margin: 4px 0 !important;
     border-radius: 8px !important;
     transition: all 0.2s ease-in-out !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  
+  /* Ensure the right side content (Ask AI button) is hidden in mobile overlay */
+  .navbar-collapse .navbar-nav:last-child {
+    display: none !important;
+  }
+  
+  /* Make sure toggle button is clickable */
+  .navbar-toggler {
+    z-index: 1051 !important;
+    position: relative !important;
   }
 }
 
@@ -364,8 +491,8 @@ h2 {
   color: white;  
   padding-bottom: 0px;
 }
-.dropdown-toggle::after{
-  display: none !important;
+.dropdown-toggle::after {
+  display: none;
 }
 .flex-wrap{
       display: flex;

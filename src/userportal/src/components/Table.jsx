@@ -25,7 +25,7 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false, no
   return (
     <div>
       <div className="table-responsive">
-        <table {...getTableProps()} className="table" style={{border:'1px solid #EBF2FF'}}>
+        <table {...getTableProps()} className={`table ${rows.length === 0 ? 'table-no-data' : ''}`} style={{border:'1px solid #EBF2FF'}}>
           <thead>
             {headerGroups.map((headerGroup, index) => (
               <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id || `header-group-${index}`}>
@@ -48,7 +48,7 @@ const Table = ({ columns, data, loading, onSortChange, enableSorting = false, no
           </thead>
           <tbody {...getTableBodyProps()}>
             {rows.length === 0 ? (
-              <tr key="empty-state">
+              <tr key="empty-state" className="empty-state-row">
                 <td colSpan={columns.length} className="text-center pt-5" style={{height:'300px'}}>
                  <p><WindowPlusIcon /></p> 
                  <p className='mb-0'>{noDataMesssage}</p> 

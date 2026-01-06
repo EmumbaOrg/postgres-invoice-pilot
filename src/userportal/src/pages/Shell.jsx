@@ -43,8 +43,23 @@ const Shell = ({onLogout}) => {
   // Handle click outside navbar to close it
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (navbarRef.current && !navbarRef.current.contains(event.target)) {
-        setIsNavbarCollapsed(true);
+      // Don't close if clicking on the toggle button
+      const toggleButton = document.querySelector('.navbar-toggler');
+      if (toggleButton && toggleButton.contains(event.target)) {
+        return;
+      }
+
+      // For mobile overlay (below 768px)
+      if (window.innerWidth <= 767.98) {
+        const navbarCollapse = document.getElementById('navbarNav');
+        if (navbarCollapse && !navbarCollapse.contains(event.target) && !isNavbarCollapsed) {
+          setIsNavbarCollapsed(true);
+        }
+      } else {
+        // For desktop/tablet
+        if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+          setIsNavbarCollapsed(true);
+        }
       }
     };
 
@@ -234,7 +249,7 @@ const Shell = ({onLogout}) => {
          
             {/* </div> */}
           {/* </div> */}
-          <main className="col-lg-12">
+          <main className="col-lg-12 p-0">
             <Routes>
               <Route exact path="/" element={<Dashboard />} />
               <Route exact path="/chats" element={<CopilotChat/>}/>

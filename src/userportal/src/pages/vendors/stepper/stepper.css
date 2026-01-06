@@ -122,10 +122,10 @@
     width: 100%;
     height: 100%;
 }
-.styled-button{
-    color: #292A31 !important;
-    font-weight: bold !important;
-    font-size: 20px !important;
+.styled-button {
+    color: #292A31;
+    font-weight: bold;
+    font-size: 20px;
 }
 .vendor-stepper-wrapper {
     overflow-y: auto; /* allow inner scroll when needed */
@@ -135,13 +135,48 @@
     .vendor-stepper-wrapper {
         height: calc(100vh - 220px);
     }
-    .row.wrapper-inner{
-        padding-bottom: 0px !important;
+    .row.wrapper-inner {
+        padding-bottom: 0px;
     }
 }
 
 @media (max-width: 992px) {
     .row.wrapper-inner {
-        padding-bottom: 80px !important;
+        padding-bottom: 80px;
+    }
+}
+
+/* Mobile Stepper Styles */
+.mobile-stepper-header {
+    border: 1px solid #e1e1e3;
+}
+
+.mobile-progress-bar {
+    height: 6px;
+    background-color: #e1e1e3;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.mobile-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2979ff 0%, #1976d2 100%);
+    transition: width 0.3s ease;
+    border-radius: 3px;
+}
+
+.current-step-info h6 {
+    color: #292a31;
+    font-size: 1rem;
+}
+
+.current-step-info small {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+@media (min-width: 992px) {
+    .mobile-stepper-header {
+        display: none;
     }
 }

@@ -57,3 +57,40 @@
 .message.assistant .alert.chat-response {
   padding-right: 45px !important;
 }
+
+/* Desktop styling */
+.side-drawer-offcanvas {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Mobile responsive styling - screens below 768px */
+@media (max-width: 767.98px) {
+  .side-drawer-offcanvas {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* Override Bootstrap's default placement for mobile */
+  .side-drawer-offcanvas.offcanvas-end {
+    right: auto !important;
+    left: 0 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease-in-out !important;
+  }
+  
+  .side-drawer-offcanvas.offcanvas-end.show {
+    transform: translateX(0) !important;
+  }
+  
+  .side-drawer-offcanvas.offcanvas-end.hiding {
+    transform: translateX(-100%) !important;
+  }
+  
+  /* Ensure full screen coverage on mobile */
+  .side-drawer-offcanvas .offcanvas-backdrop {
+    opacity: 0.5;
+    transition: opacity 0.3s ease-in-out;
+  }
+}

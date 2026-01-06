@@ -22,8 +22,8 @@ const StepperWizard = ({
       <div className="row m-4 p-4 mt-0 mb-0 wrapper-inner">
         <main className="col-lg-12">
           <div className="row gap-5">
-            {/* Stepper Navigation - col-lg-2 */}
-            <div className="col-lg-2 background-styled p-4">
+            {/* Desktop Stepper Navigation - Hidden on mobile */}
+            <div className="col-lg-2 background-styled p-4 d-none d-lg-block">
               <div className="position-sticky" style={{ top: "20px" }}>
                 <div className="d-flex flex-column gap-5">
                   {steps.map((step, index) => (
@@ -90,8 +90,28 @@ const StepperWizard = ({
               </div>
             </div>
 
-            {/* Main Content - col-lg-9 */}
-            <div className="col-lg-9 p-0 main-content">
+            {/* Main Content - Full width on mobile, col-lg-9 on desktop */}
+            <div className="col-12 col-lg-9 p-0 main-content">
+              {/* Mobile Stepper Header - Hidden on desktop */}
+              <div className="d-block d-lg-none mb-3">
+                <div className="mobile-stepper-header p-3 background-styled rounded">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className="fw-medium text-muted">Step {activeStep + 1} of {steps.length}</span>
+                    <span className="text-muted small">{Math.round(((activeStep + 1) / steps.length) * 100)}% Complete</span>
+                  </div>
+                  <div className="mobile-progress-bar mb-2">
+                    <div 
+                      className="mobile-progress-fill"
+                      style={{ width: `${((activeStep + 1) / steps.length) * 100}%` }}
+                    ></div>
+                  </div>
+                  <div className="current-step-info">
+                    <h6 className="mb-1 fw-bold">{steps[activeStep].title}</h6>
+                    <small className="text-muted">{steps[activeStep].subtitle}</small>
+                  </div>
+                </div>
+              </div>
+              
               <Breadcrumb className="mb-0">
                 <Breadcrumb.Item href="/vendors">Vendors</Breadcrumb.Item>
                 <Breadcrumb.Item active>Add New Vendor</Breadcrumb.Item>
