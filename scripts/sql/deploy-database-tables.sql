@@ -213,8 +213,8 @@ SELECT 'SOW-2024-038',
     {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-11-12"},
     {"Milestone_Name": "DevOps Strategy & Planning", "Milestone_Completion_Due_Date": "2024-11-20"},
     {"Milestone_Name": "CI/CD Pipeline Implementation", "Milestone_Completion_Due_Date": "2024-11-27"},
-    {"Milestone_Name": "Infrastructure as Code (IaC)", "Milestone_Completion_Due_Date": "2024-12-14"},
-    {"Milestone_Name": "Security, Monitoring & Optimization", "Milestone_Completion_Due_Date": "2024-12-30"}
+    {"Milestone_Name": "Infrastructure as Code (IaC)", "Milestone_Completion_Due_Date": "2024-12-15"},
+    {"Milestone_Name": "Security, Monitoring & Optimization", "Milestone_Completion_Due_Date": "2024-12-31"}
   ],
   "Requirements": [
     "Access to existing infrastructure and systems.",
@@ -236,8 +236,8 @@ SELECT 'SOW-2024-038',
   "Project_Deliverables": [
     {"Milestone_Name": "DevOps Strategy & Planning", "Deliverables": "DevOps Roadmap & Report, CI/CD Pipeline Design", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-12-20"},
     {"Milestone_Name": "CI/CD Pipeline Implementation", "Deliverables": "Deployment Pipeline, Version Control Implementation, Branching Strategy", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-12-27"},
-    {"Milestone_Name": "Infrastructure as Code (IaC)", "Deliverables": "Infrastructure as Code Implementation, Containerization, Orchestration Setup", "Amount": "15000", "Milestone_Payment_Due_Date": "2025-01-15"},
-    {"Milestone_Name": "Security, Monitoring & Optimization", "Deliverables": "Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization", "Amount": "15000", "Milestone_Payment_Due_Date": "2025-01-31"}
+    {"Milestone_Name": "Infrastructure as Code (IaC)", "Deliverables": "Infrastructure as Code Implementation, Containerization, Orchestration Setup", "Amount": "15000", "Milestone_Payment_Due_Date": "2025-01-14"},
+    {"Milestone_Name": "Security, Monitoring & Optimization", "Deliverables": "Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization", "Amount": "15000", "Milestone_Payment_Due_Date": "2025-01-30"}
   ],
   "Total_Amount": "60000",
   "Signatures": {
