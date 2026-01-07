@@ -124,3 +124,45 @@ ul.session-list {
 .message.assistant .alert.chat-response {
   padding-right: 45px !important;
 }
+
+/* Handle text overflow for very small screens */
+@media (max-width: 500px) {
+  .chat-response {
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    hyphens: auto !important;
+  }
+  
+  .chat-response p {
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Force break long URLs, emails, and continuous text */
+  .chat-response a,
+  .chat-response code {
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+  }
+  
+  /* Reduce message max-width for better space utilization */
+  .message .alert {
+    max-width: 95% !important;
+  }
+  
+  /* Reduce padding in messages container */
+  .messages {
+    padding: 0.75rem !important;
+  }
+  
+  /* Smaller font size for better readability */
+  .chat-response {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Reduce padding in message bubbles */
+  .message[style*="background: #FAFAFA"] {
+    padding: 12px !important;
+  }
+}

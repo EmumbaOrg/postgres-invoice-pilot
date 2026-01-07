@@ -1,5 +1,6 @@
 import { Card, Row, Col, Dropdown } from "react-bootstrap";
 import { formatFileSize } from "../../utils/common-functions";
+import "./activity-tile.css";
 
 export default function ActivityTile({
   icon,

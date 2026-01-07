@@ -136,7 +136,7 @@ export default function RecentActivity() {
             </Alert>
           )}
           
-          <div style={{display:"flex", flexDirection: "column", gap:"16px"}}>
+          <div className="activity-container" style={{display:"flex", flexDirection: "column", gap:"16px"}}>
             {loadingActivities && (
               <div className="d-flex justify-content-center align-items-center" style={{ height: '20vh' }}>
                 <Spinner animation="border" role="status" variant="primary" />
@@ -161,7 +161,7 @@ export default function RecentActivity() {
             <p className="text-muted">Recently uploaded invoices and SOW files</p>
           </div>
           
-          <div style={{display:"flex", flexDirection:"column", gap:"16px"}}>
+          <div className="documents-container" style={{display:"flex", flexDirection:"column", gap:"16px"}}>
             {loadingDocuments && (
               <div className="d-flex justify-content-center align-items-center" style={{ height: '20vh' }}>
                 <Spinner animation="border" role="status" variant="primary" />
