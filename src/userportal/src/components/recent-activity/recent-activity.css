@@ -13,6 +13,14 @@
     }
 }
 
+/* Optimizations for very small screens */
+@media (max-width: 550px) {
+    .section-wrapper {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
 .tile-outer{
     border-color: #9DC2FF !important;
 }
@@ -26,6 +34,18 @@
     justify-content: center;
 }
 
+/* Small screen icon optimization */
+@media (max-width: 550px) {
+    .icon-bg {
+        height: 32px;
+        width: 32px !important;
+    }
+    
+    .icon-bg .text-primary {
+        font-size: 1rem !important;
+    }
+}
+
 /* Ensure proper text truncation and flex behavior */
 .min-width-0 {
     min-width: 0;
@@ -33,4 +53,12 @@
 
 .flex-shrink-0 {
     flex-shrink: 0;
+}
+
+/* Reduce gap between activity tiles on small screens */
+@media (max-width: 550px) {
+    .activity-container,
+    .documents-container {
+        gap: 8px !important;
+    }
 }
