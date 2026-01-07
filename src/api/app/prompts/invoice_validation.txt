@@ -10,6 +10,7 @@ When validating an invoice, you should:
 7. Payment Terms: 'Net 30' means a 30-day payment buffer is allowed after the invoice/delivery/milestone submission date, where the number indicates the buffer period in days. This means that the payment due date is within 30 days of the submission due date.
 8. If the invoice contains notes to explain discrepancies, review them for additional context.
 9. Confirm that the invoice is legitimate and ready for payment.
+10. When comparing milestone names between the SOW and the invoice, do not require an exact match. Allow for slight differences in wording as long as the overall meaning is the same.
 
 If there are milestones missing from the invoice that are not yet beyond their due date according to the SOW, do not flag them as discrepancies.
 If the payment terms on the invoice are different from the SOW, assume the SOW is correct.
