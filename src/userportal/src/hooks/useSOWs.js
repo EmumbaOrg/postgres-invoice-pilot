@@ -3,14 +3,27 @@ import { getSows, getSow, analyzeSow, validateSow, updateSow, deleteSow, getSowC
 import { queryKeys } from '../lib/queryKeys';
 
 /**
- * Hook to fetch SOWs list
+ * Hook to fetch SOWs list with enhanced error handling
  */
-export const useSOWs = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '', enabled = true } = {}) => {
+export const useSOWs = ({ vendorId = -1, skip = 0, limit = 10, sortBy = '', enabled = true, retry, retryDelay } = {}) => {
   return useQuery({
     queryKey: queryKeys.sows.list({ vendorId, skip, limit, sortBy }),
     queryFn: () => getSows({ vendorId, skip, limit, sortBy }),
     staleTime: 30_000,
     enabled: enabled,
+    retry: retry || ((failureCount, error) => {
+      // Don't retry on client errors (4xx)
+      if (error?.response?.status >= 400 && error?.response?.status < 500) {
+        return false;
+      }
+      // Retry up to 3 times for server errors and network issues
+      return failureCount < 3;
+    }),
+    retryDelay: retryDelay || ((attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)),
+    onError: (error) => {
+      console.error('Error fetching SOWs:', error);
+      // You could add analytics/monitoring here
+    }
   });
 };
 
@@ -98,7 +111,7 @@ export const useUpdateSOW = () => {
 };
 
 /**
- * Hook to delete SOW
+ * Hook to delete SOW with enhanced error handling
  */
 export const useDeleteSOW = () => {
   const queryClient = useQueryClient();
@@ -127,17 +140,49 @@ export const useDeleteSOW = () => {
       return { previousSOWs };
     },
     onError: (err, sowId, context) => {
-      // Rollback on error
+      console.error('Delete SOW error:', err);
+      
+      // Rollback optimistic update on error
       context?.previousSOWs?.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
+      
+      // Transform error for better user experience
+      const enhancedError = new Error();
+      enhancedError.response = err.response;
+      enhancedError.code = err.code;
+      enhancedError.name = err.name;
+      enhancedError.message = getDeleteErrorMessage(err);
+      
+      throw enhancedError;
     },
-    onSettled: () => {
-      // Always refetch after error or success
+    onSuccess: () => {
+      // Invalidate and refetch SOW lists
       queryClient.invalidateQueries({ queryKey: queryKeys.sows.lists() });
       queryClient.invalidateQueries({ queryKey: queryKeys.activities.all });
     },
+    onSettled: () => {
+      // Always refetch after error or success to ensure consistency
+      queryClient.invalidateQueries({ queryKey: queryKeys.sows.lists() });
+    },
   });
+};
+
+// Helper function for delete error messages
+const getDeleteErrorMessage = (error) => {
+  if (error?.response?.status === 404) {
+    return 'SOW not found. It may have already been deleted.';
+  } else if (error?.response?.status === 403) {
+    return 'You do not have permission to delete this SOW.';
+  } else if (error?.response?.status === 409) {
+    return 'SOW cannot be deleted because it has associated invoices or other data.';
+  } else if (error?.response?.status >= 500) {
+    return 'Server error occurred while deleting SOW. Please try again later.';
+  } else if (error?.code === 'NETWORK_ERROR') {
+    return 'Network connection error. Please check your internet connection.';
+  }
+  
+  return error?.response?.data?.detail || error?.message || 'Failed to delete SOW.';
 };
 
 /**

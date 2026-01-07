@@ -5,6 +5,8 @@ const VendorDetailsStep = ({
   formData, 
   setFormData, 
   error, 
+  errorDetails,
+  successMessage,
   onSave,
   serverFieldErrors = {}
 }) => {
@@ -132,12 +134,27 @@ const VendorDetailsStep = ({
 
   return (
     <>
+      {/* Success Message */}
+      {successMessage && (
+        <Alert variant="success" className="mb-3">
+          <i className="fa-solid fa-circle-check me-2" style={{ color: 'var(--bs-success)' }}></i>
+          {successMessage}
+        </Alert>
+      )}
+      
+      {/* Error Messages */}
       {error && (
         <Alert variant="danger" className="mb-3">
           <i className="fa-solid fa-circle-exclamation me-2" style={{ color: 'var(--bs-danger)' }}></i>
-          {error}
+          <div>{error}</div>
+          {errorDetails && (
+            <div className="mt-2 small text-muted">
+              {errorDetails}
+            </div>
+          )}
         </Alert>
       )}
+      
       <Form onSubmit={onSave}>
         <div className="mb-4">
           <h5 className="section-heading">Vendor Details</h5>

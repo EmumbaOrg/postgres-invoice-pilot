@@ -10,6 +10,25 @@ import PdfPreviewModal from '../../components/pdf-preview-modal/pdf-preview-moda
 import { useSOWs, useDeleteSOW } from '../../hooks/useSOWs';
 import { getDocumentUrl } from '../../hooks/useDocuments';
 
+// Helper function to get user-friendly error messages
+const getErrorMessage = (error) => {
+  if (!error) return '';
+  
+  if (error.response?.status === 404) {
+    return 'SOWs not found. The data may have been moved or deleted.';
+  } else if (error.response?.status === 403) {
+    return 'You do not have permission to access SOWs.';
+  } else if (error.response?.status >= 500) {
+    return 'Server error occurred. Our team has been notified. Please try again later.';
+  } else if (error.code === 'NETWORK_ERROR') {
+    return 'Unable to connect to the server. Please check your internet connection.';
+  } else if (error.name === 'TimeoutError') {
+    return 'Request timed out. The server is taking too long to respond.';
+  }
+  
+  return error.response?.data?.detail || error.message || 'An unexpected error occurred.';
+};
+
 const SOWList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sowToDelete, setSowToDelete] = useState(null);
@@ -26,15 +45,51 @@ const SOWList = () => {
     sortBy: '' 
   }), []);
   
-  // Fetch SOWs using React Query
-  const { data: sowsData, isLoading, error: fetchError } = useSOWs(sowQueryParams);
+  // Fetch SOWs using React Query with retry functionality
+  const { data: sowsData, isLoading, error: fetchError, refetch } = useSOWs({
+    ...sowQueryParams,
+    retry: (failureCount, error) => {
+      // Retry up to 3 times for network errors, but not for 4xx errors
+      if (error?.response?.status >= 400 && error?.response?.status < 500) {
+        return false; // Don't retry client errors
+      }
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+
+  // Handle retry manually
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    setErrorMessage(null);
+    try {
+      await refetch();
+      setRetryCount(0);
+    } catch (err) {
+      setRetryCount(prev => prev + 1);
+    } finally {
+      setIsRetrying(false);
+    }
+  };
   
   // Delete mutation
   const deleteMutation = useDeleteSOW();
   
-  // Success/error state for UI feedback
+  // Enhanced success/error state for better UI feedback
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  // Auto-dismiss success message after 5 seconds
+  React.useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
   
   // Debounced search functionality
   const handleSearch = useCallback((debouncedSearchTerm) => {
@@ -59,16 +114,37 @@ const SOWList = () => {
   const handleDelete = async () => {
     if (!sowToDelete) return;
 
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
     try {
       await deleteMutation.mutateAsync(sowToDelete);
       setSuccessMessage('SOW successfully deleted!');
-      setErrorMessage(null);
       setShowDeleteModal(false);
       setSowToDelete(null);
+      setRetryCount(0);
       setReload((prev) => !prev);
     } catch (err) {
-      setErrorMessage(`Error deleting SOW: ${err.message}`);
-      setSuccessMessage(null);
+      console.error('Delete SOW error:', err);
+      
+      // Provide specific error messages based on error type
+      let errorMsg = 'Failed to delete SOW. ';
+      
+      if (err.response?.status === 404) {
+        errorMsg += 'SOW not found. It may have already been deleted.';
+      } else if (err.response?.status === 403) {
+        errorMsg += 'You do not have permission to delete this SOW.';
+      } else if (err.response?.status === 409) {
+        errorMsg += 'SOW cannot be deleted because it has associated data.';
+      } else if (err.response?.status >= 500) {
+        errorMsg += 'Server error occurred. Please try again later.';
+      } else if (err.code === 'NETWORK_ERROR') {
+        errorMsg += 'Network connection error. Check your internet connection.';
+      } else {
+        errorMsg += err.response?.data?.detail || err.message || 'Unknown error occurred.';
+      }
+      
+      setErrorMessage(errorMsg);
       setShowDeleteModal(false);
       setSowToDelete(null);
     }
@@ -200,19 +276,68 @@ const SOWList = () => {
         id="sow-search"
       />
 
-      {/* Error message from fetch or delete */}
+      {/* Enhanced error message with retry capability */}
       {(errorMessage || fetchError) && (
-        <Alert variant="danger" dismissible onClose={() => { setErrorMessage(null); }}>
-          <i className="fa-solid fa-circle-exclamation" variant="danger"></i>{' '}
-          {errorMessage || fetchError?.message}
+        <Alert variant="danger" className="d-flex align-items-center justify-content-between">
+          <div className="d-flex align-items-center">
+            <i className="fa-solid fa-circle-exclamation me-2" style={{color: 'var(--bs-danger)'}}></i>
+            <div>
+              <strong>Error:</strong> {errorMessage || getErrorMessage(fetchError)}
+              {retryCount > 0 && (
+                <div className="small text-muted mt-1">
+                  Retry attempt: {retryCount}/3
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            {fetchError && (
+              <Button 
+                variant="outline-danger" 
+                size="sm" 
+                onClick={handleRetry}
+                disabled={isRetrying}
+              >
+                {isRetrying ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Retrying...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-redo me-2"></i>
+                    Retry
+                  </>
+                )}
+              </Button>
+            )}
+            <Button 
+              variant="link" 
+              size="sm" 
+              className="text-danger" 
+              onClick={() => { setErrorMessage(null); }}
+            >
+              <i className="fas fa-times"></i>
+            </Button>
+          </div>
         </Alert>
       )}
       
-      {/* Success message */}
+      {/* Enhanced success message with auto-dismiss */}
       {successMessage && (
-        <Alert variant="success" dismissible onClose={() => setSuccessMessage(null)}>
-          <i className="fa-solid fa-circle-check" variant="success"></i>{' '}
-          {successMessage}
+        <Alert variant="success" className="d-flex align-items-center justify-content-between">
+          <div className="d-flex align-items-center">
+            <i className="fa-solid fa-circle-check me-2" style={{color: 'var(--bs-success)'}}></i>
+            <strong>{successMessage}</strong>
+          </div>
+          <Button 
+            variant="link" 
+            size="sm" 
+            className="text-success" 
+            onClick={() => setSuccessMessage(null)}
+          >
+            <i className="fas fa-times"></i>
+          </Button>
         </Alert>
       )}
 

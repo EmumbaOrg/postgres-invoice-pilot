@@ -108,10 +108,8 @@ const NavigationStepper = () => {
           }
           break;
         case 1:
-          // Step 2: Upload SOW (if file exists) - only if not already processed
-          if (sowUpload.sowFile && !sowUpload.sowId) {
-            await sowUpload.uploadSOW(sowUpload.sowFile, vendorId);
-          }
+          // Step 2: SOW upload happens immediately when file is selected in SOWUploadStep
+          // No additional processing needed here
           break;
         case 2:
           // Step 3: Upload invoice (if file exists) - only if not already processed and no previous errors
