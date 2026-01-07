@@ -172,8 +172,8 @@ SELECT 'SOW-2024-073',
     {"Milestone_Name": "Cost Management", "Deliverables": "Cost Management Implementation", "Amount": "7000", "Milestone_Payment_Due_Date": "2024-12-22"},
     {"Milestone_Name": "Maintenance Practices", "Deliverables": "Maintenance & troubleshooting practices", "Amount": "10500", "Milestone_Payment_Due_Date": "2024-12-27"},
     {"Milestone_Name": "App Troubleshooting", "Deliverables": "Identify Azure application issues", "Amount": "2000", "Milestone_Payment_Due_Date": "2024-12-27"},
-    {"Milestone_Name": "App Troubleshooting", "Deliverables": "Resolution of Azure application issues", "Amount": "3500", "Milestone_Payment_Due_Date": "2025-01-31"},
-    {"Milestone_Name": "App Troubleshooting", "Deliverables": "Implementation of app monitoring", "Amount": "5000", "Milestone_Payment_Due_Date": "2025-01-31"}
+    {"Milestone_Name": "App Troubleshooting", "Deliverables": "Resolution of Azure application issues", "Amount": "3500", "Milestone_Payment_Due_Date": "2025-01-30"},
+    {"Milestone_Name": "App Troubleshooting", "Deliverables": "Implementation of app monitoring", "Amount": "5000", "Milestone_Payment_Due_Date": "2025-01-30"}
   ],
   "Total_Amount": "43600",
   "Signatures": {
