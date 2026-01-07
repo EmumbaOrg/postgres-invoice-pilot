@@ -21,7 +21,6 @@ const VendorEdit = () => {
   const [success, setSuccess] = useState(null);
   const [showDeleteSowModal, setShowDeleteSowModal] = useState(false);
   const [sowToDelete, setSowToDelete] = useState(null);
-  const [reloadSows, setReloadSows] = useState(false);
 
   // Fetch vendor data using React Query
   const { 
@@ -141,7 +140,6 @@ const VendorEdit = () => {
       setError(null);
       setShowDeleteSowModal(false);
       setSowToDelete(null);
-      setReloadSows((prev) => !prev);
     } catch (err) {
       setError(err.message || 'Error deleting SOW');
       setSuccess(null);
@@ -298,7 +296,6 @@ const VendorEdit = () => {
       <PagedTable 
         columns={sowColumns}
         fetchData={fetchSows}
-        reload={reloadSows}
         showPagination={false}
         initialData={sowsData?.data || []}
         initialTotal={sowsData?.total || 0}
