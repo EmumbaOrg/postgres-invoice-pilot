@@ -234,10 +234,10 @@ SELECT 'SOW-2024-038',
     "Regulatory_Compliance": "The project will comply with applicable regulations, including GDPR, PCI DSS, and ISO 27001, as they pertain to the management of infrastructure."
   },
   "Project_Deliverables": [
-    {"Milestone_Name": "DevOps Strategy & Planning", "Deliverables": "DevOps Roadmap & Report, CI/CD Pipeline Design", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-05-30"},
-    {"Milestone_Name": "CI/CD Pipeline Implementation", "Deliverables": "Deployment Pipeline, Version Control Implementation, Branching Strategy", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-06-28"},
-    {"Milestone_Name": "Infrastructure as Code (IaC)", "Deliverables": "Infrastructure as Code Implementation, Containerization, Orchestration Setup", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-09-15"},
-    {"Milestone_Name": "Security, Monitoring & Optimization", "Deliverables": "Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization", "Amount": "15000", "Milestone_Payment_Due_Date": "2024-12-01"}
+    {"Milestone_Name": "DevOps Strategy & Planning", "Deliverables": "DevOps Roadmap & Report, CI/CD Pipeline Design", "Amount": "10000", "Milestone_Payment_Due_Date": "2024-12-20"},
+    {"Milestone_Name": "CI/CD Pipeline Implementation", "Deliverables": "Deployment Pipeline, Version Control Implementation, Branching Strategy", "Amount": "20000", "Milestone_Payment_Due_Date": "2024-12-27"},
+    {"Milestone_Name": "Infrastructure as Code (IaC)", "Deliverables": "Infrastructure as Code Implementation, Containerization, Orchestration Setup", "Amount": "15000", "Milestone_Payment_Due_Date": "2025-01-15"},
+    {"Milestone_Name": "Security, Monitoring & Optimization", "Deliverables": "Security & Compliance Integration, Monitoring & Logging Setup, Performance Optimization", "Amount": "15000", "Milestone_Payment_Due_Date": "2025-01-31"}
   ],
   "Total_Amount": "60000",
   "Signatures": {
