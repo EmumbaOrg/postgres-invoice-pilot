@@ -213,8 +213,8 @@ SELECT 'SOW-2024-038',
     {"Milestone_Name": "Project kick-off", "Milestone_Completion_Due_Date": "2024-11-12"},
     {"Milestone_Name": "DevOps Strategy & Planning", "Milestone_Completion_Due_Date": "2024-11-20"},
     {"Milestone_Name": "CI/CD Pipeline Implementation", "Milestone_Completion_Due_Date": "2024-11-27"},
-    {"Milestone_Name": "Infrastructure as Code (IaC)", "Milestone_Completion_Due_Date": "2024-12-15"},
-    {"Milestone_Name": "Security, Monitoring & Optimization", "Milestone_Completion_Due_Date": "2024-12-31"}
+    {"Milestone_Name": "Infrastructure as Code (IaC)", "Milestone_Completion_Due_Date": "2024-12-14"},
+    {"Milestone_Name": "Security, Monitoring & Optimization", "Milestone_Completion_Due_Date": "2024-12-30"}
   ],
   "Requirements": [
     "Access to existing infrastructure and systems.",
