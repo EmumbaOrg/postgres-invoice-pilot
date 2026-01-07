@@ -39,6 +39,26 @@ const PagedTable = ({ columns, fetchData, searchEnabled = false, showPagination 
     }
   }, [initialData, initialLoadCompleted, initialTotal, initialSkip, initialLimit]);
 
+  // Keep table in sync if the caller's initialData changes after the first load
+  useEffect(() => {
+    if (!initialLoadCompleted || !hasLoadedInitialData.current) return;
+    // Derive the latest total and clamp the current skip within bounds
+    const latestTotal = initialTotal || (initialData ? initialData.length : 0);
+    const pageSize = limit || 10;
+    const maxSkip = Math.max(0, Math.floor(Math.max(0, latestTotal - 1) / pageSize) * pageSize);
+    const nextSkip = Math.min(skip, maxSkip);
+
+    const sliceStart = nextSkip;
+    const sliceEnd = nextSkip + pageSize;
+    const nextData = (initialData || []).slice(sliceStart, sliceEnd);
+
+    setData(nextData);
+    setTotal(latestTotal);
+    if (nextSkip !== skip) {
+      setSkip(nextSkip);
+    }
+  }, [initialData, initialTotal, initialLoadCompleted, limit, skip]);
+
   const loadData = async (skip, limit, sortBy, searchQuery) => {
     if (!loadingData.current) {
       loadingData.current = true;

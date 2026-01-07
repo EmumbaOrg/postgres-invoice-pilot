@@ -13,7 +13,6 @@ import { getDocumentUrl } from '../../hooks/useDocuments';
 const SOWList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sowToDelete, setSowToDelete] = useState(null);
-  const [reload, setReload] = useState(false);
   const [showCreateSOWModal, setShowCreateSOWModal] = useState(false);
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [selectedDocumentUrl, setSelectedDocumentUrl] = useState(null);
@@ -38,7 +37,7 @@ const SOWList = () => {
   
   // Debounced search functionality
   const handleSearch = useCallback((debouncedSearchTerm) => {
-    setReload((prev) => !prev);
+    // React Query will handle refetching when cache is invalidated
   }, []);
   
   const { searchTerm, debouncedSearchTerm, handleSearchChange, clearSearch } = useDebouncedSearch('', handleSearch, 500);
@@ -65,7 +64,6 @@ const SOWList = () => {
       setErrorMessage(null);
       setShowDeleteModal(false);
       setSowToDelete(null);
-      setReload((prev) => !prev);
     } catch (err) {
       setErrorMessage(`Error deleting SOW: ${err.message}`);
       setSuccessMessage(null);
@@ -219,7 +217,6 @@ const SOWList = () => {
       <PagedTable 
         columns={columns} 
         fetchData={fetchSOWs} 
-        reload={reload} 
         key={debouncedSearchTerm} 
         noDataMesssage={'No SOWs have been added yet.'} 
         noDataDescription={'Click on "New SOW" to begin adding SOWs.'}
