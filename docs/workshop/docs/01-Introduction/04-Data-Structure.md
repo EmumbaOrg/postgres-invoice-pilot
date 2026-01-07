@@ -85,9 +85,9 @@ The solution accelerator integrates with **Azure AI services** to extract, valid
 
 ### Why These Fields Matter
 
-- **Vector Embeddings (`embedding`)** enable **semantic search** by allowing **AI-powered retrieval** of similar SOW clauses, contract terms, and invoices.  
-- **Validation Fields (`result`, `validation_passed`)** ensure AI-generated extractions meet business rules.  
-- **Graph Relationships within `vendor_graph`** supports **GraphRAG (Retrieval-Augmented Generation)** where chosen fields can be utilized in AI models for analysis related to vendors, contracts, and invoices, as well as enhanced AI accuracy.
+- **Vector embeddings (`embedding`)** enable **semantic search** by allowing **AI-powered retrieval** of similar SOW clauses, contract terms, and invoices.  
+- **Validation fields (`result`, `validation_passed`)** ensure AI-generated extractions meet business rules.  
+- **Graph relationships within `vendor_graph`** supports **GraphRAG (Retrieval-Augmented Generation)** where chosen fields can be utilized in AI models for analysis related to vendors, contracts, and invoices, as well as enhanced AI accuracy.
 
 ---
 
@@ -97,7 +97,7 @@ The **JSONB** data type in PostgreSQL provides a powerful way to store and query
 
 ### Why JSONB is Ideal for AI Services
 
-- **Schema Evolution**: AI applications frequently introduce new features, models, or metadata. JSONB allows for **seamless Schema Modifications** without disrupting the existing relational structure.
+- **Schema Evolution**: AI applications frequently introduce new features, models, or metadata. JSONB allows for **seamless schema modifications** without disrupting the existing relational structure.
 - **Handling Unstructured Data**: Many AI workloads ingest **sensor data, user interactions, embeddings, and model predictions** that don’t fit into traditional relational columns.
 - **Efficient Indexing and Querying**: JSONB supports **GIN (Generalized Inverted Index)** and **JSONPath queries**, making it fast and efficient to search for nested data.
 - **Compact Storage and Faster Retrieval**: Unlike plain JSON, JSONB is **binary-optimized**, reducing overhead in AI pipelines that process large volumes of data.
