@@ -236,7 +236,7 @@ async def analyze_invoice(
 
     except Exception as e:
         print(e) # output error to console
-        return InvoiceAnalyzeResult(hasError=True, error=traceback.format_exc(), message=str(e), invoice=None) 
+        return InvoiceAnalyzeResult(hasError=True, message=str(e), invoice=None) 
 
 
 @router.put("/{invoice_id}", response_model=Invoice)
