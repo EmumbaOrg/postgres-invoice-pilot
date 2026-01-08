@@ -143,13 +143,13 @@ const InvoiceUploadStep = ({
         {!invoiceFile ? (
           <div className="mb-4">
             <h4
-              className="mb-3"
+              className="mb-3 stepper-drag-title"
               style={{ color: "#292a31", fontWeight: "600" }}
             >
               Drag and drop
             </h4>
             <p
-              className="mb-4"
+              className="mb-4 stepper-drag-subtitle"
               style={{ color: "#9696a0", fontSize: "16px" }}
             >
               {!hasSOW ? "Upload a SOW first to enable invoice upload" : 
@@ -168,16 +168,16 @@ const InvoiceUploadStep = ({
         ) : (
           <div className="w-100">
             <div
-              className="border rounded p-4"
+              className="border rounded stepper-file-card"
               style={{ 
                 borderColor: '#d2d2d6',
                 backgroundColor: '#f8f9fa'
               }}
             >
-              <div className="d-flex align-items-center justify-content-between">
-                <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center justify-content-between stepper-file-content">
+                <div className="d-flex align-items-center stepper-file-info">
                   <div 
-                    className="me-3 d-flex align-items-center justify-content-center"
+                    className="me-3 d-flex align-items-center justify-content-center stepper-file-icon"
                     style={{
                       width: '30px',
                       height: '30px',
@@ -189,13 +189,15 @@ const InvoiceUploadStep = ({
                   >
                     <i className="far fa-file-alt"></i>
                   </div>
-                  <div>
-                    <div className="fw-medium text-dark">{invoiceFile.name}</div>
+                  <div className="stepper-file-name-container">
+                    <div className="fw-medium text-dark stepper-file-name" title={invoiceFile.name}>
+                      {invoiceFile.name}
+                    </div>
                   </div>
                 </div>
                 <Button
                   variant="link"
-                  className="p-0 text-danger"
+                  className="p-0 text-danger stepper-file-remove"
                   onClick={onClearFile}
                   title="Remove file"
                   style={{ fontSize: '18px' }}
@@ -227,14 +229,14 @@ const InvoiceUploadStep = ({
           <div className="border rounded p-3" style={{ backgroundColor: '#f8f9fa' }}>
             {invoiceValidations.map((validation, index) => (
               <div key={validation.id || index} className="mb-3">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <div>
-                    <h6 className="mb-0 fw-medium">Validation Results</h6>
-                    <small className="text-muted">{validation.datestamp}</small>
+                <div className="validation-header d-flex justify-content-between align-items-start mb-2">
+                  <div className="validation-info">
+                    <h6 className="mb-0 fw-medium validation-title">Validation Results</h6>
+                    <small className="text-muted validation-date">{validation.datestamp}</small>
                   </div>
-                  <div className="d-flex gap-2">
+                  <div className="validation-badges d-flex flex-wrap gap-2">
                     {invoiceValidations.map((validation, index) => (
-                      <span key={validation.id || index} className={`${validation.validation_passed ? 'status-chip-success' : 'status-chip-error'}`}>
+                      <span key={validation.id || index} className={`status-chip ${validation.validation_passed ? 'status-chip-success' : 'status-chip-error'}`}>
                         {validation.validation_passed ? 'Passed' : 'Failed'}
                       </span>
                     ))}
