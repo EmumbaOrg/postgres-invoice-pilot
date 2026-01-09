@@ -196,6 +196,7 @@ async def analyze_sow(
                 )
 
             # Insert milestones and deliverables into the database
+            description = ""
             try:
                 milestone_ids = {}
                 for d in project_deliverables:
@@ -251,7 +252,10 @@ async def analyze_sow(
                         )
 
             except Exception as e:
-                print(f"Error inserting milestones and deliverables In database: {e}")
+                print(f"Error inserting milestones and deliverables In database: Problem with deliverable '{description}': {e}")
+
+                return SowAnalyzeResult(hasError=True, message=f"Problem with deliverable '{description}': " + str(e), sow=None)
+
 
             if sow_row is None:
                 raise HTTPException(status_code=500, detail=f'An error occurred while creating the SOW.')
@@ -278,8 +282,8 @@ async def analyze_sow(
 
     except Exception as e:
         print(e) # output error to console
-        # return stack trace
-        return SowAnalyzeResult(hasError=True, error=traceback.format_exc(), message=str(e), sow=None)
+
+        return SowAnalyzeResult(hasError=True, message=str(e), sow=None)
 
 
 @router.put("/{sow_id}", response_model=Sow)

@@ -144,7 +144,11 @@ class AzureDocIntelligenceService:
 
                     # Extract due date
                     text_due_date = due_date_field.content if due_date_field else "1970-01-01"
-                    line_item.due_date = datetime.strptime(text_due_date, '%Y-%m-%d').date() if text_due_date else None
+                    
+                    try:
+                        line_item.due_date = datetime.strptime(text_due_date, '%Y-%m-%d').date() if text_due_date else None
+                    except Exception as e:
+                        raise Exception(f"Problem with deliverable '{line_item.description}': {e}")
 
                     # Determine the status based on the due date
                     line_item.status = 'Completed' if line_item.due_date and line_item.due_date < date(2024, 12, 31) else 'Pending'  # Changed line
