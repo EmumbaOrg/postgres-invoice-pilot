@@ -156,7 +156,6 @@ async def analyze_sow(
 
         # Create SOW in the database and age graph if it does not already exist
         async with pool.acquire() as conn:
-            
             # if sow already exists
             if sow_id:
                 return SowAnalyzeResult(
