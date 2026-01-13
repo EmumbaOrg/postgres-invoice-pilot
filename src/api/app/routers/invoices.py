@@ -84,6 +84,8 @@ async def analyze_invoice(
             vendor_id = await conn.fetchval('SELECT id FROM vendors WHERE id = $1;', vendor_id)
             if vendor_id is None:
                 raise HTTPException(status_code=404, detail=f'A vendor with an id of {vendor_id} was not found.')
+            vendor_row = await conn.fetchrow('SELECT name FROM vendors WHERE id = $1;', vendor_id)
+            vendor_name = vendor_row['name'] if vendor_row else ""
 
         # Upload file to Azure Blob Storage
         documentName = await storage_service.save_invoice_document(vendor_id, file)
@@ -94,18 +96,28 @@ async def analyze_invoice(
 
         full_text = analysis_result.full_text
 
+        # add vendor selected by the user to the full text. This is done to make a vendor match check by the agent
+        full_text = f"**Invoice info start**\n" + full_text + f"\n**Invoice info end**\n\n" + f"\Vendor selected by user: {vendor_name}\n"
+
         text_chunks = doc_intelligence_service.semantic_chunking(full_text, genai_provider)
 
         # format information into json object
         response = await doc_intelligence_service.format_text_to_json(genai_provider, full_text, prompt_service.get_prompt("format_invoice_text_to_json"))
         
         # Check if the uploaded document is a Invoice or not
-        if response.get("invoice_check")=="failed":    
+        if response.get("invoice_check")=="failed_invoice_check":    
             await storage_service.delete_document(documentName)
             return InvoiceAnalyzeResult(
                 hasError=True,
                 sow=None,
                 message="The document does not appear to be a Invoice. Please upload a Invoice and try again."
+            )
+        elif response.get("vendor_check")=="failed_vendor_check":
+            await storage_service.delete_document(documentName)
+            return InvoiceAnalyzeResult(
+                hasError=True,
+                sow=None,
+                message="Vendor mismatch: The Invoice either doesn't mention a vendor or the vendor doesn't match your selection."
             )
         else:
             metadata = response
@@ -146,9 +158,17 @@ async def analyze_invoice(
                 detail=f'SOW number not found in invoice.'
             )
 
-        # Create invoice in the database
+        # Create invoice in the database if it does not exist
         async with pool.acquire() as conn:
-            if (invoice_id is None):
+            if invoice_id:
+                return InvoiceAnalyzeResult(
+                    hasError=True,
+                    error="Invoice already exists",
+                    message=f'An invoice with number "{invoice_number}" already exists. Delete the existing invoice to re-upload.',
+                    sow=None
+                )
+            
+            else:
                 # Create new invoice
                 row = await conn.fetchrow('''
                 INSERT INTO invoices (vendor_id, sow_id, "number", amount, invoice_date, payment_status, document, metadata, content)
@@ -159,36 +179,6 @@ async def analyze_invoice(
 
                 # add invoice to AGE graph
                 await age_graph_repository.add_invoice(
-                    conn=conn,
-                    invoice_data=InvoiceGraphData(
-                        id = row['id'],
-                        vendor_id = vendor_id,
-                        sow_id = sow_id,
-                        number = invoice_number,
-                        amount = amount,
-                        invoice_date = invoice_date,
-                        payment_status = payment_status
-                    )
-                )
-            
-            else:
-                # Update existing Invoice with new document
-                row = await conn.fetchrow('''
-                UPDATE invoices
-                SET sow_id = $1,
-                    "number" = $2,
-                    amount = $3,
-                    invoice_date = $4,
-                    payment_status = $5,
-                    document = $6,
-                    metadata = $7::jsonb,
-                    content = $8
-                WHERE id = $9
-                RETURNING *;
-                ''', sow_id, invoice_number, amount, invoice_date, payment_status, documentName, json.dumps(metadata), full_text, invoice_id)
-
-                # update invoice vertex in AGE graph
-                await age_graph_repository.update_invoice(
                     conn=conn,
                     invoice_data=InvoiceGraphData(
                         id = row['id'],

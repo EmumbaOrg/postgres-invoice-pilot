@@ -93,7 +93,9 @@ async def analyze_sow(
             vendor_id = await conn.fetchval('SELECT id FROM vendors WHERE id = $1;', vendor_id)
             if vendor_id is None:
                 raise HTTPException(status_code=404, detail=f'A vendor with an id of {vendor_id} was not found.')
-
+            vendor_row = await conn.fetchrow('SELECT name FROM vendors WHERE id = $1;', vendor_id)
+            vendor_name = vendor_row['name'] if vendor_row else ""
+        
         # Upload file to Azure Blob Storage
         documentName = await storage_service.save_sow_document(vendor_id, file)
 
@@ -110,16 +112,27 @@ async def analyze_sow(
         analysis_result = await doc_intelligence_service.extract_text_from_sow_document(document_data)
         full_text = analysis_result.full_text
 
-        # format text into json object
+        # add vendor selected by the user to the full text. This is done to make a vendor match check by the agent
+        full_text = f"**SOW info start**\n" + full_text + f"\n**SOW info end**\n\n" + f"\Vendor selected by user: {vendor_name}\n"
+
+        # format text into json object and perform SOW and vendor match checks
         response = await doc_intelligence_service.format_text_to_json(genai_provider, full_text, prompt_service.get_prompt("format_sow_text_to_json"))
 
         # check if uploaded document is a SOW or not
-        if response.get("sow_check")=="failed":            
+        if response.get("sow_check")=="failed_sow_check":            
             await storage_service.delete_document(documentName)
             return SowAnalyzeResult(
                 hasError=True,
                 sow=None,
                 message="The document does not appear to be a SOW. Please upload a SOW and try again."
+            )
+        # check if vendor selected by user from the frontend and the vendor mentioned in the SOW doc are same or not
+        elif response.get("vendor_check")=="failed_vendor_check":            
+            await storage_service.delete_document(documentName)
+            return SowAnalyzeResult(
+                hasError=True,
+                sow=None,
+                message="Vendor mismatch: The SOW either doesn't mention a vendor or the vendor doesn't match your selection."
             )
         else:
             metadata = response
@@ -140,10 +153,17 @@ async def analyze_sow(
         if sow_number is not None:
             async with pool.acquire() as conn:
                 sow_id = await conn.fetchval('SELECT id FROM sows WHERE vendor_id = $1 AND number = $2;', vendor_id, sow_number)
-               
-        # Create SOW in the database and age graph
+
+        # Create SOW in the database and age graph if it does not already exist
         async with pool.acquire() as conn:
-            if sow_id is None:
+            # if sow already exists
+            if sow_id:
+                return SowAnalyzeResult(
+                hasError=True,
+                sow=None,
+                message=f"The SOW with sow number '{sow_number}' already exists. Delete the existing SOW before uploading the new one."
+            )                    
+            else:
                 # Create new SOW
                 sow_row = await conn.fetchrow('''
                     INSERT INTO sows (number, start_date, end_date, budget, document, metadata, summary, vendor_id)
@@ -167,34 +187,7 @@ async def analyze_sow(
                         budget=budget
                         )                        
                 )
-
-            else:
-                # Update existing SOW with new document
-                sow_row = await conn.fetchrow('''
-                    UPDATE sows
-                    SET start_date = $1,
-                        end_date = $2,
-                        budget = $3,
-                        document = $4,
-                        metadata = $5,
-                        summary = azure_cognitive.summarize_abstractive($6, 'en', 2) --azure_cognitive.summarize_extractive($6, 'en', 2)
-                    WHERE id = $7
-                    RETURNING *;
-                ''', start_date, end_date, budget, documentName, json.dumps(metadata), full_text, sow_id)
-
-                # update SOW vertex in the Age graph
-                await age_graph_repository.update_sow(
-                    conn=conn,
-                    sow_data = SowGraphData(
-                        id=sow_id,
-                        number=sow_number,
-                        vendor_id=vendor_id,
-                        start_date=start_date,
-                        end_date=end_date,
-                        budget=budget
-                        )
-                )
-
+            
             # Insert milestones and deliverables into the database
             description = ""
             try:
