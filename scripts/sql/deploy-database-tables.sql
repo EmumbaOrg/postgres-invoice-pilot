@@ -376,6 +376,7 @@ CREATE TABLE IF NOT EXISTS sow_validation_results (
     datestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     result TEXT,
     validation_passed BOOLEAN,
+    result_summary TEXT,
     embedding vector(1536),
     FOREIGN KEY (sow_id) REFERENCES sows (id) ON DELETE CASCADE
 );
@@ -384,7 +385,11 @@ CREATE OR REPLACE FUNCTION sow_validation_results_insert_trigger_fn()
 RETURNS trigger AS $$
 BEGIN
   IF NEW.result IS NOT NULL THEN
+     -- Create embeddings for the result field
     NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.result, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+    
+    -- Generate summary using Azure Cognitive Services and store in result_summary field
+    NEW.result_summary := azure_cognitive.summarize_abstractive(NEW.result, 'en', 2);
   END IF;
   RETURN NEW;
 END;
@@ -610,6 +615,7 @@ CREATE TABLE IF NOT EXISTS invoice_validation_results (
     datestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     result TEXT,
     validation_passed BOOLEAN,
+    result_summary TEXT,
     embedding vector(1536),
     FOREIGN KEY (invoice_id) REFERENCES invoices (id) ON DELETE CASCADE
 );
@@ -618,7 +624,11 @@ CREATE OR REPLACE FUNCTION invoice_validation_results_insert_trigger_fn()
 RETURNS trigger AS $$
 BEGIN
   IF NEW.result IS NOT NULL THEN
+     -- Create embeddings for the result field
     NEW.embedding := azure_openai.create_embeddings('embeddings', NEW.result, throw_on_error => FALSE, max_attempts => 5, retry_delay_ms => 2000);
+    
+    -- Generate summary using Azure Cognitive Services and store in result_summary field
+    NEW.result_summary := azure_cognitive.summarize_abstractive(NEW.result, 'en', 2);
   END IF;
   RETURN NEW;
 END;

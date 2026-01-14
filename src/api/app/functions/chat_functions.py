@@ -74,7 +74,7 @@ class ChatFunctions:
         """
         # Define the columns to retrieve from the table
         # This excludes the embedding column in results
-        columns = ["invoice_id", "datestamp", "result", "validation_passed"]
+        columns = ["invoice_id", "datestamp", "result_summary", "validation_passed"]
         query = f'SELECT {", ".join(columns)} FROM invoice_validation_results'
         # Filter the validation results by invoice_id
         if invoice_id is not None:
@@ -370,7 +370,7 @@ class ChatFunctions:
         """
         # Define the columns to retrieve from the table
         # Exclude the embedding column in results
-        columns = ["sow_id", "datestamp", "result", "validation_passed"]
+        columns = ["sow_id", "datestamp", "result_summary", "validation_passed"]
 
         #Get the embeddings for the user query
         query_embeddings = await self.__create_query_embeddings(user_query)
