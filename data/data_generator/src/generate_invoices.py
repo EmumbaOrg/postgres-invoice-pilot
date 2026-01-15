@@ -108,7 +108,7 @@ def create_invoice(invoice_number, deliverables, vendor_info, client_info, outpu
     pdf.set_font("Arial", style="B", size=10)
     
     # Define column widths
-    column_widths = [40, 80, 30, 40]
+    column_widths = [60, 80, 30, 25]
     
     # Table Header
     header_data = ["Milestone", "Deliverable", "Amount", "Due Date"]
@@ -131,7 +131,7 @@ def create_invoice(invoice_number, deliverables, vendor_info, client_info, outpu
     # Total Amount
     pdf.set_font("Arial", style="B", size=10)
     # Create merged columns: first 2 columns combined for "Total Amount", last 2 columns combined for amount
-    total_column_widths = [120, 70]  # 40+80=120, 30+40=70
+    total_column_widths = [140, 55]  # 60+80=140, 30+25=55
     total_row_data = ["Total Amount", f"${total_amount:,.2f}"]
     render_table_row(pdf, total_row_data, total_column_widths, align=['R', 'L'])
     pdf.ln(20)
