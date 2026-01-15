@@ -5,7 +5,7 @@ The **Invoice Pilot** solution accelerator serves as a complete end-to-end examp
 The solution demonstrates how these capabilities can work together to deliver accurate, explainable, and context-aware responses to financial and contractual queries through an intelligent copilot interface.  
 
 A small sample dataset of **Statements of Work (SOWs)** and **invoices** is included for demonstration. The complete source code for the accelerator is available here:  
-👉 <http://aka.ms/pg-byoac-repo/>
+👉 <http://aka.ms/pg-invoice-pilot-repo/>
 
 ---
 

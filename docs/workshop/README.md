@@ -17,7 +17,7 @@ This resource is both a solution accelerator and a learning tool for developers 
 
 The current repository is instrumented with a `docs/workshop/` folder that contains the step-by-step lab guide for developers, covering the entire workflow from resource provisioning to ideation, evaluation, deployment, and usage.
 
-You can view [a hosted version of the workshop guide](https://aka.ms/pg-byoac-docs) on GitHub Pages for quick reference. You can also **preview and extend** the workshop directly from this source by running the [MKDocs](https://www.mkdocs.org/) pages locally:
+You can view [a hosted version of the workshop guide](https://aka.ms/pg-invoice-pilot-docs) on GitHub Pages for quick reference. You can also **preview and extend** the workshop directly from this source by running the [MKDocs](https://www.mkdocs.org/) pages locally:
 
 1. Install the `mkdocs-material` package
 
