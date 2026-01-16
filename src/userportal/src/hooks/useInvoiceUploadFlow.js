@@ -1,4 +1,4 @@
-import { useAnalyzeInvoice, useValidateInvoice } from './useInvoices';
+import { useAnalyzeInvoice, useValidateInvoice, useDeleteInvoice } from './useInvoices';
 import { getValidationResults } from '../services/invoices.service';
 import { useInvoiceUploadState } from './useInvoiceUploadState';
 import { useInvoiceErrorMapper } from './useInvoiceErrorMapper';
@@ -9,6 +9,7 @@ export const useInvoiceUploadFlow = () => {
   
   const analyzeInvoiceMutation = useAnalyzeInvoice();
   const validateInvoiceMutation = useValidateInvoice();
+  const deleteInvoiceMutation = useDeleteInvoice();
 
   const validatePreconditions = (file, vendorId, hasSOW) => {
     if (!file) {
@@ -107,6 +108,20 @@ export const useInvoiceUploadFlow = () => {
     }
   };
 
+  const clearInvoiceFile = async () => {
+    // If invoice was uploaded to backend, delete it
+    if (state.id) {
+      try {
+        await deleteInvoiceMutation.mutateAsync(state.id);
+      } catch (error) {
+        console.error('Error deleting invoice from backend:', error);
+        // Continue with clearing frontend state even if backend delete fails
+      }
+    }
+    
+    actions.clearAll();
+  };
+
   return {
     // State - mapped to original property names for compatibility
     invoiceFile: state.file,
@@ -122,7 +137,7 @@ export const useInvoiceUploadFlow = () => {
     // Actions - mapped to original method names
     setInvoiceFile: actions.setFile,
     uploadInvoice,
-    clearInvoiceFile: actions.clearAll,
+    clearInvoiceFile: clearInvoiceFile,
     clearInvoiceErrors: actions.clearErrors,
   };
 };
