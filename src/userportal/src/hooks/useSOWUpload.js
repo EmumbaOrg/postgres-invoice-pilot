@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAnalyzeSOW, useValidateSOW } from './useSOWs';
+import { useAnalyzeSOW, useValidateSOW, useDeleteSOW } from './useSOWs';
 import { getValidationResults } from '../services/sows.service';
 
 export const useSOWUpload = () => {
@@ -14,6 +14,7 @@ export const useSOWUpload = () => {
 
   const analyzeSOWMutation = useAnalyzeSOW();
   const validateSOWMutation = useValidateSOW();
+  const deleteSOWMutation = useDeleteSOW();
 
   const clearErrors = () => {
     setError(null);
@@ -22,7 +23,17 @@ export const useSOWUpload = () => {
     setSuccess(null);
   };
 
-  const clearFile = () => {
+  const clearFile = async () => {
+    // If SOW was uploaded to backend, delete it
+    if (sowId) {
+      try {
+        await deleteSOWMutation.mutateAsync(sowId);
+      } catch (error) {
+        console.error('Error deleting SOW from backend:', error);
+        // Continue with clearing frontend state even if backend delete fails
+      }
+    }
+    
     setSowFile(null);
     setSowId(null);
     setError(null);
